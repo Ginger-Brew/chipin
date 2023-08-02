@@ -14,7 +14,7 @@ class BaseButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton(
         onPressed: onPressed,
-        child: Text(text, style: TextStyle(fontSize: fontsize)),
+        child: Text(text, style: TextStyle(fontSize: fontsize,fontFamily: "Pretendard",fontWeight: FontWeight.bold)),
         style: ElevatedButton.styleFrom(
             backgroundColor: MyColor.DARK_YELLOW,
             foregroundColor: Colors.black,

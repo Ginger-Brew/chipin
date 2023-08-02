@@ -63,6 +63,7 @@ class _RestaurantRegisterState extends State<RestaurantRegister> {
                   ),
                   SizedBox(width: 30),
                   Expanded(
+                    flex:2,
                     child: Row(
                       children: <Widget>[
                         TimePickerExample(),

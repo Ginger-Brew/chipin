@@ -1,7 +1,5 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'main.dart';
 
 class BaseShadow extends StatelessWidget {
   final Widget container;

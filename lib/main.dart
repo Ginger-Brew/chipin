@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'login/login.dart';
+
 void main() async {
   // WidgetsFlutterBinding.ensureInitialized()는 runApp으로 앱이 실행되기 전에 비동기로 지연이 되더라도 오류가 발생하지 않도록 하는 역할.
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,20 +24,17 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        title: 'REMIND DIARY',
+        title: 'CHIPIN',
+        // debugShowCheckedModeBanner : 오른쪽상단 빨간색 표시
         debugShowCheckedModeBanner: false,
         routes: {
           // '/home': (context) => NavigationHomeScreen(pagename: DrawerIndex.HOME),
-          // '/login': (context) => LoginPage(),
+          '/login': (context) => LoginPage(),
           // '/splash': (context) => SplashScreen(),
           // '/register': (context) => RegisterPage(),
         },
-        // theme: ThemeData(
-        //   primaryColor: Colors.white,
-        //   textTheme: AppTheme.textTheme,
-        //   platform: TargetPlatform.iOS,
-        // ),
-        initialRoute: '/splash'
+        // 실행 시 가장 먼저 보여지는 화면 (splash 화면을 따로 만들거면 그 화면으로 해야함)
+        initialRoute: '/login'
     );
   }
 }

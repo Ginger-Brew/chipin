@@ -11,7 +11,7 @@ class RegisterPage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.black87,
         elevation: 0,
-        title: Text('REMIND DIARY'),
+        title: Text('CHIPIN'),
         centerTitle: true,
         leading: IconButton(icon: Icon(Icons.arrow_back), onPressed: () {
           Navigator.pop(context);
@@ -20,12 +20,29 @@ class RegisterPage extends StatelessWidget {
       body: Column(
         children: [
           Padding(padding: EdgeInsets.only(top:10)),
-          EmailInput(),
+          IDInput(),
           PasswordInput(),
           PasswordConfirmInput(),
-          ChoiceRole(),
+          NameInput(),
+          EmailInput(),
           RegistButton()
         ],
+      ),
+    );
+  }
+}
+
+
+class IDInput extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(15),
+      child: TextField(
+        decoration: InputDecoration(
+          labelText: 'id',
+          helperText: '',
+        ),
       ),
     );
   }
@@ -80,140 +97,18 @@ class PasswordConfirmInput extends StatelessWidget {
   }
 }
 
-class ChoiceRole extends StatefulWidget {
-  const ChoiceRole({super.key});
 
-  @override
-  _ChoiceRoleState createState() => _ChoiceRoleState();
-}
-
-class _ChoiceRoleState extends State<ChoiceRole> {
-  void _clientToggleButton() {
-    setState(() {
-      _clientIsPressed = !_clientIsPressed;
-      _offerIsPressed = false;
-    });
-  }
-
-  void _offerToggleButton() {
-    setState(() {
-      _offerIsPressed = !_offerIsPressed;
-      _clientIsPressed = false;
-    });
-  }
-
+class NameInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          margin: EdgeInsets.only(bottom: 20),
-          child: Text("유형을 선택해주세요",
-            style: TextStyle(
-              fontWeight: FontWeight.w500,
-              fontSize: 15,
-            ),),
+    return Container(
+      padding: EdgeInsets.all(15),
+      child: TextField(
+        decoration: InputDecoration(
+          labelText: 'name',
+          helperText: '',
         ),
-        Container(
-        margin: EdgeInsets.only(bottom: 40),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              margin: EdgeInsets.fromLTRB(0, 0, 20, 0),
-              width: 150,
-              height: 150,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10.0),
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 3.0,
-                    spreadRadius: 5.0,
-                  ),],
-              ),
-              child:ElevatedButton(
-                onPressed: _clientToggleButton,
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.resolveWith<Color>((states) {
-                    if (_clientIsPressed) {
-                        return Colors.indigoAccent; // 선택시
-                    }
-                        return Colors.white; // 그 외에는 흰색
-                    }),
-                  ),
-                child: Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Column(
-                    children: [
-                      Container(
-                        margin: EdgeInsets.fromLTRB(0, 10, 0, 10),
-                        child: Image.asset('images/client.png'),
-                        width: 100,
-                        height: 100,
-                      ),
-                      Text(
-                          "내담자",
-                        style: TextStyle(
-                          color: Colors.black87,
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            Container(
-              margin: EdgeInsets.fromLTRB(0, 0, 20, 0),
-              width: 150,
-              height: 150,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10.0),
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 3.0,
-                    spreadRadius: 5.0,
-                  ),],
-              ),
-              child:ElevatedButton(
-                onPressed: _offerToggleButton,
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.resolveWith<Color>((states) {
-                    if (_offerIsPressed) {
-                      return Colors.amber; // 선택시
-                    }
-                    return Colors.white; // 그 외에는 흰색
-                  }),
-                ),
-                child: Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Column(
-                    children: [
-                      Container(
-                        margin: EdgeInsets.fromLTRB(0, 10, 0, 10),
-                        child: Image.asset('images/offer.png'),
-                        width: 100,
-                        height: 100,
-                      ),
-                      Text("상담가",
-                        style: TextStyle(
-                          color: Colors.black87,
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                        ),),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        )
-      )],
+      ),
     );
   }
 }

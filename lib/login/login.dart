@@ -1,8 +1,7 @@
 // 참고 https://cholol.tistory.com/572
 
 import 'package:flutter/material.dart';
-
-import '../child_main/ChildMain.dart';
+import 'choice_role.dart';
 
 final TextEditingController _emailController = TextEditingController(); //입력되는 값을 제어
 final TextEditingController _passwordController = TextEditingController();
@@ -102,7 +101,7 @@ class LoginButton extends StatelessWidget {
         // 로그인 버튼 클릭 시 넘어가는 화면
         // ************ 본인이 확인하고 싶은 화면 클래스 이름으로 수정해서 확인하기 *****************
         onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => ChildMain()));
+          Navigator.push(context, MaterialPageRoute(builder: (context) => ChoiceRole()));
         },
         child: Text('LOGIN'),
       ),

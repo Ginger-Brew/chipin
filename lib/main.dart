@@ -1,6 +1,8 @@
+import 'package:chipin/restaurant_register/RestaurantRegister.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'child_main/ChildMain.dart';
 import 'login/login.dart';
 import 'login/register.dart';
 
@@ -33,6 +35,8 @@ class MyApp extends StatelessWidget {
           '/login': (context) => LoginPage(),
           // '/splash': (context) => SplashScreen(),
           '/register': (context) => RegisterPage(),
+          '/childmain' : (context) => ChildMain(),
+          '/storemain' : (context) => RestaurantRegister()
         },
         // 실행 시 가장 먼저 보여지는 화면 (splash 화면을 따로 만들거면 그 화면으로 해야함)
         initialRoute: '/login'

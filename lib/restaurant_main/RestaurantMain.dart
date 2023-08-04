@@ -5,6 +5,8 @@ import 'restaurant_splitbutton.dart';
 import 'restaurant_info.dart';
 import 'restaurant_camera.dart';
 import 'package:chipin/base_shadow.dart';
+import 'restaurant_pointbutton.dart';
+import 'package:chipin/restaurant_point_list/RestaurantEarnList.dart';
 
 class RestaurantMain extends StatefulWidget {
   const RestaurantMain({Key? key}) : super(key: key);
@@ -20,9 +22,9 @@ class _RestaurantMainState extends State<RestaurantMain> {
         backgroundColor: MyColor.BACKGROUND,
         appBar: BaseAppBar(title: "십시일반"),
         body: Container(
-            padding: EdgeInsets.symmetric(vertical: 60),
             child: SingleChildScrollView(
                 child: Center(
+
                     child: Column(children: [
               BaseShadow(
                 container: Column(

@@ -30,36 +30,36 @@ class PointButton extends StatelessWidget {
                       flex: 2,
                     ),
                     Expanded(
-                      flex: 7,
+                        flex: 7,
                         child: Column(children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Text(
-                            "가게 잔여 포인트",
-                            style: TextStyle(fontSize: 16, color: Colors.black),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Text(
+                                "가게 잔여 포인트",
+                                style: TextStyle(fontSize: 16, color: Colors.black),
+                              )
+                            ],
+                          ),
+                          SizedBox(height: 8),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Text(
+                                "3500P",
+                                style: TextStyle(
+                                    fontSize: 25,
+                                    color: Colors.black,
+                                    fontFamily: "Mainfonts"),
+                              )
+                            ],
                           )
-                        ],
-                      ),
-                      SizedBox(height: 8),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Text(
-                            "3500P",
-                            style: TextStyle(
-                                fontSize: 25,
-                                color: Colors.black,
-                                fontFamily: "Mainfonts"),
-                          )
-                        ],
-                      )
-                    ])),
+                        ])),
                     Expanded(
-                      flex: 1,
+                        flex: 1,
                         child: Row(
-                      children: [Icon(Icons.arrow_forward_ios_rounded)],
-                    ))
+                          children: [Icon(Icons.arrow_forward_ios_rounded)],
+                        ))
                   ],
                 ),
                 SizedBox(

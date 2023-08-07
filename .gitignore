@@ -49,5 +49,4 @@ windows/
 ios/
 android/
 analysis_options.yaml
-lib/main.dart
 pubspec.lock

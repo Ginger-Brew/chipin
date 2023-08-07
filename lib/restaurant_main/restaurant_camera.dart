@@ -42,4 +42,5 @@ class CameraButton extends StatelessWidget {
           ],
         )));
   }
+
 }

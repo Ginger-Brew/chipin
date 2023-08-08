@@ -13,7 +13,7 @@ class BaseAppBar extends StatelessWidget implements PreferredSize{
   Widget build(BuildContext context) {
     return  PreferredSize(preferredSize: Size.fromHeight(44), child: AppBar(
       backgroundColor: MyColor.DARK_YELLOW,
-      title:Text(title, style: TextStyle(fontSize:24, fontFamily: "Mainfonts")),
+      title:Text(title, style: const TextStyle(fontSize:24, fontFamily: "Mainfonts",color: Colors.black)),
       centerTitle: true,
       leading: IconButton(icon: Icon(Icons.home), onPressed: null),
       actions: [IconButton(icon: Icon(Icons.menu_rounded), onPressed: null)],

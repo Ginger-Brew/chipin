@@ -1,5 +1,6 @@
 // 참고 https://cholol.tistory.com/572
 
+import 'package:chipin/colors.dart';
 import 'package:flutter/material.dart';
 import 'choice_role.dart';
 
@@ -13,46 +14,38 @@ class LoginPage extends StatelessWidget {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Image.asset(
-            'images/logo.png', // 로고 이미지 경로
-            width: 304, // 로고 이미지 가로 크기
-          ),
-          SizedBox(height: 8),
-          EmailInput(),
-          SizedBox(height: 8),
+          Text("로그인",style: TextStyle(color:Colors.black, fontFamily:"Pretendard",fontWeight:FontWeight.bold,fontSize: 32),),
+          SizedBox(height: 19),
+          IdInput(),
           PasswordInput(),
-          SizedBox(height: 16),
-          SizedBox(height: 8),
           LoginButton(),
-          Padding(
-            padding: EdgeInsets.all(10),
-            child: Divider(
-              thickness: 1,
-            ),
-          ),
-          RegisterButton(),
+          SizedBox(height: 16),
+          Align(alignment: Alignment.center,
+          child: Row(children: [Expanded(child:FindById()),Expanded(child:RegisterButton() )]),)
+
+
         ],
       ),
     );
   }
 }
 
-class EmailInput extends StatelessWidget {
+class IdInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(10),
+      padding: EdgeInsets.symmetric(horizontal: 46),
       child: TextFormField(
           controller: _emailController,
         keyboardType: TextInputType.emailAddress,
         decoration: InputDecoration(
-          border: OutlineInputBorder(),
-          labelText: 'email',
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+          labelText: '아이디',
           helperText: '',
         ),
         validator: (String? value){
           if (value!.isEmpty) {// == null or isEmpty
-            return '이메일을 입력해주세요.';
+            return '아이디를 입력해주세요.';
           }
           return null;
         },
@@ -65,13 +58,13 @@ class PasswordInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(10),
+      padding: EdgeInsets.symmetric(horizontal: 46),
       child: TextFormField(
         obscureText: true,
         controller: _passwordController,
         decoration: InputDecoration(
-          border: OutlineInputBorder(),
-          labelText: 'password',
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+          labelText: '비밀번호',
           helperText: '',
         ),
         validator: (String? value){
@@ -89,13 +82,13 @@ class LoginButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 304, // 화면 가로 크기의 반
+      width: MediaQuery.of(context).size.width -92, // 화면 가로 크기의 반
       height: 51,
       child : ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.black87,
+          backgroundColor: MyColor.DARK_YELLOW,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30.0),
+            borderRadius: BorderRadius.circular(10.0),
           ),
         ),
         // 로그인 버튼 클릭 시 넘어가는 화면
@@ -103,7 +96,7 @@ class LoginButton extends StatelessWidget {
         onPressed: () {
           Navigator.push(context, MaterialPageRoute(builder: (context) => ChoiceRole()));
         },
-        child: Text('LOGIN'),
+        child: Text('로그인',style: TextStyle(fontFamily: "Pretendard",fontSize: 16),),
       ),
     );
   }
@@ -117,9 +110,28 @@ class RegisterButton extends StatelessWidget {
           Navigator.of(context).pushNamed('/register');
         },
         child: Text(
-          'Regist by email',
+          '회원가입',
           style: TextStyle(
-            color: Colors.black87
+            color: Colors.black,
+            fontFamily: "Pretendard",
+            fontSize: 14,
+          ),
+        ));
+  }
+}
+class FindById extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(
+        onPressed: () {
+          Navigator.of(context).pushNamed('/register');
+        },
+        child: Text(
+          '비밀번호 찾기',
+          style: TextStyle(
+              color: Colors.black,
+            fontFamily: "Pretendard",
+            fontSize: 14,
           ),
         ));
   }

@@ -1,3 +1,4 @@
+import 'package:chipin/restaurant_main/restaurant_info_correction.dart';
 import 'package:flutter/material.dart';
 import 'package:chipin/colors.dart';
 import 'package:chipin/base_appbar.dart';
@@ -25,16 +26,24 @@ class _RestaurantMainState extends State<RestaurantMain> {
             child: SingleChildScrollView(
                 child: Center(
                     child: Column(children: [
-                      SizedBox(height: 40),
-                      PointButton(),
-                      SizedBox(height: 20),
-                      Container(height: 388, child: ShadowButton()),
-                      SizedBox(height: 20),
-                      Container(height: 111, child: CameraButton()),
-                      SizedBox(height: 20,),
-
-
-
-                    ])))));
+          SizedBox(height: 40),
+          Row(
+            children: [
+              Expanded(
+                child: PointButton(),
+              ),
+              Expanded(
+                child: InfoCorrectionButton(),
+              )
+            ],
+          ),
+          SizedBox(height: 20),
+          Container(height: 388, child: ShadowButton()),
+          SizedBox(height: 20),
+          Container(height: 111, child: CameraButton()),
+          SizedBox(
+            height: 20,
+          ),
+        ])))));
   }
 }

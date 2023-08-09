@@ -5,18 +5,18 @@ import 'package:chipin/restaurant_main/RestaurantMain.dart';
 import 'package:flutter/material.dart';
 import 'package:chipin/base_appbar.dart';
 import 'package:flutter/services.dart';
-import 'restaurant_register_component.dart';
+import 'restaurant_correction_component.dart';
 import 'package:chipin/base_button.dart';
-import '../base_time_picker.dart';
+import 'package:chipin/base_time_picker.dart';
 
-class RestaurantRegister extends StatefulWidget {
-  const RestaurantRegister({Key? key}) : super(key: key);
+class RestaurantInfoCorrection extends StatefulWidget {
+  const RestaurantInfoCorrection({Key? key}) : super(key: key);
 
   @override
-  State<RestaurantRegister> createState() => _RestaurantRegisterState();
+  State<RestaurantInfoCorrection> createState() => _RestaurantInfoCorrectionState();
 }
 
-class _RestaurantRegisterState extends State<RestaurantRegister> {
+class _RestaurantInfoCorrectionState extends State<RestaurantInfoCorrection> {
   final TextEditingController menuname = TextEditingController();
   final TextEditingController menuprice = TextEditingController();
   // final SPHelper helper = SPHelper();
@@ -33,7 +33,7 @@ class _RestaurantRegisterState extends State<RestaurantRegister> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: const BaseAppBar(title: '가게 정보 등록하기'),
+        appBar: const BaseAppBar(title: '가게 정보 수정하기'),
         body: Container(
           color: MyColor.BACKGROUND,
           padding: EdgeInsets.symmetric(
@@ -44,13 +44,13 @@ class _RestaurantRegisterState extends State<RestaurantRegister> {
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 SizedBox(height: 50),
-                const RestaurantRegisterComponent(
+                const RestaurantCorrectionComponent(
                     subject: Text('상호',
                         style:
                         TextStyle(fontFamily: "Mainfonts", fontSize: 16)),
                     form: TextField()),
                 const SizedBox(height: 50),
-                RestaurantRegisterComponent(
+                RestaurantCorrectionComponent(
                     subject: Text('유선전화',
                         style:
                         TextStyle(fontFamily: "Mainfonts", fontSize: 16)),
@@ -71,13 +71,13 @@ class _RestaurantRegisterState extends State<RestaurantRegister> {
                     Expanded(
                       child: Column(
                         children: [
-                          RestaurantRegisterComponent(
+                          RestaurantCorrectionComponent(
                               subject: Text('광역시/도'), form: TextField()),
-                          RestaurantRegisterComponent(
+                          RestaurantCorrectionComponent(
                               subject: Text('시/군/구'), form: TextField()),
-                          RestaurantRegisterComponent(
+                          RestaurantCorrectionComponent(
                               subject: Text('도로명'), form: TextField()),
-                          RestaurantRegisterComponent(
+                          RestaurantCorrectionComponent(
                               subject: Text('상세 주소'), form: TextField())
                         ],
                       ),
@@ -112,7 +112,7 @@ class _RestaurantRegisterState extends State<RestaurantRegister> {
                   ],
                 ),
                 SizedBox(height: 50),
-                RestaurantRegisterComponent(
+                RestaurantCorrectionComponent(
                     subject: Text('휴무일',
                         style:
                         TextStyle(fontFamily: "Mainfonts", fontSize: 16)),
@@ -120,28 +120,28 @@ class _RestaurantRegisterState extends State<RestaurantRegister> {
                 SizedBox(height: 50),
                 Row(
                   children: <Widget>[
-                    Expanded(flex:1,child: Text('사업자\n등록 번호',
+                    Text('사업자\n등록 번호',
                         style:
-                        TextStyle(fontSize: 16, fontFamily: "Mainfonts"))),
-
-                    Expanded(flex:5,child: Column(children : [BaseButton(text: "파일 첨부", fontsize: 13, onPressed: (){},)
-                    ]))],
+                        TextStyle(fontSize: 16, fontFamily: "Mainfonts")),
+                    SizedBox(width: 130),
+                    BaseButton(text: "파일 첨부", fontsize: 13)
+                  ],
                 ),
                 SizedBox(height: 50),
                 Row(
                   children: <Widget>[
-                    Expanded(flex:1,child:Text('메뉴',
+                    Text('메뉴',
                         style:
                         TextStyle(fontSize: 16, fontFamily: "Mainfonts")),
-                    ),
-                    Expanded(flex : 5,child:Column(
+                    SizedBox(width: 130),
+                    Column(
                       children: [
-                         BaseButton(
+                        BaseButton(
                           text: "메뉴 추가",
                           fontsize: 13,
                           onPressed: () => showMenuDialog(context),
                         ),
-                        ],)
+                      ],
                     )
                   ],
                 ),
@@ -164,6 +164,14 @@ class _RestaurantRegisterState extends State<RestaurantRegister> {
         ));
   }
 
+  Future savePerformance() async {
+    // Performance newPerformance = Performance(
+    //
+    // );
+    menuprice.text = "";
+    menuname.text = "";
+    Navigator.pop(context);
+  }
 
   Future<dynamic> showMenuDialog(BuildContext context) async {
     return showDialog(
@@ -222,9 +230,7 @@ class _RestaurantRegisterState extends State<RestaurantRegister> {
                   )),
               ElevatedButton(
                 onPressed: () {
-                  menuprice.text = "";
-                  menuname.text = "";
-                  Navigator.pop(context);
+                  savePerformance;
                 },
                 child: Text("추가하기",
                     style: TextStyle(fontFamily: "Pretendard", fontSize: 16,color: Colors.black)),

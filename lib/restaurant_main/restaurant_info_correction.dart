@@ -1,11 +1,10 @@
-import 'package:chipin/restaurant_point_list/RestaurantEarnList.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:chipin/colors.dart';
 import 'package:chipin/base_shadow.dart';
+import 'package:chipin/restaurant_correction/RestaurantInfoCorrection.dart';
 
-class PointButton extends StatelessWidget {
-  const PointButton({Key? key}) : super(key: key);
+class InfoCorrectionButton extends StatelessWidget {
+  const InfoCorrectionButton({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +19,7 @@ class PointButton extends StatelessWidget {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => const RestaurantEarnList()));
+                      builder: (context) => const RestaurantInfoCorrection()));
             },
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -29,7 +28,7 @@ class PointButton extends StatelessWidget {
                   height: 15,
                 ),
                 Text(
-                  "가게 잔여 포인트",
+                  "가게 정보 수정하기",
                   style: TextStyle(
                       fontSize: 20,
                       color: Colors.black,
@@ -43,17 +42,17 @@ class PointButton extends StatelessWidget {
                   children: [
                     Expanded(
                       flex: 2,
-                      child: Image.asset('assets/images/coins.png'),
+                      child: Image.asset('assets/images/correction.png'),
                     ),
                     SizedBox(height: 8),
                     Expanded(
                         flex: 4,
                         child: Text(
-                          "3500P",
+                          "최근 수정일 \n2023.05.21.",
                           style: TextStyle(
-                              fontSize: 23,
+                              fontSize: 16,
                               color: Colors.black,
-                              fontFamily: "Mainfonts"),
+                              fontFamily: "Pretendard"),
                         ))
                   ],
                 ),

@@ -1,4 +1,3 @@
-import 'dart:html';
 
 import 'package:chipin/colors.dart';
 import 'package:chipin/restaurant_main/RestaurantMain.dart';

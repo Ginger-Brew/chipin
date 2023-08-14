@@ -23,6 +23,10 @@ class TabContainerScreenState extends State<TabContainerScreen>
     with TickerProviderStateMixin {
   late TabController tabviewController;
   // final bool alreadySaved = _saved.contains(pair);
+  bool _isFavorite = false; // 즐겨찾기 상태
+  List<String> _favoriteItems = []; // 즐겨찾기 리스트
+  String _restaurantName = "오양칼국수";
+
   @override
   void initState() {
     super.initState();
@@ -70,7 +74,7 @@ class TabContainerScreenState extends State<TabContainerScreen>
                               left: 1,
                             ),
                             child: Text(
-                              "오양칼국수",
+                                _restaurantName,
                               overflow: TextOverflow.ellipsis,
                               textAlign: TextAlign.left,
                                 style: const TextStyle(fontSize:24, fontFamily: "Mainfonts",color: Colors.black)
@@ -106,11 +110,26 @@ class TabContainerScreenState extends State<TabContainerScreen>
                         ],
                       ),
 
-                      FloatingActionButton(
-                        onPressed: (){},
-                        backgroundColor: Colors.white,
-                        child: Icon(Icons.favorite,color : Colors.red),)
+                    FloatingActionButton(
+                      onPressed: () {
+                        setState(() {
+                          _isFavorite = !_isFavorite;
 
+                          if (_isFavorite) {
+                            _favoriteItems.add(_restaurantName); // 즐겨찾기 리스트에 아이템 추가
+                          } else {
+                            _favoriteItems.remove(_restaurantName); // 즐겨찾기 리스트에서 아이템 제거
+                          }
+                        });
+
+                        // TODO: 즐겨찾기 리스트에 추가 또는 제거하는 동작 추가
+                      },
+                      backgroundColor: Colors.white,
+                      child: Icon(
+                        _isFavorite ? Icons.favorite : Icons.favorite_border,
+                        color: _isFavorite ? Colors.red : Colors.black12,
+                      ),
+                    )
                     ],
                   ),
                 ),

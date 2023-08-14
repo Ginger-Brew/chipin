@@ -65,7 +65,8 @@ class MyApp extends StatelessWidget {
           // '/splash': (context) => SplashScreen(),
           '/register': (context) => RegisterPage(),
           '/childmain': (context) => ChildMain(),
-          '/storemain': (context) => RestaurantRegister()
+          '/storemain': (context) => RestaurantRegister(),
+          '/restaurantdetail' : (context) => TabContainerScreen()
         },
         // 실행 시 가장 먼저 보여지는 화면 (splash 화면을 따로 만들거면 그 화면으로 해야함)
         initialRoute: '/login'

@@ -1,4 +1,5 @@
 import 'package:chipin/colors.dart';
+import 'package:chipin/custom_price/custom_price.dart';
 import 'package:chipin/restaurant_register/RestaurantRegister.dart';
 import 'package:chipin/tab_container_screen/tab_container_screen.dart';
 import 'package:flutter/material.dart';
@@ -66,7 +67,8 @@ class MyApp extends StatelessWidget {
           '/register': (context) => RegisterPage(),
           '/childmain': (context) => ChildMain(),
           '/storemain': (context) => RestaurantRegister(),
-          '/restaurantdetail' : (context) => TabContainerScreen()
+          '/restaurantdetail' : (context) => TabContainerScreen(),
+          '/customprice' : (context) => CustomPricePage()
         },
         // 실행 시 가장 먼저 보여지는 화면 (splash 화면을 따로 만들거면 그 화면으로 해야함)
         initialRoute: '/login'

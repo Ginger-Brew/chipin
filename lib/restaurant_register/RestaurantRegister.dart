@@ -1,4 +1,3 @@
-
 import 'package:chipin/colors.dart';
 import 'package:chipin/restaurant_main/RestaurantMain.dart';
 import 'package:flutter/material.dart';

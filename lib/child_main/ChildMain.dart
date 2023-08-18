@@ -48,7 +48,7 @@ class _ChildMainState extends State<ChildMain> {
             initialChildSize: 0.20,
             /// 수정 필요
             // 결과 높이를 구해서 maxChildSize로 설정해야함.
-            maxChildSize: size?.height ?? 0.4,
+            maxChildSize: 0.4,
             minChildSize: 0.20,
             builder: (BuildContext context, ScrollController scrollController) {
               return SingleChildScrollView(

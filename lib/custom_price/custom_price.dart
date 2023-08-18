@@ -16,9 +16,22 @@ class _CustomPricePageState extends State<CustomPricePage> {
   int get maxRegister => 10000;
 
   void _onKeyPressed(String key) {
-    setState(() {
-      enteredNumber += key;
-    });
+    if (key == '←') {
+      // 기존 코드
+      if (enteredNumber.isNotEmpty) {
+        enteredNumber = enteredNumber.substring(0, enteredNumber.length - 1);
+      }
+    } else {
+      // 입력값이 숫자인지 확인
+      if (RegExp(r'^\d+$').hasMatch(key)) {
+        // 입력값이 maxRegister보다 크지 않은 경우에만 입력 처리
+        int newAmount = int.parse(enteredNumber + key);
+        if (newAmount <= maxRegister) {
+          enteredNumber += key;
+        }
+      }
+    }
+    setState(() {});
   }
 
   void _onDeletePressed() {
@@ -48,20 +61,16 @@ class _CustomPricePageState extends State<CustomPricePage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar:  BaseAppBar(title: "가게정보"),
+      appBar:  const BaseAppBar(title: "가게정보"),
       body: SizedBox(
         width: mediaQueryData.size.width,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            Padding(padding: getPadding(
-              left: 26,
-              top: 27,
-              right: 22,
-            ),
+            Padding(padding: const EdgeInsets.fromLTRB(26, 27, 22, 0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
+                // crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -70,16 +79,18 @@ class _CustomPricePageState extends State<CustomPricePage> {
                       Padding(padding: getPadding(
                         left: 1
                       ),
-                        child: Text(
+                        child: const Text(
                           "오양칼국수",
                           overflow: TextOverflow.ellipsis,
                           textAlign: TextAlign.left,
-                            style: const TextStyle(fontSize:40, fontFamily: "Mainfonts",color: Colors.black)
+                          style: TextStyle(
+                            fontSize: 40,
+                            fontFamily: "Mainfonts",
+                            color: Colors.black,
+                          ),
                         ),
                       ),
-                      Padding(padding: getPadding(
-                        top: 2
-                      ),
+                      const Padding(padding: EdgeInsets.only(top: 2),
                         child: Row(
                           children: [
                             Icon(
@@ -89,9 +100,7 @@ class _CustomPricePageState extends State<CustomPricePage> {
                             ),
 
                             Padding(
-                              padding: getPadding(
-                                left: 4,
-                              ),
+                              padding: EdgeInsets.only(left: 4),
                               child: Text(
                                 "충남 보령시 보령남로 125-7",
                                 overflow: TextOverflow.ellipsis,
@@ -107,12 +116,12 @@ class _CustomPricePageState extends State<CustomPricePage> {
                 ],
               ),
             ),
-            Spacer(),
-            SizedBox(height: 50),
+            const Spacer(),
+            const SizedBox(height: 50),
 
             Text(
 
-              enteredNumber.isNotEmpty ? enteredNumber+' 원' : '얼마를 예약할까요?',
+              enteredNumber.isNotEmpty ? '$enteredNumber 원' : '얼마를 예약할까요?',
               style: TextStyle(
                   fontFamily: "Pretendard",
                   color: enteredNumber.isNotEmpty ? Colors.black : Colors.grey,
@@ -122,19 +131,17 @@ class _CustomPricePageState extends State<CustomPricePage> {
               textAlign: TextAlign.center,
 
             ),
-            Padding(padding: getPadding(
-              top: 21,
-            ),
+            Padding(padding: const EdgeInsets.only(top: 21),
               child:RichText(
                 text: TextSpan(
                   children: [
-                    TextSpan(
+                    const TextSpan(
                       text: "최대 예약 가능 금액 ",
                       style : TextStyle(fontFamily: "Pretendard",color: Colors.blueGrey, fontSize: 18),
                     ),
                     TextSpan(
-                      text: (maxRegister).toString()+"원",
-                      style: TextStyle(fontFamily: "Pretendard",color: MyColor.DARK_YELLOW, fontSize: 18),
+                      text: "$maxRegister원",
+                      style: const TextStyle(fontFamily: "Pretendard",color: MyColor.DARK_YELLOW, fontSize: 18),
                     )
                   ]
 
@@ -144,15 +151,11 @@ class _CustomPricePageState extends State<CustomPricePage> {
               ),
             ),
 
-            SizedBox(height: 100),
+            const SizedBox(height: 100),
 
             ElevatedButton(
-
-              child: Text("예약 확정하기",
-                style: TextStyle(fontFamily: "Pretendard",color: Colors.black, fontSize: 20),
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,),
-              onPressed: () => _showConfirmationDialog(),
+              onPressed: isAmountValid ? _showConfirmationDialog : null,
+              // onPressed: () => _showConfirmationDialog(),
               style: ButtonStyle(
 
                   foregroundColor: MaterialStateProperty.all(Colors.white),
@@ -174,6 +177,11 @@ class _CustomPricePageState extends State<CustomPricePage> {
               Size(MediaQuery.of(context).size.width - 32, 48), // 가로 길이를 화면 가로 길이 - 32로 설정
     ),
               ),
+
+              child: const Text("예약 확정하기",
+                style: TextStyle(fontFamily: "Pretendard",color: Colors.black, fontSize: 20),
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,),
 
             ),
 
@@ -225,7 +233,6 @@ class _CustomPricePageState extends State<CustomPricePage> {
         left: 25,
         top: 23,
         right: 25,
-        bottom: 30
       ),
       child: TextButton(
         onPressed: () {
@@ -256,7 +263,7 @@ class _CustomPricePageState extends State<CustomPricePage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Row(
+          title: const Row(
             children: [
               Icon(Icons.check_circle_rounded,color: MyColor.ALERT,),
               SizedBox(width: 8),
@@ -264,7 +271,7 @@ class _CustomPricePageState extends State<CustomPricePage> {
                 style: TextStyle(color: MyColor.ALERT,fontFamily: "Pretendard",fontWeight: FontWeight.w500),),
             ],
           ),
-          content: Text(
+          content: const Text(
               '예약 확정 후 1시간 내에 식사하세요!\n1시간 내에 사용하지 않으면 예약이 자동 취소됩니다.',
               style: TextStyle(fontFamily: "Pretendard",fontWeight: FontWeight.w500)
           ),
@@ -275,24 +282,24 @@ class _CustomPricePageState extends State<CustomPricePage> {
               children: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(false),
-                  child: Text('뒤로가기',
+                  style: TextButton.styleFrom(
+                    side: const BorderSide(color: Colors.black), // 검정색 스트로크 추가
+                  ),
+                  child: const Text('뒤로가기',
                     style: TextStyle(fontFamily: "Pretendard",
                         color: Colors.black,
                         fontWeight: FontWeight.w600),),
-                  style: TextButton.styleFrom(
-                    side: BorderSide(color: Colors.black), // 검정색 스트로크 추가
-                  ),
                 ),
-                SizedBox(width: 25), // 버튼 사이 간격
+                const SizedBox(width: 25), // 버튼 사이 간격
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(true),
-                  child: Text('예약 확정',
-                    style: TextStyle(fontFamily: "Pretendard",
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600),),
                   style: TextButton.styleFrom(
                     backgroundColor: MyColor.DARK_YELLOW, // 배경색 노란색으로 설정
                   ),
+                  child: const Text('예약 확정',
+                    style: TextStyle(fontFamily: "Pretendard",
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600),),
                 ),
               ],
             ),

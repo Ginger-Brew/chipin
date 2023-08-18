@@ -1,4 +1,5 @@
 import 'package:chipin/colors.dart';
+import 'package:chipin/custom_price/custom_price.dart';
 import 'package:chipin/main.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -273,7 +274,12 @@ class TabContainerScreenState extends State<TabContainerScreen>
 
         ),
         floatingActionButton: FloatingActionButton.extended(
-          onPressed:(){},
+          onPressed:(){
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => CustomPricePage()));
+          },
           label: Text("예약하기",
             style: TextStyle(fontFamily: "Mainfonts",color: Colors.white),
           ),

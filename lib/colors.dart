@@ -10,4 +10,5 @@ class MyColor {
   static const DIVIDER = Color(0xFFD9D9D9);
   static const LIGHT_GRAY = Color(0xFFF1EFEF);
   static const GRAY = Color(0xFF8C8C8C);
+  static const ALERT = Color(0xFFC23E13);
 }

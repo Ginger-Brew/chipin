@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:chipin/base_appbar.dart';
+
 class ChoiceRole extends StatefulWidget {
   const ChoiceRole({super.key});
 
@@ -44,181 +45,170 @@ class _ChoiceRoleState extends State<ChoiceRole> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: BaseAppBar(title: "소속 선택"),
+        appBar: const BaseAppBar(title: "소속 선택"),
         body: Column(
           children: [
-            SizedBox(height: 80,),
-      Container(
-        height: 200,
-        margin: EdgeInsets.symmetric(horizontal: 40),
-        decoration: BoxDecoration(
-            boxShadow: [
-              BoxShadow(
-                  color : Colors.black.withOpacity(0.15),
-                  blurRadius: 10,
-                  spreadRadius: 0.0,
-                  offset: const Offset(0,3)
-
-              )
-            ]
-        ),
-        child:  ElevatedButton(
-                        onPressed: _childToggleButton,
-                        style: ButtonStyle(
-                          backgroundColor:
-                              MaterialStateProperty.resolveWith<Color>(
-                                  (states) {
-                            if (_childIsPressed) {
-                              return Colors.amber; // 선택시
-                            }
-                            return Colors.white; // 그 외에는 흰색
-                          }),
-                        ),
-                        child: Align(
-                          alignment: Alignment.bottomCenter,
-                          child: Column(
-                            children: [
-                              Container(
-                                margin: EdgeInsets.fromLTRB(0, 10, 0, 10),
-                                child: Image.asset('assets/images/child_role.png'),
-                                width: 187,
-                                height: 125,
-                              ),
-                              Text(
-                                "아동",
-                                style: TextStyle(
-                                  color: Colors.black87,
-                                  fontSize: 32,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: "Pretendard"
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+            const SizedBox(
+              height: 20,
+            ),
+            Container(
+              height: 200,
+              margin: const EdgeInsets.symmetric(horizontal: 40),
+              decoration: BoxDecoration(boxShadow: [
+                BoxShadow(
+                    color: Colors.black.withOpacity(0.15),
+                    blurRadius: 10,
+                    spreadRadius: 0.0,
+                    offset: const Offset(0, 3))
+              ]),
+              child: ElevatedButton(
+                onPressed: _childToggleButton,
+                style: ButtonStyle(
+                  backgroundColor:
+                      MaterialStateProperty.resolveWith<Color>((states) {
+                    if (_childIsPressed) {
+                      return Colors.amber; // 선택시
+                    }
+                    return Colors.white; // 그 외에는 흰색
+                  }),
+                ),
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Column(
+                    children: [
+                      Container(
+                        margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                        width: 187,
+                        height: 125,
+                        child: Image.asset('assets/images/child_role.png'),
                       ),
-                    ),
-                    SizedBox(height: 10,),
-      Container(
-        height: 200,
-
-        margin: EdgeInsets.symmetric(horizontal: 40),
-        decoration: BoxDecoration(
-            boxShadow: [
-              BoxShadow(
-                  color : Colors.black.withOpacity(0.15),
-                  blurRadius: 10,
-                  spreadRadius: 0.0,
-                  offset: const Offset(0,3)
-
-              )
-            ]
-        ),
-        child:  ElevatedButton(
-                        onPressed: _storeToggleButton,
-                        style: ButtonStyle(
-                          backgroundColor:
-                              MaterialStateProperty.resolveWith<Color>(
-                                  (states) {
-                            if (_storeIsPressed) {
-                              return Colors.amber; // 선택시
-                            }
-                            return Colors.white; // 그 외에는 흰색
-                          }),
-                        ),
-                        child: Align(
-                          alignment: Alignment.bottomCenter,
-                          child: Column(
-                            children: [
-                              Container(
-                                margin: EdgeInsets.fromLTRB(0, 10, 0, 10),
-                                child: Image.asset('assets/images/restaurant_role.png'),
-                                width: 168,
-                                height: 130,
-                              ),
-                              Text(
-                                "가게",
-                                style: TextStyle(
-                                  color: Colors.black87,
-                                  fontSize: 32,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: "Pretendard"
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                      const Text(
+                        "아동",
+                        style: TextStyle(
+                            color: Colors.black87,
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: "Pretendard"),
                       ),
-                    ),
-            SizedBox(height: 10,),
-      Container(
-        height: 200,
-        margin: EdgeInsets.symmetric(horizontal: 40),
-        decoration: BoxDecoration(
-            boxShadow: [
-              BoxShadow(
-                  color : Colors.black.withOpacity(0.15),
-                  blurRadius: 10,
-                  spreadRadius: 0.0,
-                  offset: const Offset(0,3)
-
-              )
-            ]
-        ),
-        child: ElevatedButton(
-                        onPressed: _clientToggleButton,
-                        style: ButtonStyle(
-                          backgroundColor:
-                              MaterialStateProperty.resolveWith<Color>(
-                                  (states) {
-                            if (_clientIsPressed) {
-                              return Colors.amber; // 선택시
-                            }
-                            return Colors.white; // 그 외에는 흰색
-                          }),
-                        ),
-                        child: Align(
-                          alignment: Alignment.bottomCenter,
-                          child: Column(
-                            children: [
-                              Container(
-                                margin: EdgeInsets.fromLTRB(0, 10, 0, 10),
-                                child: Image.asset('assets/images/customer_role.png'),
-                                width: 177,
-                                height: 131,
-                              ),
-                              Text(
-                                "손님",
-                                style: TextStyle(
-                                  color: Colors.black87,
-                                  fontSize: 32,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: "Pretendard"
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            Container(
+              height: 200,
+              margin: const EdgeInsets.symmetric(horizontal: 40),
+              decoration: BoxDecoration(boxShadow: [
+                BoxShadow(
+                    color: Colors.black.withOpacity(0.15),
+                    blurRadius: 10,
+                    spreadRadius: 0.0,
+                    offset: const Offset(0, 3))
+              ]),
+              child: ElevatedButton(
+                onPressed: _storeToggleButton,
+                style: ButtonStyle(
+                  backgroundColor:
+                      MaterialStateProperty.resolveWith<Color>((states) {
+                    if (_storeIsPressed) {
+                      return Colors.amber; // 선택시
+                    }
+                    return Colors.white; // 그 외에는 흰색
+                  }),
+                ),
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Column(
+                    children: [
+                      Container(
+                        margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                        width: 168,
+                        height: 130,
+                        child: Image.asset('assets/images/restaurant_role.png'),
                       ),
-                    ),
-            SizedBox(height: 10,),
-
+                      const Text(
+                        "가게",
+                        style: TextStyle(
+                            color: Colors.black87,
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: "Pretendard"),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            Container(
+              height: 200,
+              margin: const EdgeInsets.symmetric(horizontal: 40),
+              decoration: BoxDecoration(boxShadow: [
+                BoxShadow(
+                    color: Colors.black.withOpacity(0.15),
+                    blurRadius: 10,
+                    spreadRadius: 0.0,
+                    offset: const Offset(0, 3))
+              ]),
+              child: ElevatedButton(
+                onPressed: _clientToggleButton,
+                style: ButtonStyle(
+                  backgroundColor:
+                      MaterialStateProperty.resolveWith<Color>((states) {
+                    if (_clientIsPressed) {
+                      return Colors.amber; // 선택시
+                    }
+                    return Colors.white; // 그 외에는 흰색
+                  }),
+                ),
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Column(
+                    children: [
+                      Container(
+                        margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                        width: 177,
+                        height: 131,
+                        child: Image.asset('assets/images/customer_role.png'),
+                      ),
+                      const Text(
+                        "손님",
+                        style: TextStyle(
+                            color: Colors.black87,
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: "Pretendard"),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
             TextButton(
-                        onPressed: () {
-                          if (role == "") {
-                            _showDialog(context, "역할을 선택해주세요.");
-                          } else {
-                            Navigator.of(context).pushNamed(role);
-                          }
-                        },
-                        child: Text(
-                          '역할 선택',
-                          style: TextStyle(color: Colors.black87),
-                        )),
-            SizedBox(height: 80,),
-
+                onPressed: () {
+                  if (role == "") {
+                    _showDialog(context, "역할을 선택해주세요.");
+                  } else {
+                    Navigator.of(context).pushNamed(role);
+                  }
+                },
+                child: const Text(
+                  '역할 선택',
+                  style: TextStyle(color: Colors.black87),
+                )),
+            const SizedBox(
+              height: 10,
+            ),
           ],
-                ));
+        ));
   }
 }
 

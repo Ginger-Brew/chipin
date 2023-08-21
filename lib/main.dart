@@ -8,6 +8,10 @@ import 'login/login.dart';
 import 'login/register.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'restaurant_firestore_test.dart';
+import 'image_picker_test.dart';
+import 'kakao_location_test.dart';
+import 'RestaurantInfoRegister.dart';
 
 class ColorService { //테마 컬러를 지정할 때 사용하는 classs
   static MaterialColor createMaterialColor(Color color) {
@@ -36,9 +40,9 @@ void main() async {
 
   // Firebase.initializeApp()은 앱을 실행할 때 Firebase를 비동기 방식으로 초기화.
   // Firebase를 쓸 때 주석 해제.
-  // await Firebase.initializeApp(
-  //   options: DefaultFirebaseOptions.currentPlatform,
-  // );
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   // 화면 세로모드로 강제 고정
   await SystemChrome.setPreferredOrientations(<DeviceOrientation>[
@@ -65,7 +69,7 @@ class MyApp extends StatelessWidget {
           // '/splash': (context) => SplashScreen(),
           '/register': (context) => RegisterPage(),
           '/childmain': (context) => ChildMain(),
-          '/storemain': (context) => RestaurantRegister()
+          '/storemain': (context) => RestaurantInfoRegister()
         },
         // 실행 시 가장 먼저 보여지는 화면 (splash 화면을 따로 만들거면 그 화면으로 해야함)
         initialRoute: '/login'

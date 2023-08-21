@@ -1,13 +1,13 @@
 import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
-import 'colors.dart';
-import 'base_appbar.dart';
+import '../colors.dart';
+import '../base_appbar.dart';
 import 'package:kpostal/kpostal.dart';
-import 'base_button.dart';
+import '../base_button.dart';
+import 'package:chipin/restaurant_main/RestaurantMain.dart';
 
 class RestaurantInfoRegister extends StatefulWidget {
   const RestaurantInfoRegister({Key? key}) : super(key: key);
@@ -82,6 +82,9 @@ class _RestaurantInfoRegisterState extends State<RestaurantInfoRegister> {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text('No image selected')));
     }
+
+    Navigator.push(context,
+        MaterialPageRoute(builder: (context) => const RestaurantMain()));
   }
 
   Future pickImg() async {
@@ -245,9 +248,7 @@ class _RestaurantInfoRegisterState extends State<RestaurantInfoRegister> {
                 Row(mainAxisAlignment: MainAxisAlignment.end, children: [
                   ElevatedButton(
                       child: Text("등록", style: TextStyle(fontSize: 16)),
-                      onPressed: () => writedata()
-                      // Navigator.push(context,
-                      // MaterialPageRoute(builder: (context) => const RestaurantMain())
+                      onPressed: () => writedata(),
                       )
                 ]),
                 SizedBox(height: 20),

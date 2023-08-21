@@ -84,32 +84,32 @@ class _RestaurantInfoCorrectionState extends State<RestaurantInfoCorrection> {
                   ],
                 ),
                 SizedBox(height: 50),
-                Row(
-                  children: <Widget>[
-                    Container(
-                      width: 70,
-                      child: Text(
-                        '영업 시간',
-                        style: TextStyle(fontSize: 16, fontFamily: "Mainfonts"),
-                      ),
-                    ),
-                    SizedBox(width: 30),
-                    Expanded(
-                      flex: 2,
-                      child: Row(
-                        children: <Widget>[
-                          TimePickerExample(),
-                          SizedBox(width: 10),
-                          Text(":",
-                              style: TextStyle(
-                                  fontSize: 16, fontFamily: "Mainfonts")),
-                          SizedBox(width: 10),
-                          TimePickerExample(),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+                // Row(
+                //   children: <Widget>[
+                //     Container(
+                //       width: 70,
+                //       child: Text(
+                //         '영업 시간',
+                //         style: TextStyle(fontSize: 16, fontFamily: "Mainfonts"),
+                //       ),
+                //     ),
+                //     SizedBox(width: 30),
+                //     Expanded(
+                //       flex: 2,
+                //       child: Row(
+                //         children: <Widget>[
+                //           TimePickerExample(),
+                //           SizedBox(width: 10),
+                //           Text(":",
+                //               style: TextStyle(
+                //                   fontSize: 16, fontFamily: "Mainfonts")),
+                //           SizedBox(width: 10),
+                //           TimePickerExample(),
+                //         ],
+                //       ),
+                //     ),
+                //   ],
+                // ),
                 SizedBox(height: 50),
                 RestaurantCorrectionComponent(
                     subject: Text('휴무일',

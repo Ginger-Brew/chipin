@@ -14,7 +14,7 @@ class RestaurantRegisterComponent extends StatelessWidget {
             width: 70,
             child: subject
         ),
-            SizedBox(width: 30),
+            SizedBox(width: 10),
         Expanded(child: form),
       ],
     );

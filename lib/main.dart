@@ -37,9 +37,9 @@ void main() async {
 
   // Firebase.initializeApp()은 앱을 실행할 때 Firebase를 비동기 방식으로 초기화.
   // Firebase를 쓸 때 주석 해제.
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  // await Firebase.initializeApp(
+  //   options: DefaultFirebaseOptions.currentPlatform,
+  // );
 
   // 화면 세로모드로 강제 고정
   await SystemChrome.setPreferredOrientations(<DeviceOrientation>[

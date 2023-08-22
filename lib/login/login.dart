@@ -2,49 +2,73 @@
 
 import 'package:chipin/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'choice_role.dart';
+import 'model_auth.dart';
+import 'model_login.dart';
 
-final TextEditingController _emailController = TextEditingController(); //입력되는 값을 제어
+final TextEditingController _idController =
+    TextEditingController(); //입력되는 값을 제어
 final TextEditingController _passwordController = TextEditingController();
 
 class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text("로그인",style: TextStyle(color:Colors.black, fontFamily:"Pretendard",fontWeight:FontWeight.bold,fontSize: 32),),
-          SizedBox(height: 19),
-          IdInput(),
-          PasswordInput(),
-          LoginButton(),
-          SizedBox(height: 16),
-          Align(alignment: Alignment.center,
-          child: Row(children: [Expanded(child:FindById()),Expanded(child:RegisterButton() )]),)
-
-
-        ],
-      ),
-    );
+    return ChangeNotifierProvider(
+        create: (_) => LoginModel(),
+        child: Scaffold(
+          body: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                "로그인",
+                style: TextStyle(
+                    color: Colors.black,
+                    fontFamily: "Pretendard",
+                    fontWeight: FontWeight.bold,
+                    fontSize: 32),
+              ),
+              SizedBox(height: 19),
+              IdInput(),
+              PasswordInput(),
+              LoginButton(),
+              SizedBox(height: 16),
+              Align(
+                alignment: Alignment.center,
+                child: Row(children: [
+                  Expanded(child: FindById()),
+                  Expanded(child: RegisterButton())
+                ]),
+              )
+            ],
+          ),
+        ));
   }
 }
 
+/*
+아이디 입력창
+ */
 class IdInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final login = Provider.of<LoginModel>(context, listen: false);
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 46),
       child: TextFormField(
-          controller: _emailController,
+        controller: _idController,
+        onChanged: (id) {
+          login.setId(id);
+        },
         keyboardType: TextInputType.emailAddress,
         decoration: InputDecoration(
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
           labelText: '아이디',
           helperText: '',
         ),
-        validator: (String? value){
-          if (value!.isEmpty) {// == null or isEmpty
+        validator: (String? value) {
+          if (value!.isEmpty) {
+            // == null or isEmpty
             return '아이디를 입력해주세요.';
           }
           return null;
@@ -57,23 +81,27 @@ class IdInput extends StatelessWidget {
 class PasswordInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final login = Provider.of<LoginModel>(context, listen: false);
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 46),
       child: TextFormField(
-        obscureText: true,
-        controller: _passwordController,
-        decoration: InputDecoration(
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-          labelText: '비밀번호',
-          helperText: '',
-        ),
-        validator: (String? value){
-          if (value!.isEmpty) {// == null or isEmpty
-            return '비밀번호를 입력해주세요.';
-          }
-          return null;
-        }
-      ),
+          obscureText: true,
+          controller: _passwordController,
+          onChanged: (password) {
+            login.setPassword(password);
+          },
+          decoration: InputDecoration(
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+            labelText: '비밀번호',
+            helperText: '',
+          ),
+          validator: (String? value) {
+            if (value!.isEmpty) {
+              // == null or isEmpty
+              return '비밀번호를 입력해주세요.';
+            }
+            return null;
+          }),
     );
   }
 }
@@ -81,22 +109,53 @@ class PasswordInput extends StatelessWidget {
 class LoginButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final authClient =
+        Provider.of<FirebaseAuthProvider>(context, listen: false);
+    final login = Provider.of<LoginModel>(context, listen: false);
+
     return Container(
-      width: MediaQuery.of(context).size.width -92, // 화면 가로 크기의 반
+      width: MediaQuery.of(context).size.width - 92, // 화면 가로 크기의 반
       height: 51,
-      child : ElevatedButton(
+      child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: MyColor.DARK_YELLOW,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10.0),
           ),
         ),
-        // 로그인 버튼 클릭 시 넘어가는 화면
-        // ************ 본인이 확인하고 싶은 화면 클래스 이름으로 수정해서 확인하기 *****************
-        onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => ChoiceRole()));
+        onPressed: () async {
+          await authClient
+              .loginWithEmail(login.id, login.password)
+              .then((loginStatus) {
+            if (loginStatus == AuthStatus.loginSuccess) {
+              ScaffoldMessenger.of(context)
+                ..hideCurrentSnackBar()
+                ..showSnackBar(SnackBar(
+                    content:
+                        Text('welcome! ' + authClient.user!.email! + ' ')));
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => ChoiceRole()));
+              // final userCollectionReference = FirebaseFirestore.instance.collection("users").doc(login.email);
+              // userCollectionReference.get().then((role) => {
+              //   if (role.data()?['role'] == "내담자") {
+              //     Navigator.pushReplacementNamed(context, '/clienthome')
+              //   } else if (role.data()?['role'] == "상담가") {
+              //     Navigator.pushReplacementNamed(context, '/offerhome')
+              //   } else {
+              //     print(role.data()?['role'])
+              //   }
+              // });
+            } else {
+              ScaffoldMessenger.of(context)
+                ..hideCurrentSnackBar()
+                ..showSnackBar(SnackBar(content: Text('login fail')));
+            }
+          });
         },
-        child: Text('로그인',style: TextStyle(fontFamily: "Pretendard",fontSize: 16),),
+        child: Text(
+          '로그인',
+          style: TextStyle(fontFamily: "Pretendard", fontSize: 16),
+        ),
       ),
     );
   }
@@ -119,6 +178,7 @@ class RegisterButton extends StatelessWidget {
         ));
   }
 }
+
 class FindById extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -129,7 +189,7 @@ class FindById extends StatelessWidget {
         child: Text(
           '비밀번호 찾기',
           style: TextStyle(
-              color: Colors.black,
+            color: Colors.black,
             fontFamily: "Pretendard",
             fontSize: 14,
           ),

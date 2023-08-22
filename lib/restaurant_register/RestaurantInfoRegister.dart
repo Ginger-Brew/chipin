@@ -1,4 +1,6 @@
 import 'dart:io';
+
+import 'package:chipin/restaurant_main/RestaurantMain.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -7,7 +9,6 @@ import '../colors.dart';
 import '../base_appbar.dart';
 import 'package:kpostal/kpostal.dart';
 import '../base_button.dart';
-import 'package:chipin/restaurant_main/RestaurantMain.dart';
 
 class RestaurantInfoRegister extends StatefulWidget {
   const RestaurantInfoRegister({Key? key}) : super(key: key);
@@ -25,7 +26,7 @@ class _RestaurantInfoRegisterState extends State<RestaurantInfoRegister> {
   String pickedImgPath = "";
   XFile pickedImg = XFile('');
   String postCode = '-';
-  String address = '-';
+  String address1 = '-';
   String latitude = '-';
   String longitude = '-';
   String kakaoLatitude = '-';
@@ -52,39 +53,57 @@ class _RestaurantInfoRegisterState extends State<RestaurantInfoRegister> {
     _newRestaurantLocation.dispose();
     _newRestaurantBusinessNumber.dispose();
     _newRestaurantPhone.dispose();
+    super.dispose();
   }
 
-  void writedata() async {
+  void writemenudata(String menu, String price) async {
+    final db = FirebaseFirestore.instance.collection(colName).doc(id).collection("Menu").doc(menu);
+
+
+      await db
+          .set({
+        'name': menu,
+        'price' : price
+      })
+          .then((value) => print("document added")) // firestore에 저장이 잘 된 경우
+          .catchError((error) => print("Fail to add doc ${error}"));
+
+
+
+  }
+
+  void writeinfodata() async {
     final db = FirebaseFirestore.instance.collection(colName).doc(id);
 
     // firestore에 저장
     if (pickedImgPath != "") {
       await db
           .set({
-            'name': _newRestaurantName.text,
-            'location': '${this.address} ${_newRestaurantLocation.text}',
-            'open':
-                "${_newRestaurantOpenHour.text}:${_newRestaurantOpenMinute.text}",
-            'close':
-                "${_newRestaurantCloseHour.text}:${_newRestaurantCloseMinute.text}",
-            'closeddays': _newRestaurantClosedday.text,
-            'businessnumber': _newRestaurantBusinessNumber.text,
-            'phone': _newRestaurantPhone.text,
-            'banner': pickedImgPath
-          })
+        'name': _newRestaurantName.text,
+        'address1': this.address1,
+        'address2':  _newRestaurantLocation.text,
+        'openH':_newRestaurantOpenHour.text,
+        'openM':_newRestaurantOpenMinute.text,
+        'closeH':_newRestaurantCloseHour.text,
+        'closeM':_newRestaurantCloseMinute.text,
+        'closeddays': _newRestaurantClosedday.text,
+        'businessnumber': _newRestaurantBusinessNumber.text,
+        'phone': _newRestaurantPhone.text,
+        'banner': pickedImgPath
+      })
           .then((value) => print("document added")) // firestore에 저장이 잘 된 경우
           .catchError((error) => print("Fail to add doc ${error}"));
       pickedImgPath = ""; // 변수 초기화
 
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text('Image uploaded successfully')));
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => const RestaurantMain()));
     } else {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text('No image selected')));
     }
 
-    Navigator.push(context,
-        MaterialPageRoute(builder: (context) => const RestaurantMain()));
   }
 
   Future pickImg() async {
@@ -99,24 +118,6 @@ class _RestaurantInfoRegisterState extends State<RestaurantInfoRegister> {
     }
   }
 
-  Future kakaoApi() async {
-    await Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => KpostalView(
-            callback: (Kpostal result) {
-              print(result.address);
-              address = result.address;
-              this.postCode = result.postCode;
-              this.address = result.address;
-              this.latitude = result.latitude.toString();
-              this.longitude = result.longitude.toString();
-              this.kakaoLatitude = result.kakaoLatitude.toString();
-              this.kakaoLongitude = result.kakaoLongitude.toString();
-            },
-          ),
-        ));
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -142,7 +143,7 @@ class _RestaurantInfoRegisterState extends State<RestaurantInfoRegister> {
                       alignment: Alignment.centerLeft,
                       child: Text('주소',
                           style:
-                              TextStyle(fontFamily: "Mainfonts", fontSize: 16)),
+                          TextStyle(fontFamily: "Mainfonts", fontSize: 16)),
                     ),
                     SizedBox(
                       height: 10,
@@ -151,7 +152,7 @@ class _RestaurantInfoRegisterState extends State<RestaurantInfoRegister> {
                       decoration: InputDecoration(
                           border: OutlineInputBorder(),
                           isDense: true,
-                          hintText: '${this.address}'),
+                          hintText: '${this.address1}'),
                       onTap: () async {
                         await Navigator.push(
                           context,
@@ -160,14 +161,14 @@ class _RestaurantInfoRegisterState extends State<RestaurantInfoRegister> {
                               // kakaoKey: '{Add your KAKAO DEVELOPERS JS KEY}',
                               callback: (Kpostal result) {
                                 setState(() {
-                                  this.postCode = result.postCode;
-                                  this.address = result.address;
+                                  // this.postCode = result.postCode;
+                                  this.address1 = result.address;
                                   this.latitude = result.latitude.toString();
                                   this.longitude = result.longitude.toString();
-                                  this.kakaoLatitude =
-                                      result.kakaoLatitude.toString();
-                                  this.kakaoLongitude =
-                                      result.kakaoLongitude.toString();
+                                  // this.kakaoLatitude =
+                                  //     result.kakaoLatitude.toString();
+                                  // this.kakaoLongitude =
+                                  //     result.kakaoLongitude.toString();
                                 });
                               },
                             ),
@@ -193,7 +194,7 @@ class _RestaurantInfoRegisterState extends State<RestaurantInfoRegister> {
                       alignment: Alignment.centerLeft,
                       child: Text('사업자 등록 번호',
                           style:
-                              TextStyle(fontFamily: "Mainfonts", fontSize: 16)),
+                          TextStyle(fontFamily: "Mainfonts", fontSize: 16)),
                     ),
                     SizedBox(
                       height: 10,
@@ -220,7 +221,7 @@ class _RestaurantInfoRegisterState extends State<RestaurantInfoRegister> {
                     alignment: Alignment.centerLeft,
                     child: Text('가게 대표 사진 등록',
                         style:
-                            TextStyle(fontSize: 16, fontFamily: "Mainfonts")),
+                        TextStyle(fontSize: 16, fontFamily: "Mainfonts")),
                   ),
                   SizedBox(
                     height: 10,
@@ -233,6 +234,7 @@ class _RestaurantInfoRegisterState extends State<RestaurantInfoRegister> {
                   SizedBox(
                     height: 10,
                   ),
+                  if (pickedImg.path.isNotEmpty)
                   Container(
                     width: 150, // Set the desired width
                     height: 100, // Set the desired height
@@ -248,10 +250,11 @@ class _RestaurantInfoRegisterState extends State<RestaurantInfoRegister> {
                 Row(mainAxisAlignment: MainAxisAlignment.end, children: [
                   ElevatedButton(
                       child: Text("등록", style: TextStyle(fontSize: 16)),
-                      onPressed: () => writedata(),
-                      )
-                ]),
-                SizedBox(height: 20),
+                      onPressed: () => writeinfodata()
+
+                        )
+                        ]),
+                        SizedBox(height: 20),
               ],
             ),
           ),
@@ -278,7 +281,7 @@ class RestaurantName extends StatelessWidget {
         TextField(
           controller: controller,
           decoration:
-              InputDecoration(border: OutlineInputBorder(), isDense: true),
+          InputDecoration(border: OutlineInputBorder(), isDense: true),
         )
       ],
     );
@@ -304,7 +307,7 @@ class RestaurantPhone extends StatelessWidget {
         TextField(
             controller: controller,
             decoration:
-                InputDecoration(border: OutlineInputBorder(), isDense: true),
+            InputDecoration(border: OutlineInputBorder(), isDense: true),
             keyboardType: TextInputType.number,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly])
       ],
@@ -320,10 +323,10 @@ class RestaurantOpeningHour extends StatelessWidget {
 
   const RestaurantOpeningHour(
       {Key? key,
-      required this.openhourcontroller,
-      required this.openminutecontroller,
-      required this.closehourcontroller,
-      required this.closeminutecontroller})
+        required this.openhourcontroller,
+        required this.openminutecontroller,
+        required this.closehourcontroller,
+        required this.closeminutecontroller})
       : super(key: key);
 
   @override
@@ -342,12 +345,12 @@ class RestaurantOpeningHour extends StatelessWidget {
           SizedBox(width: 30),
           Expanded(
               child: TextField(
-            controller: openhourcontroller,
-            keyboardType: TextInputType.number,
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            decoration:
+                controller: openhourcontroller,
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                decoration:
                 InputDecoration(border: OutlineInputBorder(), isDense: true),
-          )),
+              )),
           SizedBox(width: 10),
           Text(
             ":",
@@ -358,12 +361,12 @@ class RestaurantOpeningHour extends StatelessWidget {
           ),
           Expanded(
               child: TextField(
-            controller: openminutecontroller,
-            keyboardType: TextInputType.number,
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            decoration:
+                controller: openminutecontroller,
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                decoration:
                 InputDecoration(border: OutlineInputBorder(), isDense: true),
-          )),
+              )),
         ],
       ),
       SizedBox(
@@ -374,12 +377,12 @@ class RestaurantOpeningHour extends StatelessWidget {
         SizedBox(width: 30),
         Expanded(
             child: TextField(
-          controller: closehourcontroller,
-          keyboardType: TextInputType.number,
-          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-          decoration:
+              controller: closehourcontroller,
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              decoration:
               InputDecoration(border: OutlineInputBorder(), isDense: true),
-        )),
+            )),
         SizedBox(width: 10),
         Text(
           ":",
@@ -390,12 +393,12 @@ class RestaurantOpeningHour extends StatelessWidget {
         ),
         Expanded(
             child: TextField(
-          controller: closeminutecontroller,
-          keyboardType: TextInputType.number,
-          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-          decoration:
+              controller: closeminutecontroller,
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              decoration:
               InputDecoration(border: OutlineInputBorder(), isDense: true),
-        )),
+            )),
       ]),
     ]);
   }
@@ -419,7 +422,7 @@ class RestaurantClosedDay extends StatelessWidget {
       ),
       TextField(
         decoration:
-            InputDecoration(border: OutlineInputBorder(), isDense: true),
+        InputDecoration(border: OutlineInputBorder(), isDense: true),
         controller: controller,
       )
     ]);
@@ -434,8 +437,32 @@ class RestaurantMenu extends StatefulWidget {
 }
 
 class _RestaurantMenuState extends State<RestaurantMenu> {
+  final String colName = "Restaurant";
+  final String id = "jdh33114";
   final TextEditingController menuname = TextEditingController();
   final TextEditingController menuprice = TextEditingController();
+
+  @override
+  void dispose(){
+    menuname.dispose();
+    menuprice.dispose();
+    super.dispose();
+  }
+  void writemenudata(String menu, String price) async {
+    final db = FirebaseFirestore.instance.collection(colName).doc(id).collection("Menu").doc(menu);
+
+
+    await db
+        .set({
+      'name': menu,
+      'price' : price
+    })
+        .then((value) => print("document added")) // firestore에 저장이 잘 된 경우
+        .catchError((error) => print("Fail to add doc ${error}"));
+
+
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -454,7 +481,7 @@ class _RestaurantMenuState extends State<RestaurantMenu> {
           height: 20,
         ),
         Text('가게 등록을 위해\n한 개 이상의 메뉴를 등록해주세요',
-            style: TextStyle(fontSize: 13, fontFamily: "Pretendard"),textAlign: TextAlign.center,)
+          style: TextStyle(fontSize: 13, fontFamily: "Pretendard"),textAlign: TextAlign.center,)
       ],
     );
   }
@@ -519,8 +546,9 @@ class _RestaurantMenuState extends State<RestaurantMenu> {
                   )),
               ElevatedButton(
                 onPressed: () {
-                  menuprice.text = "";
+                  writemenudata(menuname.text, menuprice.text);
                   menuname.text = "";
+                  menuprice.text = "";
                   Navigator.pop(context);
                 },
                 child: Text("추가하기",

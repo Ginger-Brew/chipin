@@ -8,8 +8,21 @@ class InfoCorrectionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BaseShadow(
-        container: ElevatedButton(
+    return Container(
+      height: 100,
+      margin: EdgeInsets.fromLTRB(5, 0, 20, 0),
+      decoration: BoxDecoration(
+          boxShadow: [
+            BoxShadow(
+                color : Colors.black.withOpacity(0.15),
+                blurRadius: 10,
+                spreadRadius: 0.0,
+                offset: const Offset(0,7)
+
+            )
+          ]
+      ),
+      child:  ElevatedButton(
             style: ElevatedButton.styleFrom(
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10)),
@@ -28,7 +41,7 @@ class InfoCorrectionButton extends StatelessWidget {
                   height: 15,
                 ),
                 Text(
-                  "가게 정보 수정하기",
+                  "가게 정보 수정",
                   style: TextStyle(
                       fontSize: 20,
                       color: Colors.black,
@@ -37,25 +50,7 @@ class InfoCorrectionButton extends StatelessWidget {
                 SizedBox(
                   height: 5,
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      flex: 2,
-                      child: Image.asset('assets/images/correction.png'),
-                    ),
-                    SizedBox(height: 8),
-                    Expanded(
-                        flex: 4,
-                        child: Text(
-                          "최근 수정일 \n2023.05.21.",
-                          style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.black,
-                              fontFamily: "Pretendard"),
-                        ))
-                  ],
-                ),
+
                 SizedBox(
                   height: 15,
                 )

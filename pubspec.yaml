@@ -32,14 +32,14 @@ dependencies:
   flutter:
     sdk: flutter
 
-  naver_map_plugin:
-    git: https://github.com/LBSTECH/naver_map_plugin.git
-
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
   firebase_core: ^2.15.0
   google_maps_flutter: ^2.4.0
+  firebase_auth: ^4.7.3
+  shared_preferences: ^2.2.0
+  provider: ^6.0.5
 
 dev_dependencies:
   flutter_test:

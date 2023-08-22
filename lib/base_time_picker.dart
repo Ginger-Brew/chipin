@@ -1,9 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:chipin/colors.dart';
 import 'package:flutter/material.dart';
 
 class TimePickerExample extends StatefulWidget {
-  const TimePickerExample({super.key});
+  final void Function(int hour, int minute) onSave;
+
+  const TimePickerExample({super.key,required this.onSave});
 
   @override
   State<TimePickerExample> createState() => _TimePickerExampleState();
@@ -11,7 +14,7 @@ class TimePickerExample extends StatefulWidget {
 
 class _TimePickerExampleState extends State<TimePickerExample> {
   DateTime date = DateTime(2016, 10, 26);
-  DateTime time = DateTime(2016, 5, 10, 22, 35);
+  DateTime time = DateTime(2016, 5, 10, 00, 00);
   DateTime dateTime = DateTime(2016, 8, 3, 17, 45);
 
   // This function displays a CupertinoModalPopup with a reasonable fixed height
@@ -38,6 +41,17 @@ class _TimePickerExampleState extends State<TimePickerExample> {
     );
   }
 
+  Future<void> _saveToFirestore(int hour, int minute) async {
+    try {
+      await FirebaseFirestore.instance.collection('timeData').add({
+        'hour': hour,
+        'minute': minute,
+      });
+      print('Data saved to Firestore');
+    } catch (e) {
+      print('Error saving data: $e');
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
@@ -62,6 +76,7 @@ class _TimePickerExampleState extends State<TimePickerExample> {
                         // This is called when the user changes the time.
                         onDateTimeChanged: (DateTime newTime) {
                           setState(() => time = newTime);
+                          // _saveToFirestore(newTime.hour, newTime.minute);
                         },
                       ),
                     ),
@@ -78,7 +93,13 @@ class _TimePickerExampleState extends State<TimePickerExample> {
                   ),
                 ],
               ),
-
+              CupertinoButton(
+                onPressed: () {
+                  // Call the onSave callback function with the selected hour and minute
+                  widget.onSave(time.hour, time.minute);
+                },
+                child: Text('Register'),
+              ),
             ],
           ),
         ),

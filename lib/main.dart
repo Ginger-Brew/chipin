@@ -40,9 +40,9 @@ void main() async {
 
   // Firebase.initializeApp()은 앱을 실행할 때 Firebase를 비동기 방식으로 초기화.
   // Firebase를 쓸 때 주석 해제.
-  // await Firebase.initializeApp(
-  //   options: DefaultFirebaseOptions.currentPlatform,
-  // );
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   // 화면 세로모드로 강제 고정
   await SystemChrome.setPreferredOrientations(<DeviceOrientation>[
@@ -79,6 +79,6 @@ class MyApp extends StatelessWidget {
         },
         // 실행 시 가장 먼저 보여지는 화면 (splash 화면을 따로 만들거면 그 화면으로 해야함)
         initialRoute: '/login'
-    );
+    ));
   }
 }

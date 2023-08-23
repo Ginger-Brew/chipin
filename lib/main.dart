@@ -4,6 +4,7 @@ import 'package:chipin/tab_container_screen/tab_container_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'child_main/ChildMain.dart';
+import 'customer_main/ClientMain.dart';
 import 'login/login.dart';
 import 'login/register.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -67,7 +68,8 @@ class MyApp extends StatelessWidget {
           '/childmain': (context) => ChildMain(),
           '/storemain': (context) => RestaurantInfoRegister(),
           '/restaurantdetail' : (context) => TabContainerScreen(),
-          '/customprice' : (context) => CustomPricePage()
+          '/customprice' : (context) => CustomPricePage(),
+          '/clientmain' : (context) => ClientMain()
         },
         // 실행 시 가장 먼저 보여지는 화면 (splash 화면을 따로 만들거면 그 화면으로 해야함)
         initialRoute: '/login'

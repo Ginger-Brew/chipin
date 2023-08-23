@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-
-import '../menu1/menu1.dart';
 import '../tab_container_screen/tab_container_screen.dart';
 
 /// Content of the DraggableBottomSheet's child SingleChildScrollView
@@ -8,6 +6,7 @@ class CustomScrollViewContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      color : Colors.white,
       elevation: 12.0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       margin: const EdgeInsets.all(0),
@@ -61,34 +60,34 @@ class ScrollingRestaurants extends StatelessWidget {
           children: <Widget>[
             CustomRestaurantCategory("오양칼국수", "충청남도 보령시 오천면 소성리 691-52",
                 "오후 8:00시까지 영업", "assets/images/ohyang_restaurant.png"),
-            SizedBox(width: 12),
+            SizedBox(height: 12),
             CustomRestaurantCategory("권영철 콩짬뽕", "충청남도 보령시 오천면 소성리 691-52",
                 "오후 6:30시까지 영업", "assets/images/ohyang_restaurant.png"),
-            SizedBox(width: 12),
+            SizedBox(height: 12),
             CustomRestaurantCategory("오양칼국수", "충청남도 보령시 오천면 소성리 691-52",
                 "오후 8:00시까지 영업", "assets/images/ohyang_restaurant.png"),
-            SizedBox(width: 12),
+            SizedBox(height: 12),
             CustomRestaurantCategory("권영철 콩짬뽕", "충청남도 보령시 오천면 소성리 691-52",
                 "오후 6:30시까지 영업", "assets/images/ohyang_restaurant.png"),
-            SizedBox(width: 12),
+            SizedBox(height: 12),
             CustomRestaurantCategory("오양칼국수", "충청남도 보령시 오천면 소성리 691-52",
                 "오후 8:00시까지 영업", "assets/images/ohyang_restaurant.png"),
-            SizedBox(width: 12),
+            SizedBox(height: 12),
             CustomRestaurantCategory("권영철 콩짬뽕", "충청남도 보령시 오천면 소성리 691-52",
                 "오후 6:30시까지 영업", "assets/images/ohyang_restaurant.png"),
-            SizedBox(width: 12),
+            SizedBox(height: 12),
             CustomRestaurantCategory("오양칼국수", "충청남도 보령시 오천면 소성리 691-52",
                 "오후 8:00시까지 영업", "assets/images/ohyang_restaurant.png"),
-            SizedBox(width: 12),
+            SizedBox(height: 12),
             CustomRestaurantCategory("권영철 콩짬뽕", "충청남도 보령시 오천면 소성리 691-52",
                 "오후 6:30시까지 영업", "assets/images/ohyang_restaurant.png"),
-            SizedBox(width: 12),
+            SizedBox(height: 12),
             CustomRestaurantCategory("오양칼국수", "충청남도 보령시 오천면 소성리 691-52",
                 "오후 8:00시까지 영업", "assets/images/ohyang_restaurant.png"),
-            SizedBox(width: 12),
+            SizedBox(height: 12),
             CustomRestaurantCategory("권영철 콩짬뽕", "충청남도 보령시 오천면 소성리 691-52",
                 "오후 6:30시까지 영업", "assets/images/ohyang_restaurant.png"),
-            SizedBox(width: 12),
+            SizedBox(height: 12),
           ],
         ),
       ),
@@ -103,7 +102,7 @@ class ResultText extends StatelessWidget {
       padding: const EdgeInsets.only(left: 16),
       //only to left align the text
       child: Row(
-        children: <Widget>[Text("13개 결과", style: TextStyle(fontSize: 14))],
+        children: <Widget>[Text("13개 결과", style: TextStyle(fontFamily: "Mainfonts", fontSize: 14))],
       ),
     );
   }
@@ -137,34 +136,35 @@ class CustomRestaurantCategory extends StatelessWidget {
                               builder: (context) => TabContainerScreen()));
                     },
                     child: Container(
-                        height: 150,
-                        width: 150,
+                        height: 120,
+                        width: 120,
                         child: Image(
                           image: AssetImage(image),
                           fit: BoxFit.fill,
                         ))),
-                SizedBox(width: 8),
+                SizedBox(width: 16),
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Text(title,
                       style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 30)),
+                          TextStyle(fontFamily: "Mainfonts", fontWeight: FontWeight.bold, fontSize: 20)),
                   Row(
                     children: <Widget>[
                       Icon(Icons.location_on, size: 20),
                       SizedBox(width: 8),
-                      Text(location, style: TextStyle(fontSize: 15))
+                      Text(location, style: TextStyle(fontFamily: "Pretendard", fontSize: 15))
                     ],
                   ),
                   Row(
                     children: <Widget>[
                       Icon(Icons.access_time_filled, size: 20),
                       SizedBox(width: 8),
-                      Text(time, style: TextStyle(fontSize: 15))
+                      Text(time, style: TextStyle(fontFamily: "Pretendard", fontSize: 15))
                     ],
                   ),
                 ]),
               ],
             ),
+            SizedBox(width: 20),
             Container(
               height: 40,
               width: 40,

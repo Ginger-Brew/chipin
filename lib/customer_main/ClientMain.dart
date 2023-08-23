@@ -25,7 +25,7 @@ class _ClientMainState extends State<ClientMain> {
               child: Column(
                 children: [
                   Container(
-                    margin: EdgeInsets.fromLTRB(30, 30, 200, 0),
+                    margin: EdgeInsets.fromLTRB(30, 30, 100, 0),
                     child: TextButton(
                         onPressed: (){},
                         child: Container(
@@ -72,7 +72,7 @@ class _ClientMainState extends State<ClientMain> {
                                 topRightRadius: 10,
                                 bottomLeftRadius: 0,
                                 bottomRightRadius: 0,
-                                onPressed: () { })),
+                                onPressed: () {})),
                         Container(
                           height: 1,
                           width: double.maxFinite,
@@ -114,11 +114,11 @@ class _ClientMainState extends State<ClientMain> {
                           children: [
                             Expanded(
                               child: Image(
-                                  width: 20.0,
-                                  height: 20.0,
+                                  width: 50.0,
+                                  height: 50.0,
                                   image: AssetImage('assets/images/receipt.png')
                               ),
-                              flex: 3,
+                              flex: 1,
                             ),
                             Expanded(
                               child: Text(
@@ -146,11 +146,11 @@ class _ClientMainState extends State<ClientMain> {
                           children: [
                             Expanded(
                               child: Image(
-                                  width: 20.0,
-                                  height: 20.0,
+                                  width: 50.0,
+                                  height: 50.0,
                                   image: AssetImage('assets/images/map.png')
                               ),
-                              flex: 3,
+                              flex: 1,
                             ),
                             Expanded(
                               child: Text(

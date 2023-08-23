@@ -16,7 +16,7 @@ class BaseAppBar extends StatelessWidget implements PreferredSize{
       title:Text(title, style: const TextStyle(fontSize:24, fontFamily: "Mainfonts",color: Colors.black)),
       centerTitle: true,
       leading: IconButton(icon: Icon(Icons.home), onPressed: null),
-      actions: [IconButton(icon: Icon(Icons.menu_rounded), onPressed: null)],
+      actions: [IconButton(icon: Icon(Icons.person), onPressed: null)],
     ));
   }
 

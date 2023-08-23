@@ -52,7 +52,7 @@ class _ChoiceRoleState extends State<ChoiceRole> {
               height: 20,
             ),
             Container(
-              height: 200,
+              height: 100,
               margin: const EdgeInsets.symmetric(horizontal: 40),
               decoration: BoxDecoration(boxShadow: [
                 BoxShadow(
@@ -78,8 +78,8 @@ class _ChoiceRoleState extends State<ChoiceRole> {
                     children: [
                       Container(
                         margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                        width: 187,
-                        height: 125,
+                        width: 50,
+                        height: 50,
                         child: Image.asset('assets/images/child_role.png'),
                       ),
                       const Text(
@@ -99,7 +99,7 @@ class _ChoiceRoleState extends State<ChoiceRole> {
               height: 10,
             ),
             Container(
-              height: 200,
+              height: 100,
               margin: const EdgeInsets.symmetric(horizontal: 40),
               decoration: BoxDecoration(boxShadow: [
                 BoxShadow(
@@ -125,8 +125,8 @@ class _ChoiceRoleState extends State<ChoiceRole> {
                     children: [
                       Container(
                         margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                        width: 168,
-                        height: 130,
+                        width: 50,
+                        height: 50,
                         child: Image.asset('assets/images/restaurant_role.png'),
                       ),
                       const Text(
@@ -146,7 +146,7 @@ class _ChoiceRoleState extends State<ChoiceRole> {
               height: 10,
             ),
             Container(
-              height: 200,
+              height: 100,
               margin: const EdgeInsets.symmetric(horizontal: 40),
               decoration: BoxDecoration(boxShadow: [
                 BoxShadow(
@@ -172,8 +172,8 @@ class _ChoiceRoleState extends State<ChoiceRole> {
                     children: [
                       Container(
                         margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                        width: 177,
-                        height: 131,
+                        width: 50,
+                        height: 50,
                         child: Image.asset('assets/images/customer_role.png'),
                       ),
                       const Text(

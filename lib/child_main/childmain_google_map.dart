@@ -50,8 +50,8 @@ class _CustomGoogleMapState extends State<CustomGoogleMap> {
 
   static final LatLng schoolLatlng = LatLng(
     //위도와 경도 값 지정
-    37.540853,
-    127.078971,
+    37.4999613,
+    127.0281036
   );
 
   static final CameraPosition initialPosition = CameraPosition(

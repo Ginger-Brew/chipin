@@ -151,7 +151,7 @@ class _CustomPricePageState extends State<CustomPricePage> {
               ),
             ),
 
-            const SizedBox(height: 75),
+            const SizedBox(height: 55),
 
             ElevatedButton(
               onPressed: isAmountValid ? _showConfirmationDialog : null,

@@ -9,8 +9,21 @@ class PointButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BaseShadow(
-        container: ElevatedButton(
+    return Container(
+      height: 100,
+      margin: EdgeInsets.fromLTRB(20, 0, 5, 0),
+      decoration: BoxDecoration(
+          boxShadow: [
+            BoxShadow(
+                color : Colors.black.withOpacity(0.15),
+                blurRadius: 10,
+                spreadRadius: 0.0,
+                offset: const Offset(0,7)
+
+            )
+          ]
+      ),
+      child:  ElevatedButton(
             style: ElevatedButton.styleFrom(
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10)),

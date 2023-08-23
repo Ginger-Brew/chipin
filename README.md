@@ -21,6 +21,9 @@ https://parkjh7764.tistory.com/205
 custom bottom sheet
 https://gist.github.com/rohan20/869492358cbb15311538f069a0c749af
 
+구글 지도 위에 마커
+https://dumbokim.tistory.com/37
+
 
 ### naver_map_plugin github 주소
 https://github.com/LBSTECH/naver_map_plugin

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../child_code_generate/code_generate_screen.dart';
 import '../colors.dart';
 
 /// Search text field plus the horizontally scrolling categories below the text field
@@ -27,10 +28,10 @@ class CustomSearchContainer extends StatelessWidget {
             color: Colors.white, borderRadius: BorderRadius.circular(6)),
         child: Row(
           children: <Widget>[
+            SizedBox(width: 16),
+            Icon(Icons.search),
             CustomTextField(),
             Icon(Icons.mic),
-            SizedBox(width: 16),
-            CustomUserAvatar(),
             SizedBox(width: 16),
           ],
         ),
@@ -47,7 +48,7 @@ class CustomTextField extends StatelessWidget {
         maxLines: 1,
         decoration: InputDecoration(
           contentPadding: const EdgeInsets.all(16),
-          hintText: "Search here",
+          hintText: "가게 이름으로 검색하기",
           border: InputBorder.none,
         ),
       ),
@@ -79,6 +80,15 @@ class CustomCategoryChip extends StatelessWidget {
               borderRadius: BorderRadius.circular(10.0),
             ),
             elevation: 4.0,
-            child: Container(width: 450, height: 50, child: Text("예약현황보기"))));
+            child: GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => CodeGenerateScreen()));
+                },
+                child: Container(width: 450, height: 50,
+                    child: Center(
+                        child : Text("예약현황보기", style: TextStyle(fontFamily: "Mainfonts", fontSize: 15), textAlign: TextAlign.center))))));
   }
 }

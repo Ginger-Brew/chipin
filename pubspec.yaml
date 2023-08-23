@@ -31,6 +31,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  table_calendar: ^3.0.6
+  intl: ^0.17.0
 
   naver_map_plugin:
     git: https://github.com/LBSTECH/naver_map_plugin.git

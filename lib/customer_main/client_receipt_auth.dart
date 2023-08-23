@@ -164,7 +164,7 @@ class _ClientReceiptAuthState extends State<ClientReceiptAuth> {
                                           borderRadius: BorderRadius.circular(15.0)
                                       ),
                                       child: Text(
-                                          '정보 입력하기',
+                                          '확인',
                                           style: TextStyle(
                                             fontFamily: "Mainfonts",
                                             fontSize: 17,

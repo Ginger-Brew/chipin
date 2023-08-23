@@ -4,6 +4,7 @@ import '../base_appbar.dart';
 import '../base_shadow.dart';
 import '../colors.dart';
 import '../restaurant_main/restaurant_splitbutton.dart';
+import 'client_calendar.dart';
 import 'client_receipt_auth.dart';
 
 class ClientMain extends StatefulWidget {
@@ -27,8 +28,13 @@ class _ClientMainState extends State<ClientMain> {
                   Container(
                     margin: EdgeInsets.fromLTRB(30, 30, 100, 0),
                     child: TextButton(
-                        onPressed: (){},
+                        onPressed: (){
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) => const ClientCalendar())
+                          );
+                        },
                         child: Container(
+                          margin: EdgeInsets.only(bottom: 10),
                             child: Row(
                               children: [
                                 Image(

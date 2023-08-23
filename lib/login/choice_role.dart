@@ -58,7 +58,7 @@ class _ChoiceRoleState extends State<ChoiceRole> {
                 onPressed: _childToggleButton,
                 style: ButtonStyle(
                   backgroundColor:
-                      MaterialStateProperty.resolveWith<Color>((states) {
+                  MaterialStateProperty.resolveWith<Color>((states) {
                     if (_childIsPressed) {
                       return Colors.amber; // 선택시
                     }
@@ -98,7 +98,7 @@ class _ChoiceRoleState extends State<ChoiceRole> {
                 onPressed: _storeToggleButton,
                 style: ButtonStyle(
                   backgroundColor:
-                      MaterialStateProperty.resolveWith<Color>((states) {
+                  MaterialStateProperty.resolveWith<Color>((states) {
                     if (_storeIsPressed) {
                       return Colors.amber; // 선택시
                     }
@@ -138,7 +138,7 @@ class _ChoiceRoleState extends State<ChoiceRole> {
                 onPressed: _clientToggleButton,
                 style: ButtonStyle(
                   backgroundColor:
-                      MaterialStateProperty.resolveWith<Color>((states) {
+                  MaterialStateProperty.resolveWith<Color>((states) {
                     if (_clientIsPressed) {
                       return Colors.amber; // 선택시
                     }

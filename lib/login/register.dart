@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../base_appbar.dart';
 import 'model_auth.dart';
 import 'model_register.dart';
 
@@ -12,15 +13,7 @@ class RegisterPage extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => RegisterModel(),
       child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.black87,
-          elevation: 0,
-          title: Text('CHIPIN'),
-          centerTitle: true,
-          leading: IconButton(icon: Icon(Icons.arrow_back), onPressed: () {
-            Navigator.pop(context);
-          }),
-        ),
+        appBar: BaseAppBar(title: '회원가입'),
         body: Column(
           children: [
             Padding(padding: EdgeInsets.only(top:10)),

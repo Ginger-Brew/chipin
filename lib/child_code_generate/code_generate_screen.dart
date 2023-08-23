@@ -107,64 +107,51 @@ class _CodeGenerateScreenState extends State<CodeGenerateScreen> {
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Padding(
-                    padding: getPadding(left: 2, right: 11, top: 20),
+                    padding: EdgeInsets.only(left: 2, right: 11, top: 20),
                     child: Row(
-                      // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Container(
-                          width: 122,
-                          height: 122,
-                          decoration: const BoxDecoration(
+                          width: 80, // 이미지의 너비 설정 (적절한 값으로 조정)
+                          height: 80, // 이미지의 높이 설정 (적절한 값으로 조정)
+                          decoration: BoxDecoration(
                             image: DecorationImage(
                               image: AssetImage('assets/images/ohyang_restaurant.png'),
                               fit: BoxFit.cover,
                             ),
-                            // borderRadius: BorderRadius.circular(61),
                           ),
                           margin: const EdgeInsets.only(left: 21),
                         ),
-
-                        Padding(
-                          padding: getPadding(
-                            top: 24,
-                            bottom: 25,
-                            left: 20
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              const Text(
-                                "현재 예약중!",
-                                overflow: TextOverflow.ellipsis,
-                                textAlign: TextAlign.left,
-                                // style:
-                                //     CustomTextStyles.titleLargeGyeonggiTitleB,
-                              ),
-                              Padding(
-                                padding: getPadding(
-                                  top: 6,
-                                ),
-                                child: const Text(
-                                  "오양칼국수",
-                                  overflow: TextOverflow.ellipsis,
-                                  textAlign: TextAlign.left,
-                                  // style: theme.textTheme.titleMedium,
-                                ),
-                              ),
-                              const Text(
-                                "충청남도 보령시 오천면 소성리 691-52",
-                                overflow: TextOverflow.ellipsis,
-                                textAlign: TextAlign.left,
-                                // style: theme.textTheme.bodySmall!,
-                              ),
-                            ],
-                          ),
+                        SizedBox(width: 10), // 이미지와 텍스트 사이의 간격
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            const Text(
+                              "현재 예약중!",
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.left,
+                            ),
+                            const SizedBox(height: 6),
+                            const Text(
+                              "오양칼국수",
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.left,
+                            ),
+                            const SizedBox(height: 6),
+                            const Text(
+                              "충청남도 보령시 오천면 소성리 691-52",
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              softWrap: true,
+                              textAlign: TextAlign.left,
+                            ),
+                          ],
                         ),
                       ],
                     ),
                   ),
                 ),
+
                 Padding(
                   padding: getPadding(
                     top: 24,
@@ -283,9 +270,12 @@ class _CodeGenerateScreenState extends State<CodeGenerateScreen> {
     );
   }
   Widget _buildCodeBox(String code) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double boxSize = screenWidth * 0.1; // 스크린 너비의 일부로 박스 크기 조정
+
     return Container(
-      width: 40,
-      height: 40,
+      width: boxSize,
+      height: boxSize,
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: Colors.white,
@@ -297,8 +287,8 @@ class _CodeGenerateScreenState extends State<CodeGenerateScreen> {
       child: Text(
         code,
         style: const TextStyle(
-            fontSize: 16,
-            // fontWeight: FontWeight.bold
+          fontSize: 16,
+          // fontWeight: FontWeight.bold
         ),
       ),
     );

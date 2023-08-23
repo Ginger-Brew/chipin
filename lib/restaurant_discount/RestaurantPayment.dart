@@ -5,18 +5,18 @@ import 'package:chipin/base_appbar.dart';
 import 'package:flutter/services.dart';
 import '../colors.dart';
 import '../core/utils/size_utils.dart';
-import 'RestaurantPayment.dart';
+import '../restaurant_main/RestaurantMain.dart';
 
-class RestaurantDiscount extends StatefulWidget {
+class RestaurantPayment extends StatefulWidget {
   @override
-  _RestaurantDiscountState createState() => _RestaurantDiscountState();
+  _RestaurantPaymentState createState() => _RestaurantPaymentState();
 }
 
-class _RestaurantDiscountState extends State<RestaurantDiscount> {
+class _RestaurantPaymentState extends State<RestaurantPayment> {
   List<TextEditingController> controllers =
-      List.generate(4, (index) => TextEditingController());
+  List.generate(4, (index) => TextEditingController());
   List<FocusNode> focusNodes =
-      List.generate(4, (index) => FocusNode()); // Add this line
+  List.generate(4, (index) => FocusNode()); // Add this line
   List<String> result = List.generate(4, (index) => '');
 
   //firestore에 저장할 때 사용할 컬렉션 이름과 도큐먼트 이름
@@ -53,34 +53,7 @@ class _RestaurantDiscountState extends State<RestaurantDiscount> {
   }
 
 
-  void writedata() async {
-    final db = FirebaseFirestore.instance;
 
-    db
-        .collection("Child")
-        .doc("tlqkftlqk@naver.com")
-        .collection("ReservationInfo")
-        .doc(result.join())
-        .get()
-        .then((DocumentSnapshot ds) {
-      Map<String, dynamic> data = ds.data() as Map<String, dynamic>;
-
-      int reservationprice = data['price'];
-    });
-
-    // firestore에 저장
-    await db
-        .collection(colName)
-        .doc(id)
-        .collection(subColName)
-        .doc(subColName)
-        .set({'discountcode': "adf"})
-        .then((value) => print("document added")) // firestore에 저장이 잘 된 경우
-        .catchError((error) => print("Fail to add doc ${error}"));
-
-    Navigator.push(context, MaterialPageRoute(
-        builder: (context) =>  RestaurantPayment()));
-  }
 
   @override
   void initState() {
@@ -116,45 +89,9 @@ class _RestaurantDiscountState extends State<RestaurantDiscount> {
   @override
   Widget build(BuildContext context) {
 
-    List<Widget> textFields = controllers.asMap().entries.map((entry) {
-      int index = entry.key;
-      TextEditingController controller = entry.value;
-      FocusNode focusNode =
-          focusNodes[index]; // Get the corresponding focus node
-
-      return Container(
-        margin: EdgeInsets.all(10.0),
-        width: 50.0,
-        child: TextField(
-          controller: controller,
-          focusNode: focusNode,
-          // Assign the focus node
-          maxLength: 1,
-          buildCounter: (BuildContext context,
-                  {int? currentLength, int? maxLength, bool? isFocused}) =>
-              null,
-          textAlign: TextAlign.center,
-          keyboardType: TextInputType.text,
-          decoration:
-              InputDecoration(border: OutlineInputBorder(), isDense: true),
-          textInputAction: index == controllers.length - 1
-              ? TextInputAction.done // Set Done for the last text field
-              : TextInputAction.next,
-          // Set Next for the rest of the fields
-          onSubmitted: (value) {
-            if (index < controllers.length - 1) {
-              FocusScope.of(context).requestFocus(focusNodes[index + 1]);
-            } else {
-              // Reached the last field, do something
-            }
-          },
-        ),
-      );
-    }).toList();
-    readdata();
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: const BaseAppBar(title: "가게정보"),
+      appBar: const BaseAppBar(title: "할인 코드 직원 확인"),
       body: Container(
           width: mediaQueryData.size.width,
           child: SingleChildScrollView(
@@ -184,7 +121,7 @@ class _RestaurantDiscountState extends State<RestaurantDiscount> {
                               ),
                             ),
                           ),
-                           Padding(
+                          Padding(
                             padding: EdgeInsets.only(top: 2),
                             child: Row(
                               children: [
@@ -212,7 +149,7 @@ class _RestaurantDiscountState extends State<RestaurantDiscount> {
                 ),
                 const SizedBox(height: 50),
                 Text(
-                  '할인 코드를 입력해주세요',
+                  '십시일반 포인트 차감 후\n실결제 금액은',
                   style: TextStyle(
                       fontFamily: "Pretendard",
                       color: Colors.grey,
@@ -221,30 +158,33 @@ class _RestaurantDiscountState extends State<RestaurantDiscount> {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 30),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: textFields,
+                Text(
+                  '2300원',
+                  style: TextStyle(
+                      fontFamily: "Pretendard",
+                      color: Colors.grey,
+                      fontSize: 36,
+                      fontWeight: FontWeight.w800),
+                  textAlign: TextAlign.center,
                 ),
                 SizedBox(height: 50),
                 ElevatedButton(
                   // onPressed: isCodeValid ? () => Navigator.push(context, MaterialPageRoute(
                   //     builder: (context) =>  RestaurantDiscount())) : null,
-                  onPressed: isCodeValid ? () => writedata() : null,
-                  // onPressed: () => writedata(),
+                  // onPressed: isCodeValid ? () => writedata() : null,
+                  onPressed: () => Navigator.push(context, MaterialPageRoute(
+                      builder: (context) =>  RestaurantMain())),
                   style: ButtonStyle(
                     foregroundColor: MaterialStateProperty.all(Colors.white),
                     backgroundColor:
-                        MaterialStateProperty.resolveWith<Color>((states) {
-                      if (!isCodeValid) {
-                        return Colors.grey; // 비활성화 상태일 때 회색 배경색
-                      }
+                    MaterialStateProperty.resolveWith<Color>((states) {
                       return MyColor.DARK_YELLOW; // 활성화 상태일 때 파란 배경색
                     }),
                     shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                         RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(18.0),
-                      // side: BorderSide(color: Colors.red)
-                    )),
+                          borderRadius: BorderRadius.circular(18.0),
+                          // side: BorderSide(color: Colors.red)
+                        )),
                     fixedSize: MaterialStateProperty.all<Size>(
                       Size(MediaQuery.of(context).size.width - 32,
                           48), // 가로 길이를 화면 가로 길이 - 32로 설정

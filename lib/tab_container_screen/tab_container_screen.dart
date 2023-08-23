@@ -4,7 +4,7 @@ import 'package:chipin/main.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import '../../base_appbar.dart';
+import 'package:chipin/base_appbar.dart';
 import '../core/utils/size_utils.dart';
 import '../menu1/menu1.dart';
 import '../menu2/menu2.dart';

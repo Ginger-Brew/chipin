@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../child_code_generate/code_generate_screen.dart';
+import '../colors.dart';
+
 /// Search text field plus the horizontally scrolling categories below the text field
 class ChildMainSearch extends StatelessWidget {
   @override
@@ -7,7 +10,7 @@ class ChildMainSearch extends StatelessWidget {
     return Column(
       children: <Widget>[
         CustomSearchContainer(),
-        CustomSearchCategories(),
+        CustomCategoryChip(),
       ],
     );
   }
@@ -17,16 +20,18 @@ class CustomSearchContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 40, 16, 8), //adjust "40" according to the status bar size
+      padding: const EdgeInsets.fromLTRB(16, 40, 16, 8),
+      //adjust "40" according to the status bar size
       child: Container(
         height: 50,
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6)),
+        decoration: BoxDecoration(
+            color: Colors.white, borderRadius: BorderRadius.circular(6)),
         child: Row(
           children: <Widget>[
+            SizedBox(width: 16),
+            Icon(Icons.search),
             CustomTextField(),
             Icon(Icons.mic),
-            SizedBox(width: 16),
-            CustomUserAvatar(),
             SizedBox(width: 16),
           ],
         ),
@@ -43,7 +48,7 @@ class CustomTextField extends StatelessWidget {
         maxLines: 1,
         decoration: InputDecoration(
           contentPadding: const EdgeInsets.all(16),
-          hintText: "Search here",
+          hintText: "가게 이름으로 검색하기",
           border: InputBorder.none,
         ),
       ),
@@ -57,48 +62,33 @@ class CustomUserAvatar extends StatelessWidget {
     return Container(
       height: 32,
       width: 32,
-      decoration: BoxDecoration(color: Colors.grey[500], borderRadius: BorderRadius.circular(16)),
-    );
-  }
-}
-
-class CustomSearchCategories extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: <Widget>[
-          SizedBox(width: 16),
-          CustomCategoryChip(Icons.fastfood, "Takeout"),
-          SizedBox(width: 12),
-          CustomCategoryChip(Icons.directions_bike, "Delivery"),
-          SizedBox(width: 12),
-          CustomCategoryChip(Icons.local_gas_station, "Gas"),
-          SizedBox(width: 12),
-          CustomCategoryChip(Icons.shopping_cart, "Groceries"),
-          SizedBox(width: 12),
-          CustomCategoryChip(Icons.local_pharmacy, "Pharmacies"),
-          SizedBox(width: 12),
-        ],
-      ),
+      decoration: BoxDecoration(
+          color: Colors.grey[500], borderRadius: BorderRadius.circular(16)),
     );
   }
 }
 
 class CustomCategoryChip extends StatelessWidget {
-  final IconData iconData;
-  final String title;
-
-  CustomCategoryChip(this.iconData, this.title);
+  const CustomCategoryChip({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Chip(
-      label: Row(
-        children: <Widget>[Icon(iconData, size: 16), SizedBox(width: 8), Text(title)],
-      ),
-      backgroundColor: Colors.grey[50],
-    );
+    return Center(
+        child: Card(
+            color: MyColor.DARK_YELLOW,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            elevation: 4.0,
+            child: GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => CodeGenerateScreen()));
+                },
+                child: Container(width: 450, height: 50,
+                    child: Center(
+                        child : Text("예약현황보기", style: TextStyle(fontFamily: "Mainfonts", fontSize: 15), textAlign: TextAlign.center))))));
   }
 }

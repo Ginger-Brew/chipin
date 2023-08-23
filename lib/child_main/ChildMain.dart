@@ -45,11 +45,10 @@ class _ChildMainState extends State<ChildMain> {
           CustomGoogleMap(),
           ChildMainSearch(),
           DraggableScrollableSheet(
-            initialChildSize: 0.20,
             /// 수정 필요
             // 결과 높이를 구해서 maxChildSize로 설정해야함.
-            maxChildSize: 0.4,
-            minChildSize: 0.20,
+            initialChildSize: 0.30,
+            minChildSize: 0.15,
             builder: (BuildContext context, ScrollController scrollController) {
               return SingleChildScrollView(
                 key: _containerkey,

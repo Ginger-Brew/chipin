@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
 class LoginModel extends ChangeNotifier {
-  String email = "";
+  String id = "";
   String password = "";
 
-  void setEmail(String email) {
-    this.email = email;
+  void setId(String id) {
+    this.id = id;
     notifyListeners();
   }
 

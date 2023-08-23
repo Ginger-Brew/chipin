@@ -49,18 +49,11 @@ class _ChoiceRoleState extends State<ChoiceRole> {
         body: Column(
           children: [
             const SizedBox(
-              height: 20,
+              height: 50,
             ),
             Container(
-              height: 200,
+              height: 150,
               margin: const EdgeInsets.symmetric(horizontal: 40),
-              decoration: BoxDecoration(boxShadow: [
-                BoxShadow(
-                    color: Colors.black.withOpacity(0.15),
-                    blurRadius: 10,
-                    spreadRadius: 0.0,
-                    offset: const Offset(0, 3))
-              ]),
               child: ElevatedButton(
                 onPressed: _childToggleButton,
                 style: ButtonStyle(
@@ -78,8 +71,8 @@ class _ChoiceRoleState extends State<ChoiceRole> {
                     children: [
                       Container(
                         margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                        width: 187,
-                        height: 125,
+                        width: 50,
+                        height: 50,
                         child: Image.asset('assets/images/child_role.png'),
                       ),
                       const Text(
@@ -96,18 +89,11 @@ class _ChoiceRoleState extends State<ChoiceRole> {
               ),
             ),
             const SizedBox(
-              height: 10,
+              height: 30,
             ),
             Container(
-              height: 200,
+              height: 150,
               margin: const EdgeInsets.symmetric(horizontal: 40),
-              decoration: BoxDecoration(boxShadow: [
-                BoxShadow(
-                    color: Colors.black.withOpacity(0.15),
-                    blurRadius: 10,
-                    spreadRadius: 0.0,
-                    offset: const Offset(0, 3))
-              ]),
               child: ElevatedButton(
                 onPressed: _storeToggleButton,
                 style: ButtonStyle(
@@ -125,8 +111,8 @@ class _ChoiceRoleState extends State<ChoiceRole> {
                     children: [
                       Container(
                         margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                        width: 168,
-                        height: 130,
+                        width: 50,
+                        height: 50,
                         child: Image.asset('assets/images/restaurant_role.png'),
                       ),
                       const Text(
@@ -143,18 +129,11 @@ class _ChoiceRoleState extends State<ChoiceRole> {
               ),
             ),
             const SizedBox(
-              height: 10,
+              height: 30,
             ),
             Container(
-              height: 200,
+              height: 150,
               margin: const EdgeInsets.symmetric(horizontal: 40),
-              decoration: BoxDecoration(boxShadow: [
-                BoxShadow(
-                    color: Colors.black.withOpacity(0.15),
-                    blurRadius: 10,
-                    spreadRadius: 0.0,
-                    offset: const Offset(0, 3))
-              ]),
               child: ElevatedButton(
                 onPressed: _clientToggleButton,
                 style: ButtonStyle(
@@ -172,8 +151,8 @@ class _ChoiceRoleState extends State<ChoiceRole> {
                     children: [
                       Container(
                         margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                        width: 177,
-                        height: 131,
+                        width: 50,
+                        height: 50,
                         child: Image.asset('assets/images/customer_role.png'),
                       ),
                       const Text(
@@ -190,7 +169,7 @@ class _ChoiceRoleState extends State<ChoiceRole> {
               ),
             ),
             const SizedBox(
-              height: 10,
+              height: 30,
             ),
             TextButton(
                 onPressed: () {
@@ -218,6 +197,7 @@ void _showDialog(BuildContext context, String text) {
   showDialog(
       context: context,
       builder: (BuildContext ctx) {
-        return AlertDialog(content: Text(text));
+        return AlertDialog(content: Text(text,
+            style: TextStyle(fontFamily: "Mainfonts", fontSize: 15), textAlign: TextAlign.center));
       });
 }

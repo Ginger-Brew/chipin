@@ -24,7 +24,7 @@ class ClientPrintUnit extends StatelessWidget{
             children: [
               Container(
                 margin: EdgeInsets.only(top: 10),
-                width: 300,
+                width: 100,
                 child: Text(
                     title,
                     style: TextStyle(
@@ -35,7 +35,7 @@ class ClientPrintUnit extends StatelessWidget{
               ),
               Container(
                 margin: EdgeInsets.only(top: 10),
-                width: 300,
+                width: 100,
                 child: Text(
                     date,
                     style: TextStyle(

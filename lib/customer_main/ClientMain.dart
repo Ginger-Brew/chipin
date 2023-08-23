@@ -46,7 +46,7 @@ class _ClientMainState extends State<ClientMain> {
                                   width: 10,
                                 ),
                                 Text(
-                                    '이달의 리워드',
+                                    '이달의 후원달력',
                                     style: TextStyle(
                                         fontFamily: "Mainfonts",
                                         fontSize: 20,

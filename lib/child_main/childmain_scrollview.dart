@@ -58,53 +58,25 @@ class ScrollingRestaurants extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            CustomRestaurantCategory("오양칼국수", "충청남도 보령시 오천면 소성리 691-52",
+            CustomRestaurantCategory("오양칼국수", "충청남도 보령시 오천면",
                 "오후 8:00시까지 영업", "assets/images/ohyang_restaurant.png"),
             DivideLine(),
             SizedBox(height: 20),
-            CustomRestaurantCategory("권영철 콩짬뽕", "충청남도 보령시 오천면 소성리 691-52",
-                "오후 6:30시까지 영업", "assets/images/ohyang_restaurant.png"),
+            CustomRestaurantCategory("권영철 콩짬뽕", "충청남도 보령시 오천면",
+                "오후 6:30시까지 영업", "assets/images/kongjjamppong.png"),
             DivideLine(),
             SizedBox(height: 20),
             CustomRestaurantCategory("정통집", "대전광역시 유성구 온천1동",
-                "오후 10:00시까지 영업", "assets/images/ohyang_restaurant.png"),
+                "오후 10:00시까지 영업", "assets/images/originalhouse.png"),
             DivideLine(),
             SizedBox(height: 20),
-            CustomRestaurantCategory("훈불", "대전광역시 유성구 궁동 222", "오후 8:00시까지 영업",
-                "assets/images/ohyang_restaurant.png"),
+            CustomRestaurantCategory("훈불", "대전광역시 유성구 궁동", "오후 8:00시까지 영업",
+                "assets/images/handsomefire.png"),
             DivideLine(),
             SizedBox(height: 20),
-            CustomRestaurantCategory("팔각도 대전괴정롯데점", "대전광역시 서구 괴정동 424 27번지 1층",
-                "오후 8:00시까지 영업", "assets/images/ohyang_restaurant.png"),
-            DivideLine(),
-            SizedBox(height: 20),
-            CustomRestaurantCategory("오양칼국수", "충청남도 보령시 오천면 소성리 691-52",
-                "오후 8:00시까지 영업", "assets/images/ohyang_restaurant.png"),
-            DivideLine(),
-            SizedBox(height: 20),
-            CustomRestaurantCategory("권영철 콩짬뽕", "충청남도 보령시 오천면 소성리 691-52",
-                "오후 6:30시까지 영업", "assets/images/ohyang_restaurant.png"),
-            DivideLine(),
-            SizedBox(height: 20),
-            CustomRestaurantCategory("정통집", "대전광역시 유성구 온천1동",
-                "오후 10:00시까지 영업", "assets/images/ohyang_restaurant.png"),
-            DivideLine(),
-            SizedBox(height: 20),
-            CustomRestaurantCategory("훈불", "대전광역시 유성구 궁동 222", "오후 8:00시까지 영업",
-                "assets/images/ohyang_restaurant.png"),
-            DivideLine(),
-            SizedBox(height: 20),
-            CustomRestaurantCategory("팔각도 대전괴정롯데점", "대전광역시 서구 괴정동 424 27번지 1층",
-                "오후 8:00시까지 영업", "assets/images/ohyang_restaurant.png"),
-            DivideLine(),
-            SizedBox(height: 20),
-            CustomRestaurantCategory("오양칼국수", "충청남도 보령시 오천면 소성리 691-52",
-                "오후 8:00시까지 영업", "assets/images/ohyang_restaurant.png"),
-            DivideLine(),
-            SizedBox(height: 20),
-            CustomRestaurantCategory("권영철 콩짬뽕", "충청남도 보령시 오천면 소성리 691-52",
-                "오후 6:30시까지 영업", "assets/images/ohyang_restaurant.png"),
-            SizedBox(height: 20),
+            CustomRestaurantCategory("팔각도 대전괴정롯데점", "대전광역시 서구 괴정동",
+                "오후 8:00시까지 영업", "assets/images/eightangle.png"),
+           
           ],
         ),
       ),
@@ -117,7 +89,7 @@ class DivideLine extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
         child: Container(
-            width: 450, child: Divider(color: Colors.grey, thickness: 1.0)));
+            width: 350, child: Divider(color: Colors.grey, thickness: 1.0)));
   }
 }
 
@@ -151,7 +123,7 @@ class CustomRestaurantCategory extends StatelessWidget {
     return Padding(
         padding: const EdgeInsets.only(bottom: 20),
         child: Container(
-          width : 470,
+          width : 340,
             child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -167,13 +139,13 @@ class CustomRestaurantCategory extends StatelessWidget {
                               builder: (context) => TabContainerScreen()));
                     },
                     child: Container(
-                        height: 120,
-                        width: 120,
+                        height: 90,
+                        width: 90,
                         child: Image(
                           image: AssetImage(image),
                           fit: BoxFit.fill,
                         ))),
-                SizedBox(width: 16),
+                SizedBox(width: 8),
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Text(title,
                       style: TextStyle(
@@ -201,7 +173,6 @@ class CustomRestaurantCategory extends StatelessWidget {
                 ]),
               ],
             ),
-            SizedBox(width: 20),
             Container(
               height: 40,
               width: 40,

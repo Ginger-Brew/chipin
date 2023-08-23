@@ -73,22 +73,26 @@ class CustomCategoryChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-        child: Card(
-            color: MyColor.DARK_YELLOW,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10.0),
-            ),
-            elevation: 4.0,
-            child: GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => CodeGenerateScreen()));
-                },
-                child: Container(width: 450, height: 50,
+    return GestureDetector(
+        onTap: () {
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => CodeGenerateScreen()));
+        },
+        child: Center(
+            child: Card(
+                color: MyColor.DARK_YELLOW,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                elevation: 4.0,
+                child: Container(
+                    width: 450,
+                    height: 50,
                     child: Center(
-                        child : Text("예약현황보기", style: TextStyle(fontFamily: "Mainfonts", fontSize: 15), textAlign: TextAlign.center))))));
+                        child: Text("예약현황보기",
+                            style: TextStyle(
+                                fontFamily: "Mainfonts", fontSize: 15),
+                            textAlign: TextAlign.center))))));
+    ;
   }
 }

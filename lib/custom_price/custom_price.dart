@@ -186,7 +186,7 @@ class _CustomPricePageState extends State<CustomPricePage> {
             ),
 
 
-            SizedBox(height: 16),
+            SizedBox(height: 2),
 
             Row(
               mainAxisAlignment: MainAxisAlignment.center,

@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -6,30 +7,42 @@ import 'model_auth.dart';
 import 'model_register.dart';
 
 const String role = "";
+final userinfo = <String, dynamic>{
+  "totalrole": <String, bool>{
+    "child": false,
+    "restaurant": false,
+    "client": false
+  },
+  "name": "",
+  "email": ""
+};
 
-class RegisterPage extends StatelessWidget {
+class RegisterPage extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => _RegisterPageState();
+}
+
+class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => RegisterModel(),
-      child: Scaffold(
-        appBar: BaseAppBar(title: '회원가입'),
-        body: Column(
-          children: [
-            Padding(padding: EdgeInsets.only(top:10)),
-            IDInput(),
-            PasswordInput(),
-            PasswordConfirmInput(),
-            NameInput(),
-            EmailInput(),
-            RegistButton()
-          ],
-        ),
-      )
-    );
+        create: (_) => RegisterModel(),
+        child: Scaffold(
+          appBar: BaseAppBar(title: '회원가입'),
+          body: Column(
+            children: [
+              Padding(padding: EdgeInsets.only(top: 10)),
+              IDInput(),
+              PasswordInput(),
+              PasswordConfirmInput(),
+              NameInput(),
+              EmailInput(),
+              RegistButton()
+            ],
+          ),
+        ));
   }
 }
-
 
 class IDInput extends StatelessWidget {
   @override
@@ -50,7 +63,6 @@ class IDInput extends StatelessWidget {
   }
 }
 
-
 class EmailInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -60,6 +72,7 @@ class EmailInput extends StatelessWidget {
       child: TextField(
         onChanged: (email) {
           register.setEmail(email);
+          userinfo["email"] = register.email;
         },
         keyboardType: TextInputType.emailAddress,
         decoration: InputDecoration(
@@ -85,7 +98,9 @@ class PasswordInput extends StatelessWidget {
         decoration: InputDecoration(
           labelText: 'password',
           helperText: '',
-          errorText: register.password != register.passwordConfirm ? 'Password incorrect' : null,
+          errorText: register.password != register.passwordConfirm
+              ? 'Password incorrect'
+              : null,
         ),
       ),
     );
@@ -112,7 +127,6 @@ class PasswordConfirmInput extends StatelessWidget {
   }
 }
 
-
 class NameInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -122,6 +136,7 @@ class NameInput extends StatelessWidget {
       child: TextField(
         onChanged: (name) {
           register.setName(name);
+          userinfo["name"] = register.name;
         },
         decoration: InputDecoration(
           labelText: 'name',
@@ -132,12 +147,35 @@ class NameInput extends StatelessWidget {
   }
 }
 
+// class BdayInput extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     final register = Provider.of<RegisterModel>(context, listen: false);
+//     return Container(
+//       padding: EdgeInsets.all(15),
+//       child: TextField(
+//         onChanged: (name) {
+//           register.setName(name);
+//           userinfo["bday"] = register.name;
+//         },
+//         decoration: InputDecoration(
+//           labelText: 'name',
+//           helperText: '',
+//         ),
+//       ),
+//     );
+//   }
+// }
+
 class RegistButton extends StatelessWidget {
+  FirebaseFirestore fireStore = FirebaseFirestore.instance;
+
   @override
   Widget build(BuildContext context) {
     final authClient =
-    Provider.of<FirebaseAuthProvider>(context, listen: false);
+        Provider.of<FirebaseAuthProvider>(context, listen: false);
     final register = Provider.of<RegisterModel>(context);
+    FirebaseFirestore db = FirebaseFirestore.instance;
 
     return Container(
       width: MediaQuery.of(context).size.width * 0.7,
@@ -149,26 +187,32 @@ class RegistButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(30.0),
           ),
         ),
-        onPressed: (register.password != register.passwordConfirm) ? null : () async {
-          await authClient
-              .registerWithEmail(register.id, register.password)
-              .then((registerStatus) {
-            if (registerStatus == AuthStatus.registerSuccess) {
-              ScaffoldMessenger.of(context)
-                ..hideCurrentSnackBar()
-                ..showSnackBar(
-                  SnackBar(content: Text('Regist Success')),
-                );
-              Navigator.pop(context);
-            } else {
-              ScaffoldMessenger.of(context)
-                ..hideCurrentSnackBar()
-                ..showSnackBar(
-                  SnackBar(content: Text('Regist Fail')),
-                );
-            }
-          });
-        },
+        onPressed: (register.password != register.passwordConfirm)
+            ? null
+            : () async {
+                await authClient
+                    .registerWithEmail(register.id, register.password)
+                    .then((registerStatus) {
+                  if (registerStatus == AuthStatus.registerSuccess) {
+                    ScaffoldMessenger.of(context)
+                      ..hideCurrentSnackBar()
+                      ..showSnackBar(
+                        SnackBar(content: Text('Regist Success')),
+                      );
+                    final usercollection =
+                        db.collection("Users").doc(register.id).collection("회원정보").doc("개인정보");
+                    usercollection.set(userinfo);
+
+                    Navigator.pop(context);
+                  } else {
+                    ScaffoldMessenger.of(context)
+                      ..hideCurrentSnackBar()
+                      ..showSnackBar(
+                        SnackBar(content: Text('Regist Fail')),
+                      );
+                  }
+                });
+              },
         child: Text('Regist'),
       ),
     );

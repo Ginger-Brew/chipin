@@ -9,9 +9,12 @@ import 'child_main/ChildMain.dart';
 import 'customer_main/ClientMain.dart';
 import 'login/login.dart';
 import 'login/model_auth.dart';
+import 'login/model_login.dart';
 import 'login/register.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'model/model_menu_provider.dart';
+import 'model/model_restaurant_provider.dart';
 import 'restaurant_register/RestaurantInfoRegister.dart';
 
 class ColorService { //테마 컬러를 지정할 때 사용하는 classs
@@ -59,6 +62,9 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
         providers: [
           ChangeNotifierProvider(create: (_) => FirebaseAuthProvider()),
+          ChangeNotifierProvider(create: (_) => MenuProvider()),
+          ChangeNotifierProvider(create: (_) => RestaurantProvider()),
+          ChangeNotifierProvider(create: (_) => LoginModel()),
         ],
         child: MaterialApp(
             title: 'CHIPIN',

@@ -13,4 +13,8 @@ class LoginModel extends ChangeNotifier {
     this.password = password;
     notifyListeners();
   }
+
+  String getemail() {
+    return id;
+  }
 }

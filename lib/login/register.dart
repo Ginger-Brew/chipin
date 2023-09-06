@@ -14,7 +14,8 @@ final userinfo = <String, dynamic>{
     "client": false
   },
   "name": "",
-  "email": ""
+  "email": "",
+  "id" : ""
 };
 
 class RegisterPage extends StatefulWidget {
@@ -53,6 +54,7 @@ class IDInput extends StatelessWidget {
       child: TextField(
         onChanged: (id) {
           register.setId(id);
+          userinfo["id"] = register.id;
         },
         decoration: InputDecoration(
           labelText: 'id',
@@ -173,9 +175,8 @@ class RegistButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authClient =
-        Provider.of<FirebaseAuthProvider>(context, listen: false);
+    Provider.of<FirebaseAuthProvider>(context, listen: false);
     final register = Provider.of<RegisterModel>(context);
-    FirebaseFirestore db = FirebaseFirestore.instance;
 
     return Container(
       width: MediaQuery.of(context).size.width * 0.7,
@@ -190,29 +191,29 @@ class RegistButton extends StatelessWidget {
         onPressed: (register.password != register.passwordConfirm)
             ? null
             : () async {
-                await authClient
-                    .registerWithEmail(register.id, register.password)
-                    .then((registerStatus) {
-                  if (registerStatus == AuthStatus.registerSuccess) {
-                    ScaffoldMessenger.of(context)
-                      ..hideCurrentSnackBar()
-                      ..showSnackBar(
-                        SnackBar(content: Text('Regist Success')),
-                      );
-                    final usercollection =
-                        db.collection("Users").doc(register.id).collection("회원정보").doc("개인정보");
-                    usercollection.set(userinfo);
+          await authClient
+              .registerWithEmail(register.email, register.password)
+              .then((registerStatus) async {
+            if (registerStatus == AuthStatus.registerSuccess) {
+              ScaffoldMessenger.of(context)
+                ..hideCurrentSnackBar()
+                ..showSnackBar(
+                  SnackBar(content: Text('Regist Success')),
+                );
+              final usercollection =
+              FirebaseFirestore.instance.collection("Users").doc(register.email).collection("userinfo").doc("userinfo");
+              usercollection.set(userinfo);
 
-                    Navigator.pop(context);
-                  } else {
-                    ScaffoldMessenger.of(context)
-                      ..hideCurrentSnackBar()
-                      ..showSnackBar(
-                        SnackBar(content: Text('Regist Fail')),
-                      );
-                  }
-                });
-              },
+              Navigator.pop(context);
+            } else {
+              ScaffoldMessenger.of(context)
+                ..hideCurrentSnackBar()
+                ..showSnackBar(
+                  SnackBar(content: Text('Regist Fail')),
+                );
+            }
+          });
+        },
         child: Text('Regist'),
       ),
     );

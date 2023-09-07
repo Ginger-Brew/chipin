@@ -1,7 +1,10 @@
 // 참고 https://cholol.tistory.com/572
 
 import 'package:chipin/colors.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'choice_role.dart';
 import 'model_auth.dart';
@@ -133,18 +136,26 @@ class LoginButton extends StatelessWidget {
                 ..showSnackBar(SnackBar(
                     content:
                         Text('welcome! ' + authClient.user!.email! + ' ')));
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => ChoiceRole()));
-              // final userCollectionReference = FirebaseFirestore.instance.collection("users").doc(login.email);
-              // userCollectionReference.get().then((role) => {
-              //   if (role.data()?['role'] == "내담자") {
-              //     Navigator.pushReplacementNamed(context, '/clienthome')
-              //   } else if (role.data()?['role'] == "상담가") {
-              //     Navigator.pushReplacementNamed(context, '/offerhome')
-              //   } else {
-              //     print(role.data()?['role'])
-              //   }
-              // });
+              String nowrole = "";
+              var logger = Logger();
+              final docRef = FirebaseFirestore.instance.collection("Users").doc(login.id).collection("userinfo").doc("nowrole");
+              docRef.get().then(
+                    (DocumentSnapshot doc) {
+                  final data = doc.data() as Map<String, dynamic>;
+                  nowrole = data["nowrole"];
+                  if (nowrole == "child") {
+                    Navigator.pushReplacementNamed(context, '/childmain');
+                  } else if (nowrole == "restaurant") {
+                    Navigator.pushReplacementNamed(context, '/storemain');
+                  } else if (nowrole == "client") {
+                    Navigator.pushReplacementNamed(context, '/clientmain');
+                  } else {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const ChoiceRole()));
+                  }
+                },
+                onError: (e) => print("Error getting document: $e"),
+              );
+
             } else {
               ScaffoldMessenger.of(context)
                 ..hideCurrentSnackBar()

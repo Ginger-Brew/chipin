@@ -201,8 +201,9 @@ class RegistButton extends StatelessWidget {
                   SnackBar(content: Text('Regist Success')),
                 );
               final usercollection =
-              FirebaseFirestore.instance.collection("Users").doc(register.email).collection("userinfo").doc("userinfo");
-              usercollection.set(userinfo);
+              FirebaseFirestore.instance.collection("Users").doc(register.email).collection("userinfo");
+              usercollection.doc("userinfo").set(userinfo);
+              usercollection.doc("nowrole").set({'nowrole' : ""});
 
               Navigator.pop(context);
             } else {

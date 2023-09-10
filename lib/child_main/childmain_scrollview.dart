@@ -1,7 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
+import 'package:provider/provider.dart';
+import '../login/model_login.dart';
+import '../model/model_restaurant_provider.dart';
 import '../tab_container_screen/tab_container_screen.dart';
 
-/// Content of the DraggableBottomSheet's child SingleChildScrollView
 class CustomScrollViewContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -48,38 +52,57 @@ class CustomDraggingHandle extends StatelessWidget {
   }
 }
 
-class ScrollingRestaurants extends StatelessWidget {
+class ScrollingRestaurants extends StatefulWidget {
+  const ScrollingRestaurants({super.key});
+
+  State<ScrollingRestaurants> createState() => _ScrollingRestaurantsState();
+}
+
+class _ScrollingRestaurantsState extends State<ScrollingRestaurants> {
+
+  FirebaseFirestore fireStore = FirebaseFirestore.instance;
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            CustomRestaurantCategory("오양칼국수", "충청남도 보령시 오천면",
-                "오후 8:00시까지 영업", "assets/images/ohyang_restaurant.png"),
-            DivideLine(),
-            SizedBox(height: 20),
-            CustomRestaurantCategory("권영철 콩짬뽕", "충청남도 보령시 오천면",
-                "오후 6:30시까지 영업", "assets/images/kongjjamppong.png"),
-            DivideLine(),
-            SizedBox(height: 20),
-            CustomRestaurantCategory("정통집", "대전광역시 유성구 온천1동",
-                "오후 10:00시까지 영업", "assets/images/originalhouse.png"),
-            DivideLine(),
-            SizedBox(height: 20),
-            CustomRestaurantCategory("훈불", "대전광역시 유성구 궁동", "오후 8:00시까지 영업",
-                "assets/images/handsomefire.png"),
-            DivideLine(),
-            SizedBox(height: 20),
-            CustomRestaurantCategory("팔각도 대전괴정롯데점", "대전광역시 서구 괴정동",
-                "오후 8:00시까지 영업", "assets/images/eightangle.png"),
-           
-          ],
-        ),
-      ),
+
+    // final loginProvider = Provider.of<LoginModel>(context, listen: false);
+    // Map<String, dynamic> data = FirebaseFirestore.instance.collection("Users").doc(loginProvider.id).collection("userinfo").doc("userinfo").get() as Map<String, dynamic>;
+    // String userid = data["id"];
+    //
+    final restaurantProvider = Provider.of<RestaurantProvider>(context);
+    var logger = Logger();
+
+    return FutureBuilder(
+        future: restaurantProvider.fetchRestaurants(),
+        builder: (context, snapshots) {
+          if (restaurantProvider.restaurants.length == 0) {
+            return Center(
+              child : CircularProgressIndicator(),
+            );
+          } else {
+            return ListView.builder(
+              padding : const EdgeInsets.only(bottom: 16),
+              itemCount : restaurantProvider.restaurants.length,
+              itemBuilder: (context, index) {
+                logger.d(restaurantProvider.restaurants[index].title);
+                return RestaurantInfoContainer();
+              },
+            );
+          }
+        });
+  }
+}
+
+class RestaurantInfoContainer extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children : [
+          SizedBox(height: 1000),
+          CustomRestaurantCategory("오양칼국수", "충청남도 보령시 오천면",
+              "오후 8:00시까지 영업", "assets/images/ohyang_restaurant.png"),
+          DivideLine(),
+        ]
     );
   }
 }
@@ -123,66 +146,66 @@ class CustomRestaurantCategory extends StatelessWidget {
     return Padding(
         padding: const EdgeInsets.only(bottom: 20),
         child: Container(
-          width : 340,
+            width : 340,
             child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                GestureDetector(
-                    /// 수정 필요
-                    // 각각 해당하는 가게 정보로 넘어가야함.
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => TabContainerScreen()));
-                    },
-                    child: Container(
-                        height: 90,
-                        width: 90,
-                        child: Image(
-                          image: AssetImage(image),
-                          fit: BoxFit.fill,
-                        ))),
-                SizedBox(width: 8),
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(title,
-                      style: TextStyle(
-                          fontFamily: "Mainfonts",
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20)),
-                  Row(
-                    children: <Widget>[
-                      Icon(Icons.location_on, size: 20),
-                      SizedBox(width: 8),
-                      Text(location,
-                          style:
+                Row(
+                  children: [
+                    GestureDetector(
+                      /// 수정 필요
+                      // 각각 해당하는 가게 정보로 넘어가야함.
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => TabContainerScreen()));
+                        },
+                        child: Container(
+                            height: 90,
+                            width: 90,
+                            child: Image(
+                              image: AssetImage(image),
+                              fit: BoxFit.fill,
+                            ))),
+                    SizedBox(width: 8),
+                    Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Text(title,
+                          style: TextStyle(
+                              fontFamily: "Mainfonts",
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20)),
+                      Row(
+                        children: <Widget>[
+                          Icon(Icons.location_on, size: 20),
+                          SizedBox(width: 8),
+                          Text(location,
+                              style:
                               TextStyle(fontFamily: "Pretendard", fontSize: 15))
-                    ],
-                  ),
-                  Row(
-                    children: <Widget>[
-                      Icon(Icons.access_time_filled, size: 20),
-                      SizedBox(width: 8),
-                      Text(time,
-                          style:
+                        ],
+                      ),
+                      Row(
+                        children: <Widget>[
+                          Icon(Icons.access_time_filled, size: 20),
+                          SizedBox(width: 8),
+                          Text(time,
+                              style:
                               TextStyle(fontFamily: "Pretendard", fontSize: 15))
-                    ],
-                  ),
-                ]),
+                        ],
+                      ),
+                    ]),
+                  ],
+                ),
+                Container(
+                  height: 40,
+                  width: 40,
+                  child: Icon(Icons.favorite, size: 12, color: Colors.black54),
+                  decoration: BoxDecoration(
+                      color: Colors.grey[200],
+                      borderRadius: BorderRadius.circular(100)),
+                ),
               ],
-            ),
-            Container(
-              height: 40,
-              width: 40,
-              child: Icon(Icons.favorite, size: 12, color: Colors.black54),
-              decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(100)),
-            ),
-          ],
-        )));
+            )));
   }
 }
 

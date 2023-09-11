@@ -10,9 +10,12 @@ import 'child_main/ChildMain.dart';
 import 'customer_main/ClientMain.dart';
 import 'login/login.dart';
 import 'login/model_auth.dart';
+import 'login/model_login.dart';
 import 'login/register.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'model/model_menu_provider.dart';
+import 'model/model_restaurant_provider.dart';
 import 'restaurant_register/RestaurantInfoRegister.dart';
 
 class ColorService { //테마 컬러를 지정할 때 사용하는 classs
@@ -58,35 +61,38 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => FirebaseAuthProvider()),
-      ],
-      child: MaterialApp(
-          title: 'CHIPIN',
-          theme: ThemeData(
-              primarySwatch: ColorService.createMaterialColor(
-                  MyColor.DARK_YELLOW)), //테마 컬러를 dark_yellow로 설정함
-          debugShowCheckedModeBanner: false,
-          // debugShowCheckedModeBanner : 오른쪽상단 빨간색 표시
+        providers: [
+          ChangeNotifierProvider(create: (_) => FirebaseAuthProvider()),
+          ChangeNotifierProvider(create: (_) => MenuProvider()),
+          ChangeNotifierProvider(create: (_) => RestaurantProvider()),
+          ChangeNotifierProvider(create: (_) => LoginModel()),
+        ],
+        child: MaterialApp(
+            title: 'CHIPIN',
+            theme: ThemeData(
+                primarySwatch: ColorService.createMaterialColor(
+                    MyColor.PRICE)), //테마 컬러를 dark_yellow로 설정함
 
-        routes: {
-          // '/home': (context) => NavigationHomeScreen(pagename: DrawerIndex.HOME),
-          '/login': (context) => LoginPage(),
-          // '/splash': (context) => SplashScreen(),
-          '/register': (context) => RegisterPage(),
-          '/childmain': (context) => ChildMain(),
-          '/storemain': (context) => RestaurantInfoRegister(),
-          '/restaurantdetail' : (context) => TabContainerScreen(),
-          '/customprice' : (context) => CustomPricePage(),
-          '/clientmain' : (context) => ClientMain(),
-          '/codegenerate' : (context) => CodeGenerateScreen()
-        },
-        // 실행 시 가장 먼저 보여지는 화면 (splash 화면을 따로 만들거면 그 화면으로 해야함)
-        initialRoute: '/login'
-    ));
+            // debugShowCheckedModeBanner : 오른쪽상단 빨간색 표시
+            debugShowCheckedModeBanner: false,
+
+            routes: {
+              // '/home': (context) => NavigationHomeScreen(pagename: DrawerIndex.HOME),
+              '/login': (context) => LoginPage(),
+              // '/splash': (context) => SplashScreen(),
+              '/register': (context) => RegisterPage(),
+              '/childmain': (context) => ChildMain(),
+              '/storemain': (context) => RestaurantInfoRegister(),
+              '/restaurantdetail' : (context) => TabContainerScreen(),
+              '/customprice' : (context) => CustomPricePage(),
+              '/clientmain' : (context) => ClientMain(),
+              '/codegenerate' : (context) => CodeGenerateScreen()
+            },
+            // 실행 시 가장 먼저 보여지는 화면 (splash 화면을 따로 만들거면 그 화면으로 해야함)
+            initialRoute: '/login'
+        ));
   }
 }

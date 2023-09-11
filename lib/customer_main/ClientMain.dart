@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import '../base_appbar.dart';
 import '../base_shadow.dart';
 import '../colors.dart';
@@ -15,6 +16,17 @@ class ClientMain extends StatefulWidget {
 }
 
 class _ClientMainState extends State<ClientMain> {
+  XFile? _image;  // 이미지 저장 변수
+  final ImagePicker picker = ImagePicker();  //  ImagePicker 변수
+
+  Future getImage(ImageSource imageSource) async {
+    final image = await picker.pickImage(source: imageSource);
+
+    setState(() {
+      _image = XFile(image!.path); // 가져온 이미지를 _image에 저장
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -105,9 +117,7 @@ class _ClientMainState extends State<ClientMain> {
                   ),
                   TextButton(
                       onPressed: () {
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) => const ClientReceiptAuth())
-                        );
+                        getImage(ImageSource.camera);
                       },
                       child: Container(
                         height: 150,

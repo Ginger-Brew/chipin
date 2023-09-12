@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:chipin/base_appbar.dart';
@@ -172,10 +174,30 @@ class _ChoiceRoleState extends State<ChoiceRole> {
               height: 30,
             ),
             TextButton(
-                onPressed: () {
+                onPressed: () async {
                   if (role == "") {
                     _showDialog(context, "역할을 선택해주세요.");
                   } else {
+                    String? userid = FirebaseAuth.instance.currentUser!.email;
+                    Map<String, bool> updaterole = {
+                      "child": false,
+                      "restaurant": false,
+                      "client": false
+                    };
+                    String nowrole = "";
+                    if (role == "/childmain") {
+                      updaterole["child"] = true;
+                      nowrole = "child";
+                    } else if (role == "/storemain") {
+                      updaterole["restaurant"] = true;
+                      nowrole = "restaurant";
+                    } else if (role == "/clientmain") {
+                      updaterole["client"] = true;
+                      nowrole = "client";
+                    }
+
+                    await FirebaseFirestore.instance.collection("Users").doc(userid).collection("userinfo").doc("userinfo").update({'totalrole' : updaterole});
+                    await FirebaseFirestore.instance.collection("Users").doc(userid).collection("userinfo").doc("nowrole").set({'nowrole' : nowrole});
                     Navigator.of(context).pushNamed(role);
                   }
                 },

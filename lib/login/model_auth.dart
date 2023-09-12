@@ -17,7 +17,7 @@ class FirebaseAuthProvider with ChangeNotifier {
 
   Future<AuthStatus> registerWithEmail(String email, String password) async {
     try {
-      // UserCredential credential = await authClient.createUserWithEmailAndPassword(email: email, password: password);
+      UserCredential credential = await authClient.createUserWithEmailAndPassword(email: email, password: password);
       return AuthStatus.registerSuccess;
     } catch (e) {
       return AuthStatus.registerFail;

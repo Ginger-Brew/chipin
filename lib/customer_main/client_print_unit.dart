@@ -40,7 +40,7 @@ class ClientPrintUnit extends StatelessWidget{
                     date,
                     style: TextStyle(
                         fontFamily: "Pretendard",
-                        fontSize: 12,
+                        fontSize: 10,
                         color: Colors.grey)
                 ),
               )
@@ -52,7 +52,7 @@ class ClientPrintUnit extends StatelessWidget{
                 point,
                 style: TextStyle(
                     fontFamily: "Mainfonts",
-                    fontSize: 25,
+                    fontSize: 23,
                     color: MyColor.ALERT)
             ),
           )

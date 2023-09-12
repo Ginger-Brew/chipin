@@ -4,6 +4,7 @@ import 'package:chipin/custom_price/custom_price.dart';
 import 'package:chipin/tab_container_screen/tab_container_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 import 'child_main/ChildMain.dart';
 import 'customer_main/ClientMain.dart';
@@ -42,6 +43,9 @@ class ColorService { //테마 컬러를 지정할 때 사용하는 classs
 void main() async {
   // WidgetsFlutterBinding.ensureInitialized()는 runApp으로 앱이 실행되기 전에 비동기로 지연이 되더라도 오류가 발생하지 않도록 하는 역할.
   WidgetsFlutterBinding.ensureInitialized();
+
+  // 달력에서 한국어를 지원해주는 역할
+  await initializeDateFormatting('ko');
 
   // Firebase.initializeApp()은 앱을 실행할 때 Firebase를 비동기 방식으로 초기화.
   // Firebase를 쓸 때 주석 해제.

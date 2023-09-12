@@ -6,7 +6,7 @@ import 'package:table_calendar/table_calendar.dart';
 
 import '../base_appbar.dart';
 import '../colors.dart';
-import 'client_print_unit.dart';
+import 'client_history_unit.dart';
 
 class ClientCalendar extends StatefulWidget {
   const ClientCalendar({Key? key}) : super(key: key);
@@ -34,7 +34,8 @@ class _ClientCalendarState extends State<ClientCalendar>{
   };
 
   Map<String, List> history = {
-    '2023-09-02' : [Event('정통집', '2023.09.02 13:45', '1800P'), Event('별빛맥주', '2023.09.02 15:21', '200P')],
+    '2023-09-02' : [Event('정통집', '2023.09.02 13:45', '1800P'), Event('별빛맥주', '2023.09.02 15:21', '200P'),
+            Event('헤이마오차이', '2023.09.02 18:21', '1200P')],
     '2023-09-03' : [Event('정통집', '2023-09-03', '1800P')],
     '2023-09-12' : [Event('아찌칼국수', '2023.09.12 13:45', '800P')],
     '2023-09-20' : [Event('정통집', '2023-09-03', '1800P')],
@@ -131,12 +132,12 @@ class _ClientCalendarState extends State<ClientCalendar>{
                     }
                   }),
 
-                  calendarFormat: _calendarFormat,
-                  onFormatChanged: (format) {
-                    setState(() {
-                      _calendarFormat = format;
-                    });
-                  },
+                  // calendarFormat: _calendarFormat,
+                  // onFormatChanged: (format) {
+                  //   setState(() {
+                  //     _calendarFormat = format;
+                  //   });
+                  // },
 
                   selectedDayPredicate: (day) {
                     //  selectedDay의 날짜 모양을 바꿔줌
@@ -221,6 +222,18 @@ class _ClientCalendarState extends State<ClientCalendar>{
                       ),
                     ),
                     if(history.containsKey(selectedDateString)) listviewBuilder()
+                    else
+                      Container(
+                        margin: EdgeInsets.fromLTRB(20, 30, 10, 30),
+                        child: Text(
+                          "내역이 없습니다.",
+                          style: TextStyle(
+                              fontFamily: "Mainfonts",
+                              fontSize: 20,
+                              color: Colors.grey
+                          ),
+                        ),
+                      )
                   ],
                 ),
               )
@@ -236,7 +249,7 @@ class _ClientCalendarState extends State<ClientCalendar>{
       shrinkWrap: true,
       itemCount: history[selectedDateString]?.length,
         itemBuilder: (context, index) {
-          return ClientPrintUnit(
+          return ClientHistoryUnit(
               title: '${history[selectedDateString]![index].title}',
               date: '${history[selectedDateString]![index].date}',
               point: '${history[selectedDateString]![index].point}');

@@ -1,12 +1,16 @@
+import 'package:carousel_slider/carousel_slider.dart';
+import 'package:chipin/customer_main/client_text_btn.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:percent_indicator/linear_percent_indicator.dart';
+
 import '../base_appbar.dart';
-import '../base_shadow.dart';
 import '../colors.dart';
-import '../restaurant_main/restaurant_splitbutton.dart';
 import 'client_calendar.dart';
 import 'client_receipt_auth.dart';
+import 'client_yellow_btn.dart';
 
 class ClientMain extends StatefulWidget {
   const ClientMain({Key? key}) : super(key: key);
@@ -18,14 +22,21 @@ class ClientMain extends StatefulWidget {
 class _ClientMainState extends State<ClientMain> {
   XFile? _image;  // 이미지 저장 변수
   final ImagePicker picker = ImagePicker();  //  ImagePicker 변수
-
   Future getImage(ImageSource imageSource) async {
     final image = await picker.pickImage(source: imageSource);
-
     setState(() {
       _image = XFile(image!.path); // 가져온 이미지를 _image에 저장
     });
   }
+
+  // carousel slider 변수들
+  int _current = 0;
+  CarouselController _controller = CarouselController();
+  final images = [
+    ["assets/images/originalhouse.png", "정통집", "김치가 존맛탱"],
+    ["assets/images/ohyang_restaurant.png", "오양 칼국수", "키스 갈기고 싶은 키.칼"],
+    ["assets/images/kongjjamppong.png", "콩짬뽕", "안에 콩이 들어갔을까요?"]
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +49,22 @@ class _ClientMainState extends State<ClientMain> {
               child: Column(
                 children: [
                   Container(
+                    margin: EdgeInsets.fromLTRB(30, 20, 100, 0),
+                    child: TextButton(
+                      onPressed: () {},
+                      child: ClientTextBtn(
+                        imgPath: "handhearticon.png",
+                        title: "도움의 손길들",
+                      ),
+                    ),
+                  ),
+
+                  SizedBox(
+                    child: sliderWidget(),
+                  ),
+                  sliderIndicator(),
+
+                  Container(
                     margin: EdgeInsets.fromLTRB(30, 30, 100, 0),
                     child: TextButton(
                         onPressed: (){
@@ -45,140 +72,121 @@ class _ClientMainState extends State<ClientMain> {
                               MaterialPageRoute(builder: (context) => const ClientCalendar())
                           );
                         },
-                        child: Container(
-                          margin: EdgeInsets.only(bottom: 10),
-                            child: Row(
-                              children: [
-                                Image(
-                                    width: 20.0,
-                                    height: 20.0,
-                                    image: AssetImage('assets/images/present.png')
-                                ),
-                                Container(
-                                  width: 10,
-                                ),
-                                Text(
-                                    '이달의 후원달력',
-                                    style: TextStyle(
-                                        fontFamily: "Mainfonts",
-                                        fontSize: 20,
-                                        color: Colors.black)
-                                ),
-                                Icon(Icons.arrow_forward_ios_rounded, color: Colors.black,),
-                              ],
-                            )
-                        )
+                        child: ClientTextBtn(
+                          imgPath: "calendaricon.png",
+                          title: "이달의 후원달력",)
                     ),
                   ),
-                  BaseShadow(
-                    container: Column(
+
+                  Container(
+                    margin: EdgeInsets.fromLTRB(40, 0, 40, 5),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Container(
-                            height: 50,
-                            child: SplitButton(
-                                subject: Text(
-                                  "누적 후원 포인트",
-                                  style:
-                                  TextStyle(fontSize: 16, color: Colors.black),
-                                ),
-                                variance: Text("60,500P",
-                                    style: TextStyle(
-                                        fontFamily: "Mainfonts",
-                                        fontSize: 20,
-                                        color: Colors.black)),
-                                topLeftRadius: 10,
-                                topRightRadius: 10,
-                                bottomLeftRadius: 0,
-                                bottomRightRadius: 0,
-                                onPressed: () {})),
-                        Container(
-                          height: 1,
-                          width: double.maxFinite,
-                          color: MyColor.DIVIDER,
+                        Text(
+                          '이번 달 후원 포인트',
+                          style: TextStyle(
+                              fontFamily: "Pretendard",
+                              fontSize: 15,
+                              color: Colors.black),
                         ),
-                        Container(
-                            height: 50,
-                            child: SplitButton(
-                                subject: Text("누적 후원 횟수",
-                                    style: TextStyle(
-                                        fontSize: 16, color: Colors.black)),
-                                variance: Text("23번",
-                                    style: TextStyle(
-                                        fontFamily: "Mainfonts",
-                                        fontSize: 20,
-                                        color: Colors.black)),
-                                topLeftRadius: 0,
-                                topRightRadius: 0,
-                                bottomLeftRadius: 10,
-                                bottomRightRadius: 10,
-                                onPressed: () {})),
+                        Image(
+                            image: AssetImage("assets/images/coins.png"),
+                          width: 15,
+                          height: 15,
+                        )
                       ],
                     ),
                   ),
+
+                  LinearPercentIndicator(
+                    padding: EdgeInsets.fromLTRB(40, 0, 30, 0),
+                    width: MediaQuery.of(context).size.width - 10,
+                    animation: true,
+                    animationDuration: 100,
+                    lineHeight: 20.0,
+                    percent: 0.78, /////////////////////////////////////// 파베에서 가져올 데이터
+                    center: Text("23,500P"),
+                    progressColor: MyColor.DARK_YELLOW,
+                    barRadius: Radius.circular(10),
+                    backgroundColor: MyColor.LIGHT_GRAY,
+                  ),
+
+                  Container(
+                    margin: EdgeInsets.fromLTRB(40, 2, 40, 0),
+                    width: MediaQuery.of(context).size.width,
+                    child: Text(
+                      "30,000P",
+                      style: TextStyle(
+                          fontFamily: "Pretendard",
+                          fontSize: 10,
+                          color: Colors.black),
+                      textAlign: TextAlign.right,
+                    ),
+                  ),
+
+                  Container(
+                    margin: EdgeInsets.fromLTRB(40, 15, 40, 5),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '이번 달 후원 횟수',
+                          style: TextStyle(
+                              fontFamily: "Pretendard",
+                              fontSize: 15,
+                              color: Colors.black),
+                        ),
+                        Image(
+                          image: AssetImage("assets/images/check.png"),
+                          width: 15,
+                          height: 15,
+                        )
+                      ],
+                    ),
+                  ),
+
+                  LinearPercentIndicator(
+                    padding: EdgeInsets.fromLTRB(40, 0, 30, 0),
+                    width: MediaQuery.of(context).size.width - 10,
+                    animation: true,
+                    animationDuration: 100,
+                    lineHeight: 20.0,
+                    percent: 1.0, /////////////////////////////////////////////////
+                    center: Text("15회"),
+                    progressColor: MyColor.GOLD_YELLOW,
+                    barRadius: Radius.circular(10),
+                    backgroundColor: MyColor.LIGHT_GRAY,
+                  ),
+
+                  Container(
+                    margin: EdgeInsets.fromLTRB(40, 2, 40, 10),
+                    width: MediaQuery.of(context).size.width,
+                    child: Text(
+                      "10회",
+                      style: TextStyle(
+                          fontFamily: "Pretendard",
+                          fontSize: 10,
+                          color: Colors.black),
+                      textAlign: TextAlign.right,
+                    ),
+                  ),
+
                   TextButton(
                       onPressed: () {
                         getImage(ImageSource.camera);
                       },
-                      child: Container(
-                        height: 150,
-                        margin: EdgeInsets.fromLTRB(10, 20, 10, 0),
-                        decoration: BoxDecoration(
-                            color: Colors.amber,
-                            borderRadius: BorderRadius.circular(15.0)
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Image(
-                                  width: 50.0,
-                                  height: 50.0,
-                                  image: AssetImage('assets/images/receipt.png')
-                              ),
-                              flex: 1,
-                            ),
-                            Expanded(
-                              child: Text(
-                                  '영수증 인증하기',
-                                  style: TextStyle(
-                                      fontFamily: "Mainfonts",
-                                      fontSize: 20,
-                                      color: Colors.black)
-                              ),
-                            )
-                          ],
-                        ),
+                      child: ClientYellowBtn(
+                        imgPath: "receipt.png",
+                        title: "영수증 인증하기",
                       )
                   ),
+
                   TextButton(
                       onPressed: () {},
-                      child: Container(
-                        height: 150,
-                        margin: EdgeInsets.fromLTRB(10, 20, 10, 0),
-                        decoration: BoxDecoration(
-                            color: Colors.amber,
-                            borderRadius: BorderRadius.circular(15.0)
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Image(
-                                  width: 50.0,
-                                  height: 50.0,
-                                  image: AssetImage('assets/images/map.png')
-                              ),
-                              flex: 1,
-                            ),
-                            Expanded(
-                              child: Text(
-                                  '가맹점 확인하기',
-                                  style: TextStyle(
-                                      fontFamily: "Mainfonts",
-                                      fontSize: 20,
-                                      color: Colors.black)
-                              ),
-                            )
-                          ],
-                        ),
+                      child: ClientYellowBtn(
+                        imgPath: "map.png",
+                        title: "가맹점 확인하기",
                       )
                   )
                 ],
@@ -186,6 +194,124 @@ class _ClientMainState extends State<ClientMain> {
             ),
           ),
         )
+    );
+  }
+
+  Widget sliderWidget() {
+    return CarouselSlider(
+        items: List<List<String>>.from(images).map(
+        (imgInfo) {
+            return Builder(
+                builder: (context) {
+                  return Container(
+                    margin: EdgeInsets.fromLTRB(30, 5, 30, 0),
+                    width: MediaQuery.of(context).size.width,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10.0),
+                        image: DecorationImage(
+                          image: Image.asset(imgInfo[0]).image,
+                          fit: BoxFit.cover
+                        )
+                      ),
+                      child: Stack(
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Color.fromRGBO(0, 0, 0, 0.3),
+                              borderRadius: BorderRadius.circular(20.0),
+                            ),
+                          ),
+                          Container(
+                            margin: EdgeInsets.fromLTRB(15, 30, 5, 0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  imgInfo[1],
+                                  style: TextStyle(
+                                      fontFamily: "Pretendard",
+                                      fontSize: 20,
+                                      color: Colors.white,
+                                    fontWeight: FontWeight.bold
+                                  ),
+                                  textAlign: TextAlign.left,
+                                ),
+                                Padding(padding: EdgeInsets.all(5)),
+                                Text(
+                                  imgInfo[2],
+                                  style: TextStyle(
+                                      fontFamily: "Pretendard",
+                                      fontSize: 15,
+                                      color: Colors.white,),
+                                  textAlign: TextAlign.left,
+                                ),
+                                TextButton(
+                                    onPressed: () {},  ///////////////////
+                                    child: Container(
+                                        width: 70,
+                                        height: 40,
+                                        decoration: BoxDecoration(
+                                            color: Colors.orange,
+                                            borderRadius: BorderRadius.circular(20.0)
+                                        ),
+                                        child: Center(
+                                            child: Column(
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              children: [
+                                                Text(
+                                                  '더보기',
+                                                  style: TextStyle(
+                                                      color: Colors.white
+                                                  ),
+                                                ),],
+                                            )
+                                        )
+                                    )
+                                ),
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
+                    )
+                  );
+                }
+            );
+          }
+        ).toList(),
+        options: CarouselOptions(
+          height: 200,
+          viewportFraction: 1.0,
+          onPageChanged: (index, reason) {
+            setState(() {
+              _current = index;
+            });
+          }
+        )
+    );
+  }
+
+  Widget sliderIndicator() {
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: images.asMap().entries.map((e) {
+          return GestureDetector(
+            onTap: () => _controller.animateToPage(e.key),
+            child: Container(
+              width: 10,
+              height: 10,
+              margin: EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: _current == e.key ? MyColor.GOLD_YELLOW : MyColor.DARK_YELLOW
+              ),
+            ),
+          );
+        }).toList(),
+      ),
     );
   }
 }

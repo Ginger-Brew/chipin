@@ -148,8 +148,7 @@ class _RestaurantTotalPriceState extends State<RestaurantTotalPrice> {
             const SizedBox(height: 100),
             ElevatedButton(
               onPressed: isAmountValid ? () => Navigator.push(context, MaterialPageRoute(
-                  builder: (context) =>  RestaurantDiscount())) : null,
-              // onPressed: () => _showConfirmationDialog(),
+                  builder: (context) =>  RestaurantDiscount(enteredNumber))) : null,
               style: ButtonStyle(
                 foregroundColor: MaterialStateProperty.all(Colors.white),
                 backgroundColor:

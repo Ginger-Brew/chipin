@@ -1,6 +1,7 @@
 import 'package:chipin/child_code_generate/code_generate_screen.dart';
 import 'package:chipin/colors.dart';
 import 'package:chipin/custom_price/custom_price.dart';
+import 'package:chipin/restaurant_main/RestaurantMain.dart';
 import 'package:chipin/tab_container_screen/tab_container_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -71,7 +72,7 @@ class MyApp extends StatelessWidget {
 
         routes: {
           // '/home': (context) => NavigationHomeScreen(pagename: DrawerIndex.HOME),
-          '/login': (context) => LoginPage(),
+          '/login': (context) => RestaurantMain(),
           // '/splash': (context) => SplashScreen(),
           '/register': (context) => RegisterPage(),
           '/childmain': (context) => ChildMain(),

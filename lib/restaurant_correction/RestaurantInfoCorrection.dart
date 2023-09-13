@@ -9,6 +9,26 @@ import 'package:kpostal/kpostal.dart';
 import '../base_button.dart';
 import 'package:chipin/restaurant_main/RestaurantMain.dart';
 
+import '../core/utils/size_utils.dart';
+class NewMenu {
+  late String menuname;
+  late String menuprice;
+  late String menuexplain;
+
+  NewMenu(
+      {required String menuname,
+        required String menuprice,
+        required String menuexplain}) {
+    this.menuname = menuname;
+    this.menuprice = menuprice;
+    this.menuexplain = menuexplain;
+  }
+}
+
+List<NewMenu> menuItems = [];
+int menuCount = 0;
+
+
 class RestaurantInfoCorrection extends StatefulWidget {
   const RestaurantInfoCorrection({Key? key}) : super(key: key);
 
@@ -41,8 +61,7 @@ class _RestaurantInfoCorrectionState extends State<RestaurantInfoCorrection> {
   String address1 = "-";
   String latitude = '-';
   String longitude = '-';
-  // String kakaoLatitude = '-';
-  // String kakaoLongitude = '-';
+
 
   TextEditingController _newRestaurantName = TextEditingController();
   TextEditingController _newRestaurantLocation = TextEditingController();
@@ -66,6 +85,39 @@ class _RestaurantInfoCorrectionState extends State<RestaurantInfoCorrection> {
     _newRestaurantBusinessNumber.dispose();
     _newRestaurantPhone.dispose();
   }
+
+  void readMenuData() async {
+    final db = FirebaseFirestore.instance.collection(colName).doc(id);
+
+    try {
+      final queryEarnSnapshot = await db.collection("Menu").get();
+
+      if (queryEarnSnapshot.docs.isNotEmpty) {
+        debugPrint("debug : 시발 찾았어요오옹~");
+        for (var docSnapshot in queryEarnSnapshot.docs) {
+          debugPrint("debug : ${docSnapshot['name']}");
+
+          NewMenu newItem = NewMenu(
+              menuname: docSnapshot['name'],
+              menuprice: docSnapshot['price'],
+              menuexplain: docSnapshot['explain']);
+          setState(() {
+            menuItems.add(newItem);
+          });
+        }
+
+
+      }
+      else {
+        debugPrint("debug : 시발 못찾았어용오오오옹~");
+      }
+    } catch (e) {
+      print("Error completing: $e");
+    }
+
+
+    }
+
 
   void readdata() async {
     final db = FirebaseFirestore.instance.collection(colName).doc(id);
@@ -92,6 +144,7 @@ class _RestaurantInfoCorrectionState extends State<RestaurantInfoCorrection> {
       });
         }
 
+
   void updatedata() async {
     final db = FirebaseFirestore.instance.collection(colName).doc(id);
 
@@ -100,7 +153,7 @@ class _RestaurantInfoCorrectionState extends State<RestaurantInfoCorrection> {
     if (_newRestaurantOpenMinute.text != "") openM = _newRestaurantOpenMinute.text;
     if (_newRestaurantCloseHour.text != "") closeH = _newRestaurantCloseHour.text;
     if (_newRestaurantCloseMinute.text != "") closeM = _newRestaurantCloseMinute.text;
-     if (_newRestaurantLocation.text != "") address2 = _newRestaurantLocation.text ;
+    if (_newRestaurantLocation.text != "") address2 = _newRestaurantLocation.text ;
     if (_newRestaurantClosedday.text != "") closeddays = _newRestaurantClosedday.text;
     if (_newRestaurantPhone.text != "") phone = _newRestaurantPhone.text;
 
@@ -129,6 +182,20 @@ class _RestaurantInfoCorrectionState extends State<RestaurantInfoCorrection> {
 
   }
 
+  void writemenudata(String menu, String price, String explain) async {
+    final db = FirebaseFirestore.instance
+        .collection(colName)
+        .doc(id)
+        .collection("Menu")
+        .doc(menu);
+
+    await db
+        .set({'name': menu, 'price': price, 'explain': explain})
+        .then((value) => print("document added")) // firestore에 저장이 잘 된 경우
+        .catchError((error) => print("Fail to add doc ${error}"));
+  }
+
+
   Future pickImg() async {
     final ImagePicker _picker = ImagePicker();
 
@@ -140,11 +207,21 @@ class _RestaurantInfoCorrectionState extends State<RestaurantInfoCorrection> {
       });
     }
   }
+  @override
+  void initState() {
+    super.initState();
+    readMenuData();
+    readdata();
 
+    debugPrint('$menuItems.length');
+
+    for (int i = 0; i<menuItems.length; i++){
+      print(menuItems[i].menuname);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    readdata();
     return Scaffold(
         appBar: const BaseAppBar(title: '가게 정보 수정하기'),
         body: Container(
@@ -282,6 +359,11 @@ class _RestaurantInfoCorrectionState extends State<RestaurantInfoCorrection> {
                       child: Text("등록", style: TextStyle(fontSize: 16)),
                       onPressed: () async {
                         updatedata();
+
+                        for (int i = 0; i < menuItems.length; i++) {
+                          writemenudata(menuItems[i].menuname,
+                              menuItems[i].menuprice, menuItems[i].menuexplain);
+                        }
                         await Navigator.push(context,
                             MaterialPageRoute(builder: (context) => const RestaurantMain()));
                       }
@@ -482,103 +564,376 @@ class RestaurantMenu extends StatefulWidget {
 }
 
 class _RestaurantMenuState extends State<RestaurantMenu> {
+  final String colName = "Restaurant";
+  final String id = "jdh33114";
   final TextEditingController menuname = TextEditingController();
   final TextEditingController menuprice = TextEditingController();
+  final TextEditingController menuexplain = TextEditingController();
+
+  @override
+  void dispose() {
+    menuname.dispose();
+    menuprice.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        Align(alignment:Alignment.centerLeft,child: Text('메뉴', style: TextStyle(fontSize: 16, fontFamily: "Mainfonts"))),
+        Align(
+            alignment: Alignment.centerLeft,
+            child: Text('메뉴',
+                style: TextStyle(fontSize: 16, fontFamily: "Mainfonts"))),
         SizedBox(
           height: 10,
         ),
         BaseButton(
           text: "메뉴 추가",
           fontsize: 13,
-          onPressed: () => showMenuDialog(context),
+          onPressed: () => showMenuDialog(context, menuCount++),
         ),
         SizedBox(
           height: 20,
         ),
-        Text('가게 등록을 위해\n한 개 이상의 메뉴를 등록해주세요',
-          style: TextStyle(fontSize: 13, fontFamily: "Pretendard"),textAlign: TextAlign.center,)
+        if (menuItems.isEmpty)
+          Text(
+            '가게 등록을 위해\n한 개 이상의 메뉴를 등록해주세요',
+            style: TextStyle(fontSize: 13, fontFamily: "Pretendard"),
+            textAlign: TextAlign.center,
+          ),
+        if (menuItems.isNotEmpty)
+          Container(
+            width: mediaQueryData.size.width - 50,
+            height: mediaQueryData.size.height / 3,
+            child: ListView.separated(
+              // shrinkWrap: true,
+              itemCount: menuItems.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  contentPadding:
+                  EdgeInsets.symmetric(vertical: 0.0, horizontal: 0.0),
+                  // visualDensity: VisualDensity(horizontal: 0, vertical: 0),
+                  title: Text(
+                    menuItems[index].menuname,
+                    style: TextStyle(color: Colors.black, fontSize: 18),
+                  ),
+                  subtitle: Text(menuItems[index].menuexplain,
+                      style: TextStyle(color: MyColor.GRAY, fontSize: 13)),
+                  trailing: Container(
+                    width: mediaQueryData.size.width / 3,
+                    child: Row(
+                      // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            menuItems[index].menuprice + "원",
+                            style:
+                            TextStyle(fontSize: 15, color: MyColor.PRICE),
+                          ),
+                        ),
+                        Expanded(
+                            child: TextButton(
+                                onPressed: () {
+                                  showMenuUpdateDialog(
+                                      context,
+                                      menuItems[index].menuname,
+                                      menuItems[index].menuprice,
+                                      menuItems[index].menuexplain,
+                                      index);
+                                },
+                                child: Text("수정",
+                                    style: TextStyle(
+                                        color: MyColor.GOLD_YELLOW,
+                                        fontSize: 13)))),
+                        Expanded(
+                            child: TextButton(
+                                onPressed: () {
+                                  setState(() {
+                                    menuItems.removeAt(index);
+                                  });
+                                },
+                                child: Text("삭제",
+                                    style: TextStyle(
+                                        color: MyColor.GOLD_YELLOW,
+                                        fontSize: 13)))),
+                      ],
+                    ),
+                  ),
+                );
+              },
+              separatorBuilder: (BuildContext context, int index) =>
+              const Divider(),
+            ),
+          )
       ],
     );
   }
 
-  Future<dynamic> showMenuDialog(BuildContext context) async {
+  Future<dynamic> showMenuDialog(BuildContext context, int index) async {
     return showDialog(
         context: context,
         builder: (BuildContext ctx) {
-          return AlertDialog(
-            title: const Text(
-              "메뉴 추가하기",
-              style: TextStyle(fontFamily: "Mainfonts", fontSize: 24),
-            ),
-            content: Column(mainAxisSize: MainAxisSize.min, children: [
-              const Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    "메뉴명",
-                    style: TextStyle(fontFamily: "Mainfonts", fontSize: 16),
-                  )),
-              SizedBox(
-                height: 7,
+          return SingleChildScrollView(
+            child: AlertDialog(
+              title: const Text(
+                "메뉴 추가하기",
+                style: TextStyle(fontFamily: "Mainfonts", fontSize: 24),
               ),
-              TextField(
-                controller: menuname,
-                decoration: InputDecoration(
-                    border: OutlineInputBorder(), isDense: true),
-              ),
-              SizedBox(
-                height: 40,
-              ),
-              const Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    "가격",
-                    style: TextStyle(fontFamily: "Mainfonts", fontSize: 16),
-                  )),
-              SizedBox(
-                height: 7,
-              ),
-              TextField(
-                controller: menuprice,
-                keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                decoration: InputDecoration(
-                    border: OutlineInputBorder(), isDense: true),
-              ),
-            ]),
-            actions: [
-              TextButton(
+              content: Column(mainAxisSize: MainAxisSize.min, children: [
+                const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      "메뉴명",
+                      style: TextStyle(fontFamily: "Mainfonts", fontSize: 16),
+                    )),
+                SizedBox(
+                  height: 7,
+                ),
+                TextField(
+                  controller: menuname,
+                  decoration: InputDecoration(
+                      border: OutlineInputBorder(), isDense: true),
+                ),
+                SizedBox(
+                  height: 40,
+                ),
+                const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      "가격",
+                      style: TextStyle(fontFamily: "Mainfonts", fontSize: 16),
+                    )),
+                SizedBox(
+                  height: 7,
+                ),
+                TextField(
+                  controller: menuprice,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  decoration: InputDecoration(
+                      border: OutlineInputBorder(), isDense: true),
+                ),
+                SizedBox(
+                  height: 40,
+                ),
+                const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      "추가 설명",
+                      style: TextStyle(fontFamily: "Mainfonts", fontSize: 16),
+                    )),
+                SizedBox(
+                  height: 5,
+                ),
+                const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      "십시일반 식사 제공시 구체적으로\n어떤 음식을 10% 덜 제공할 예정인지 설명해주세요",
+                      style: TextStyle(
+                          fontFamily: "Pretendard",
+                          fontSize: 13,
+                          color: MyColor.GRAY),
+                    )),
+                SizedBox(
+                  height: 7,
+                ),
+                TextField(
+                  controller: menuexplain,
+                  decoration: InputDecoration(
+                      border: OutlineInputBorder(), isDense: true),
+                ),
+              ]),
+              actions: [
+                TextButton(
+                    onPressed: () {
+                      menuname.text = "";
+                      menuprice.text = "";
+                      menuexplain.text = "";
+                      Navigator.pop(context);
+                    },
+                    child: Text(
+                      "취소",
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontFamily: "Pretendard",
+                          color: Colors.black),
+                    )),
+                ElevatedButton(
                   onPressed: () {
-                    Navigator.pop(context);
+                    setState(() {
+                      final itemName = menuname.text;
+                      final itemPrice = menuprice.text;
+                      final itemExplanation = menuexplain.text;
+
+                      if (itemName.isNotEmpty &&
+                          itemPrice.isNotEmpty &&
+                          itemExplanation.isNotEmpty) {
+                        NewMenu newItem = NewMenu(
+                            menuname: itemName,
+                            menuprice: itemPrice,
+                            menuexplain: itemExplanation);
+                        menuItems.add(newItem);
+                      }
+                    });
+
                     menuname.text = "";
                     menuprice.text = "";
+                    menuexplain.text = "";
+                    Navigator.pop(context);
                   },
-                  child: Text(
-                    "취소",
-                    style: TextStyle(
-                        fontSize: 16,
-                        fontFamily: "Pretendard",
-                        color: Colors.black),
-                  )),
-              ElevatedButton(
-                onPressed: () {
-                  menuprice.text = "";
-                  menuname.text = "";
-                  Navigator.pop(context);
-                },
-                child: Text("추가하기",
-                    style: TextStyle(
-                        fontFamily: "Pretendard",
-                        fontSize: 16,
-                        color: Colors.black)),
-              )
-            ],
+                  child: Text("추가하기",
+                      style: TextStyle(
+                          fontFamily: "Pretendard",
+                          fontSize: 16,
+                          color: Colors.black)),
+                )
+              ],
+            ),
           );
         });
   }
+
+  Future<dynamic> showMenuUpdateDialog(BuildContext context, String menu,
+      String price, String explain, int index) async {
+    return showDialog(
+        context: context,
+        builder: (BuildContext ctx) {
+          return SingleChildScrollView(
+              child: AlertDialog(
+                title: const Text(
+                  "메뉴 수정하기",
+                  style: TextStyle(fontFamily: "Mainfonts", fontSize: 24),
+                ),
+                content: Column(mainAxisSize: MainAxisSize.min, children: [
+                  const Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        "메뉴명",
+                        style: TextStyle(fontFamily: "Mainfonts", fontSize: 16),
+                      )),
+                  SizedBox(
+                    height: 7,
+                  ),
+                  TextField(
+                    controller: menuname,
+                    decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        isDense: true,
+                        hintText: menu),
+                  ),
+                  SizedBox(
+                    height: 40,
+                  ),
+                  const Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        "가격",
+                        style: TextStyle(fontFamily: "Mainfonts", fontSize: 16),
+                      )),
+                  SizedBox(
+                    height: 7,
+                  ),
+                  TextField(
+                    controller: menuprice,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        isDense: true,
+                        hintText: price),
+                  ),
+                  SizedBox(
+                    height: 40,
+                  ),
+                  const Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        "추가 설명",
+                        style: TextStyle(fontFamily: "Mainfonts", fontSize: 16),
+                      )),
+                  SizedBox(
+                    height: 5,
+                  ),
+                  const Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        "십시일반 식사 제공시 구체적으로\n어떤 음식을 10% 덜 제공할 예정인지 설명해주세요",
+                        style: TextStyle(
+                            fontFamily: "Pretendard",
+                            fontSize: 13,
+                            color: MyColor.GRAY),
+                      )),
+                  SizedBox(
+                    height: 7,
+                  ),
+                  TextField(
+                    controller: menuexplain,
+                    decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        isDense: true,
+                        hintText: explain),
+                  ),
+                ]),
+                actions: [
+                  TextButton(
+                      onPressed: () {
+                        menuname.text = "";
+                        menuprice.text = "";
+                        menuexplain.text = "";
+                        Navigator.pop(context);
+                      },
+                      child: Text(
+                        "취소",
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontFamily: "Pretendard",
+                            color: Colors.black),
+                      )),
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        String itemName = menu;
+                        String itemPrice = price;
+                        String itemExplanation = explain;
+
+                        if (menuname.text != '') itemName = menuname.text;
+                        if (menuprice.text != '') itemPrice = menuprice.text;
+                        if (menuexplain.text != '')
+                          itemExplanation = menuexplain.text;
+
+                        if (itemName.isNotEmpty &&
+                            itemPrice.isNotEmpty &&
+                            itemExplanation.isNotEmpty) {
+                          NewMenu newItem = NewMenu(
+                            menuname: itemName,
+                            menuprice: itemPrice,
+                            menuexplain: itemExplanation,
+                          );
+
+                          menuItems.removeAt(index);
+                          menuItems.insert(index, newItem);
+
+                        }
+                      });
+                      menuname.text = "";
+                      menuprice.text = "";
+                      menuexplain.text = "";
+                      Navigator.pop(context);
+                      // Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
+                      //     builder: (BuildContext context) =>
+                      //         RestaurantInfoRegister()), (route) => false);
+                    },
+                    child: Text("수정하기",
+                        style: TextStyle(
+                            fontFamily: "Pretendard",
+                            fontSize: 16,
+                            color: Colors.black)),
+                  )
+                ],
+              ));
+        });
+  }
 }
+
+

@@ -1,6 +1,8 @@
 import 'dart:math';
 import 'package:chipin/base_appbar.dart';
 import 'package:chipin/colors.dart';
+import 'package:chipin/core/utils/size_utils.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:chipin/restaurant_point_list/restaurant_point_header.dart';
 
@@ -35,6 +37,82 @@ class _RestaurantEarnListState extends State<RestaurantEarnList> {
     });
   }
 
+  Future<num> readTotalChild() async {
+    num totalChild = 0;
+
+    final db = FirebaseFirestore.instance
+        .collection("Restaurant")
+        .doc("jdh33114")
+        .collection("RedeemList");
+
+    try {
+      final query = await db.count().get();
+      totalChild = query.count;
+    } catch (e) {
+      print("Error completing: $e");
+    }
+
+    return totalChild;
+  }
+
+  Future<num> readAccumulationPoint() async {
+    num accumulationPoint = 0;
+
+    final db =
+    FirebaseFirestore.instance.collection("Restaurant").doc("jdh33114");
+
+    try {
+      final queryEarnSnapshot = await db.collection("RedeemList").get();
+
+      if (queryEarnSnapshot.docs.isNotEmpty) {
+        for (var docSnapshot in queryEarnSnapshot.docs) {
+          print('${docSnapshot.id} => ${docSnapshot.data()}');
+          accumulationPoint += docSnapshot.data()['redeemPoint'];
+        }
+      }
+    } catch (e) {
+      print("Error completing: $e");
+    }
+
+    return accumulationPoint;
+  }
+
+    Future<num> readRemainingPoint() async {
+    num earnPoint = 0;
+    num redeemPoint = 0;
+
+    final db =
+        FirebaseFirestore.instance.collection("Restaurant").doc("jdh33114");
+
+    try {
+      final queryEarnSnapshot = await db.collection("EarnList").get();
+
+      if (queryEarnSnapshot.docs.isNotEmpty) {
+        for (var docSnapshot in queryEarnSnapshot.docs) {
+          print('${docSnapshot.id} => ${docSnapshot.data()}');
+          earnPoint += docSnapshot.data()['earnPoint'];
+        }
+      }
+    } catch (e) {
+      print("Error completing: $e");
+    }
+
+    try {
+      final queryEarnSnapshot = await db.collection("RedeemList").get();
+
+      if (queryEarnSnapshot.docs.isNotEmpty) {
+        for (var docSnapshot in queryEarnSnapshot.docs) {
+          print('${docSnapshot.id} => ${docSnapshot.data()}');
+          redeemPoint += docSnapshot.data()['redeemPoint'];
+        }
+      }
+    } catch (e) {
+      print("Error completing: $e");
+    }
+
+    return earnPoint - redeemPoint;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,18 +130,54 @@ class _RestaurantEarnListState extends State<RestaurantEarnList> {
               child: Row(
                 children: [
                   Expanded(
-                    child: PointHeader(
-                      title: "누적 후원 포인트",
-                      text: "72500",
-                      icon: Image.asset('assets/images/coins_black.png'),
-                    ),
-                  ),
+                      child: FutureBuilder<num>(
+                          future: readAccumulationPoint(),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return Center(
+                                  child: Container(
+                                      width: (mediaQueryData.size.width - 43) / 10,
+                                      height: (mediaQueryData.size.width - 43) / 10,
+                                      child:
+                                          CircularProgressIndicator())); // You can replace this with your loading screen widget.
+                            } else if (snapshot.hasError) {
+                              // If there's an error, show an error screen or message
+                              return Text('Error: ${snapshot.error}');
+                            } else {
+                              final totalPoint = snapshot.data;
+                              return PointHeader(
+                                title: "누적 후원 포인트",
+                                text: '$totalPoint',
+                                icon: Image.asset(
+                                    'assets/images/coins_black.png'),
+                              );
+                            }
+                          })),
                   Expanded(
-                    child: PointHeader(
-                      title: "누적 후원 아동 수",
-                      text: "10명",
-                      icon: Icon(Icons.people_alt_rounded),
-                    ),
+                    child: FutureBuilder<num>(
+                        future: readTotalChild(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return Center(
+                                child: Container(
+                                    width: (mediaQueryData.size.width - 43) / 10,
+                                    height: (mediaQueryData.size.width - 43) / 10,
+                                    child:
+                                    CircularProgressIndicator())); // You can replace this with your loading screen widget.
+                          } else if (snapshot.hasError) {
+                            // If there's an error, show an error screen or message
+                            return Text('Error: ${snapshot.error}');
+                          } else {
+                            final totalChild = snapshot.data;
+                            return PointHeader(
+                              title: "누적 후원 아동 수",
+                              text: '$totalChild',
+                              icon: Icon(Icons.people_alt_rounded),
+                            );
+                          }
+                        })
                   )
                 ],
               ),
@@ -80,23 +194,45 @@ class _RestaurantEarnListState extends State<RestaurantEarnList> {
                     child: Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        "가게 잔여 포인트",
-                        style: TextStyle(fontSize: 16, color: Colors.black),
+                        '가게 잔여 포인트',
+                        style: TextStyle(
+                          fontSize: 17,
+                          color: Colors.black,
+                          fontFamily: "Pretendard",
+                        ),
                       ),
                     ),
                   ),
                   Expanded(
-                    child: Align(
-                      alignment: Alignment.centerRight,
-                      child: Text(
-                        "3500P",
-                        style: TextStyle(
-                          fontSize: 17,
-                          color: Colors.black,
-                          fontFamily: "Mainfonts",
-                        ),
-                      ),
-                    ),
+                    child: FutureBuilder<num>(
+                        future: readRemainingPoint(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return Center(
+                                child: Container(
+                                    width: (mediaQueryData.size.width - 43) / 10,
+                                    height: (mediaQueryData.size.width - 43) / 10,
+                                    child:
+                                    CircularProgressIndicator())); // You can replace this with your loading screen widget.
+                          } else if (snapshot.hasError) {
+                            // If there's an error, show an error screen or messag
+                            return Text('Error: ${snapshot.error}');
+                          } else {
+                            final remainingPoint = snapshot.data;
+                            return Align(
+                              alignment: Alignment.centerRight,
+                              child: Text(
+                                '$remainingPoint',
+                                style: TextStyle(
+                                  fontSize: 17,
+                                  color: Colors.black,
+                                  fontFamily: "Mainfonts",
+                                ),
+                              ),
+                            );
+                          }
+                        })
                   )
                 ],
               ),
@@ -108,45 +244,53 @@ class _RestaurantEarnListState extends State<RestaurantEarnList> {
                   padding: EdgeInsets.symmetric(horizontal: 40),
                   child: Row(
                     children: [
-                      Expanded(child:
-                      Align(
-                          alignment: Alignment.centerRight,
-                          child: ElevatedButton(
-                              onPressed: _toggleList1,
-                              child: Text(
-                                "사용 내역",
-                                style: TextStyle(
-                                    fontSize: 10, color: Colors.black),
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                  visualDensity: VisualDensity.compact,
-                                  padding: EdgeInsets.symmetric(
-                                      vertical: 5, horizontal: 20),
-                                  backgroundColor: _earnbuttoncolor,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(100),
-                                  ))))),
-                      SizedBox(width: 10,),
-                      Expanded(child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: ElevatedButton(
-                              onPressed: _toggleList2,
-                              child: Text(
-                                "차감 내역",
-                                style: TextStyle(
-                                    fontSize: 10, color: Colors.black45),
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                  visualDensity: VisualDensity.compact,
-                                  padding: EdgeInsets.symmetric(
-                                      vertical: 5, horizontal: 20),
-                                  backgroundColor: _redeembuttoncolor,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(100),
-                                  )))))
+                      Expanded(
+                          child: Align(
+                              alignment: Alignment.centerRight,
+                              child: ElevatedButton(
+                                  onPressed: _toggleList1,
+                                  child: Text(
+                                    "적립 내역",
+                                    style: TextStyle(
+                                        fontSize: 10, color: Colors.black),
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                      visualDensity: VisualDensity.compact,
+                                      padding: EdgeInsets.symmetric(
+                                          vertical: 5, horizontal: 20),
+                                      backgroundColor: _earnbuttoncolor,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(100),
+                                      ))))),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Expanded(
+                          child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: ElevatedButton(
+                                  onPressed: _toggleList2,
+                                  child: Text(
+                                    "차감 내역",
+                                    style: TextStyle(
+                                        fontSize: 10, color: Colors.black45),
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                      visualDensity: VisualDensity.compact,
+                                      padding: EdgeInsets.symmetric(
+                                          vertical: 5, horizontal: 20),
+                                      backgroundColor: _redeembuttoncolor,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(100),
+                                      )))))
                     ],
-                  ),)),
-            SizedBox(height: 22,),
+                  ),
+                )),
+            SizedBox(
+              height: 22,
+            ),
             if (showList1) Expanded(child: _buildList1()),
             if (showList2) Expanded(child: _buildList2()),
           ],
@@ -155,117 +299,143 @@ class _RestaurantEarnListState extends State<RestaurantEarnList> {
     );
   }
 
-  final List<String> earn_menu = <String>[
-    '오.칼 (보리밥) 1 외 2',
-    '키.칼 (보리밥) 2',
-    '오.칼 (보리밥) 1',
-    '오.키칼 (보리밥) 2',
-    '오.칼 (보리밥) 1 외 1',
-    '오.칼 (보리밥) 2',
-    '오.칼 (보리밥) 1 외 1',
-    '오.칼 (보리밥) 1 외 1',
-    '오.칼 (보리밥) 1 외 1',
-    '오.칼 (보리밥) 1 외 1'
-  ];
-  final List<int> earn_point = <int>[
-    1750,
-    1120,
-    630,
-    1540,
-    1400,
-    1260,
-    1400,
-    1400,
-    1400,
-    1400
-  ];
-  final List<String> earn_date = <String>[
-    '2023.07.24 17:24',
-    '2023.07.24 11:11',
-    '2023.07.23 18:48',
-    '2023.07.23 15:29',
-    '2023.07.23 13:37',
-    '2023.07.22 19:48',
-    '2023.07.20 15:48',
-    '2023.07.17 15:48',
-    '2023.07.15 15:48',
-    '2023.07.12 15:48',
-  ];
-  final List<int> earn_point_sum = <int>[
-    3500,
-    2350,
-    1230,
-    10600,
-    9060,
-    7660,
-    5010,
-    3440,
-    1500,
-    9000
-  ];
-
   Widget _buildList1() {
+    final db = FirebaseFirestore.instance;
     // Replace this with your first list widget implementation
-    return ListView.separated(
-      itemCount: earn_menu.length,
-      itemBuilder: (context, index) =>
-          ListTile(
-            visualDensity: VisualDensity.compact,
-            contentPadding: EdgeInsets.symmetric(horizontal: 40),
-            title: Text('${earn_menu[index]}',
-              style: TextStyle(fontFamily: "Pretendard",
-                  fontWeight: FontWeight.bold,
-                  fontSize: 17,
-                  color: Colors.black),),
-            subtitle: Text('${earn_date[index]}', style: TextStyle(fontSize: 10),),
-            trailing: Column(children: [
-              Text('${earn_point[index]}P', style: TextStyle(
-                  fontFamily: "Pretendard",
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                  color: MyColor.PRICE)),
-              Text('${earn_point_sum[index]}P',
-                style: TextStyle(fontSize: 10, color: MyColor.GRAY),)
-            ]),
-          ), separatorBuilder: (BuildContext context, int index) {
-      return Padding(
-          padding: EdgeInsets.symmetric(horizontal: 30), child: Divider());
-    },
-    );
+    return StreamBuilder<QuerySnapshot>(
+        stream: db
+            .collection("Restaurant")
+            .doc("jdh33114")
+            .collection("EarnList")
+        .orderBy("earnDate",descending: true)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return Center(
+              child: Text("적립 내역이 존재하지 않습니다"),
+            );
+          } else if (snapshot.connectionState == ConnectionState.waiting) {
+            // While the data is being fetched, show a loading indicator or screen
+            return Center(
+                child: Container(
+                    width: mediaQueryData.size.width / 5,
+                    height: mediaQueryData.size.width / 5,
+                    child:
+                        CircularProgressIndicator())); // You can replace this with your loading screen widget.
+          } else if (snapshot.hasError) {
+            // If there's an error, show an error screen or message
+            return Text('Error: ${snapshot.error}');
+          } else {
+            final docs = snapshot.data!.docs;
+            return ListView.separated(
+              itemCount: docs.length,
+              itemBuilder: (context, index) => ListTile(
+                visualDensity: VisualDensity.compact,
+                contentPadding: EdgeInsets.symmetric(horizontal: 40),
+                title: Text(
+                  "십시일반 적립금",
+                  style: TextStyle(
+                      fontFamily: "Pretendard",
+                      fontWeight: FontWeight.bold,
+                      fontSize: 17,
+                      color: Colors.black),
+                ),
+                subtitle: Text(
+                  docs[index]['earnDate'].toDate().toString(),
+                  style: TextStyle(fontSize: 10),
+                ),
+                trailing: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                  Text('${docs[index]['earnPoint']}P',
+                      style: TextStyle(
+                          fontFamily: "Pretendard",
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                          color: MyColor.PRICE)),
+                  Text(
+                    '${docs[index]['totalPoint']}P',
+                    style: TextStyle(fontSize: 10, color: MyColor.GRAY),
+                  )
+                ]),
+              ),
+              separatorBuilder: (BuildContext context, int index) {
+                return Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 30),
+                    child: Divider());
+              },
+            );
+          }
+        });
   }
 
-  final List<String> redeem_menu = ['키.칼 (보리밥) 1','오.칼 (보리밥) 1','오.칼 (보리밥) 1'];
-  final List<int> redeem_point = [-10000,-9000,-9000];
-  final List<int> redeem_point_sum = [230,1270,600];
-  final List<String> redeem_date = ['2023.07.23 16:56','2023.07.14 12:13','2023.07.02 11:48'];
-
   Widget _buildList2() {
+    final db = FirebaseFirestore.instance;
     // Replace this with your first list widget implementation
-    return ListView.separated(
-      itemCount: redeem_menu.length,
-      itemBuilder: (context, index) =>
-          ListTile(
-            visualDensity: VisualDensity.compact,
-            contentPadding: EdgeInsets.symmetric(horizontal: 40),
-            title: Text('${redeem_menu[index]}',
-              style: TextStyle(fontFamily: "Pretendard",
-                  fontWeight: FontWeight.bold,
-                  fontSize: 17,
-                  color: Colors.black),),
-            subtitle: Text('${redeem_date[index]}', style: TextStyle(fontSize: 10),),
-            trailing: Column(children: [
-              Text('${redeem_point[index]}P', style: TextStyle(
-                  fontFamily: "Pretendard",
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                  color: Color(0xFF0066FF))),
-              Text('${redeem_point_sum[index]}P',
-                style: TextStyle(fontSize: 10, color: MyColor.GRAY),)
-            ]),
-          ), separatorBuilder: (BuildContext context, int index) {
-      return Padding(
-          padding: EdgeInsets.symmetric(horizontal: 30), child: Divider());
-    },
-    );
+    return StreamBuilder<QuerySnapshot>(
+        stream: db
+            .collection("Restaurant")
+            .doc("jdh33114")
+            .collection("RedeemList")
+        .orderBy("redeemDate", descending: true)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return Center(
+              child: Text("차감 내역이 존재하지 않습니다"),
+            );
+          } else if (snapshot.connectionState == ConnectionState.waiting) {
+            // While the data is being fetched, show a loading indicator or screen
+            return Center(
+                child: Container(
+                    width: mediaQueryData.size.width / 5,
+                    height: mediaQueryData.size.width / 5,
+                    child:
+                        CircularProgressIndicator())); // You can replace this with your loading screen widget.
+          } else if (snapshot.hasError) {
+            // If there's an error, show an error screen or message
+            return Text('Error: ${snapshot.error}');
+          } else {
+            final docs = snapshot.data!.docs;
+            return ListView.separated(
+              itemCount: docs.length,
+              itemBuilder: (context, index) => ListTile(
+                visualDensity: VisualDensity.compact,
+                contentPadding: EdgeInsets.symmetric(horizontal: 40),
+                title: Text(
+                  "십시일반 예약금 차감",
+                  style: TextStyle(
+                      fontFamily: "Pretendard",
+                      fontWeight: FontWeight.bold,
+                      fontSize: 17,
+                      color: Colors.black),
+                ),
+                subtitle: Text(
+                  docs[index]['redeemDate'].toDate().toString(),
+                  style: TextStyle(fontSize: 10),
+                ),
+                trailing: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                  Text('-${docs[index]['redeemPoint']}P',
+                      style: TextStyle(
+                          fontFamily: "Pretendard",
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                          color: Colors.blue)),
+                  Text(
+                    '${docs[index]['totalPoint']}P',
+                    style: TextStyle(fontSize: 10, color: MyColor.GRAY),
+                  )
+                ]),
+              ),
+              separatorBuilder: (BuildContext context, int index) {
+                return Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 30),
+                    child: Divider());
+              },
+            );
+          }
+        });
   }
 }

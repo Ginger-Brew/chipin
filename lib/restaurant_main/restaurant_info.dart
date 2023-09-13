@@ -95,27 +95,27 @@ class _ShadowButtonState extends State<ShadowButton> {
                         )
                       ],
                     ),
-                    Row(
-                      children: [
-                        Text(
-                          "십시일반 포인트",
-                          style: TextStyle(
-                              fontSize: 15,
-                              fontFamily: "Mainfonts",
-                              color: Colors.black),
-                        ),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        Text(
-                          "3500P",
-                          style: TextStyle(
-                              fontSize: 15,
-                              fontFamily: "Mainfonts",
-                              color: MyColor.PRICE),
-                        )
-                      ],
-                    ),
+                    // Row(
+                    //   children: [
+                    //     Text(
+                    //       "십시일반 포인트",
+                    //       style: TextStyle(
+                    //           fontSize: 15,
+                    //           fontFamily: "Mainfonts",
+                    //           color: Colors.black),
+                    //     ),
+                    //     SizedBox(
+                    //       width: 10,
+                    //     ),
+                    //     Text(
+                    //       "3500P",
+                    //       style: TextStyle(
+                    //           fontSize: 15,
+                    //           fontFamily: "Mainfonts",
+                    //           color: MyColor.PRICE),
+                    //     )
+                    //   ],
+                    // ),
                     Divider(),
                     Row(
                       children: [

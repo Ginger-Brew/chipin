@@ -25,10 +25,7 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return macos;
       case TargetPlatform.windows:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for windows - '
@@ -52,6 +49,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '25306467440',
     projectId: 'chipin-c3559',
     authDomain: 'chipin-c3559.firebaseapp.com',
+    databaseURL: 'https://chipin-c3559-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'chipin-c3559.appspot.com',
     measurementId: 'G-6KZTBZZXRW',
   );
@@ -61,6 +59,7 @@ class DefaultFirebaseOptions {
     appId: '1:25306467440:android:0b6bca2b714b10c057b8b5',
     messagingSenderId: '25306467440',
     projectId: 'chipin-c3559',
+    databaseURL: 'https://chipin-c3559-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'chipin-c3559.appspot.com',
   );
 
@@ -69,8 +68,20 @@ class DefaultFirebaseOptions {
     appId: '1:25306467440:ios:3aefcf816552fd8d57b8b5',
     messagingSenderId: '25306467440',
     projectId: 'chipin-c3559',
+    databaseURL: 'https://chipin-c3559-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'chipin-c3559.appspot.com',
     iosClientId: '25306467440-5bhq4sftmavu6qtsu1b9dp31ou7or0gu.apps.googleusercontent.com',
     iosBundleId: 'com.example.chipin',
+  );
+
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'AIzaSyBGP7eLFUHNyJ64Xz1Jk1pdOiZ6Y2A3Grw',
+    appId: '1:25306467440:ios:66a48f472a12ffda57b8b5',
+    messagingSenderId: '25306467440',
+    projectId: 'chipin-c3559',
+    databaseURL: 'https://chipin-c3559-default-rtdb.asia-southeast1.firebasedatabase.app',
+    storageBucket: 'chipin-c3559.appspot.com',
+    iosClientId: '25306467440-o91onnuecqsk85hokm2rhurc8djibuh4.apps.googleusercontent.com',
+    iosBundleId: 'com.example.chipin.RunnerTests',
   );
 }

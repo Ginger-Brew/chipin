@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 
 import '../colors.dart';
 
-class ClientPrintUnit extends StatelessWidget{
+class ClientHistoryUnit extends StatelessWidget{
   final String title;
   final String date;
   final String point;
-  const ClientPrintUnit(
+  const ClientHistoryUnit(
       {Key? key,
         required this.title,
         required this.date,
@@ -24,23 +24,23 @@ class ClientPrintUnit extends StatelessWidget{
             children: [
               Container(
                 margin: EdgeInsets.only(top: 10),
-                width: 100,
+                width: 150,
                 child: Text(
                     title,
                     style: TextStyle(
                         fontFamily: "Mainfonts",
-                        fontSize: 20,
+                        fontSize: 18,
                         color: Colors.black)
                 ),
               ),
               Container(
                 margin: EdgeInsets.only(top: 10),
-                width: 100,
+                width: 150,
                 child: Text(
                     date,
                     style: TextStyle(
                         fontFamily: "Pretendard",
-                        fontSize: 12,
+                        fontSize: 10,
                         color: Colors.grey)
                 ),
               )
@@ -52,7 +52,7 @@ class ClientPrintUnit extends StatelessWidget{
                 point,
                 style: TextStyle(
                     fontFamily: "Mainfonts",
-                    fontSize: 25,
+                    fontSize: 23,
                     color: MyColor.ALERT)
             ),
           )

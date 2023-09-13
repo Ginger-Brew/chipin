@@ -1,14 +1,12 @@
 import 'package:chipin/colors.dart';
 import 'package:chipin/custom_price/custom_price.dart';
 import 'package:chipin/main.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:chipin/base_appbar.dart';
 import '../core/utils/size_utils.dart';
-import '../menu1/menu1.dart';
-import '../menu2/menu2.dart';
-import '../menu3/menu3.dart';
+import '../menu_meals/meals.dart';
+import '../menu_thanks/thanks.dart';
 
 class TabContainerScreen extends StatefulWidget {
   const TabContainerScreen({Key? key})
@@ -25,8 +23,8 @@ class TabContainerScreenState extends State<TabContainerScreen>
   late TabController tabviewController;
   // final bool alreadySaved = _saved.contains(pair);
   bool _isFavorite = false; // 즐겨찾기 상태
-  List<String> _favoriteItems = []; // 즐겨찾기 리스트
-  String _restaurantName = "오양칼국수";
+  final List<String> _favoriteItems = []; // 즐겨찾기 리스트
+  final String _restaurantName = "오양칼국수";
 
   @override
   void initState() {
@@ -41,7 +39,7 @@ class TabContainerScreenState extends State<TabContainerScreen>
     return SafeArea(
       child: Scaffold(
         backgroundColor: MyColor.BACKGROUND,
-        appBar: BaseAppBar(title: "가게정보"),
+        appBar: const BaseAppBar(title: "가게정보"),
 
         body: SizedBox(
           width: mediaQueryData.size.width,
@@ -49,7 +47,7 @@ class TabContainerScreenState extends State<TabContainerScreen>
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                Image(
+                const Image(
                   image: AssetImage("assets/images/ohyang_restaurant.png"),
                   width: 390,
                   height: 176,
@@ -87,7 +85,7 @@ class TabContainerScreenState extends State<TabContainerScreen>
                             ),
                             child: Row(
                               children: [
-                                Icon(
+                                const Icon(
                                   Icons.location_on_rounded,
                                   color: Colors.black,
                                   size: 19,
@@ -97,7 +95,7 @@ class TabContainerScreenState extends State<TabContainerScreen>
                                   padding: getPadding(
                                     left: 4,
                                   ),
-                                  child: Text(
+                                  child: const Text(
                                     "충남 보령시 보령남로 125-7",
                                     overflow: TextOverflow.ellipsis,
                                     textAlign: TextAlign.left,
@@ -146,7 +144,7 @@ class TabContainerScreenState extends State<TabContainerScreen>
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
                     // color:  Color(0XFFB3BFCB).withOpacity(0.46)
-                    color: Color(0xFFB3BFCB).withOpacity(0.46)
+                    color: const Color(0xFFB3BFCB).withOpacity(0.46)
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -163,7 +161,7 @@ class TabContainerScreenState extends State<TabContainerScreen>
                           children: [
                             Row(
                               children: [
-                                Icon(
+                                const Icon(
                                   Icons.star_rate_rounded,
                                   color: Colors.black,
                                   size: 20,
@@ -174,7 +172,7 @@ class TabContainerScreenState extends State<TabContainerScreen>
                                     top: 3,
                                     bottom: 1,
                                   ),
-                                  child: Text(
+                                  child: const Text(
                                     "십시일반 포인트 17950원",
                                     overflow: TextOverflow.ellipsis,
                                     textAlign: TextAlign.left,
@@ -190,7 +188,7 @@ class TabContainerScreenState extends State<TabContainerScreen>
                               ),
                               child: Row(
                                 children: [
-                                  Icon(
+                                  const Icon(
                                     Icons.access_time_filled_rounded,
                                     color: Colors.black,
                                     size: 15,
@@ -200,7 +198,7 @@ class TabContainerScreenState extends State<TabContainerScreen>
                                       left: 9,
                                       top: 1,
                                     ),
-                                    child: Text(
+                                    child: const Text(
                                       "매일 09:00 ~ 19:00",
                                       overflow: TextOverflow.ellipsis,
                                       textAlign: TextAlign.left,
@@ -226,30 +224,30 @@ class TabContainerScreenState extends State<TabContainerScreen>
                   ),
                   child: TabBar(
                     controller: tabviewController,
-                    labelColor: Color(0xFF292D32),
-                    labelStyle: TextStyle(),
-                    unselectedLabelColor: Color(0xFFB3BFCB),
-                    unselectedLabelStyle: TextStyle(),
-                    indicatorColor: Color(0xFFFFC95F),
-                    tabs: [
+                    labelColor: const Color(0xFF292D32),
+                    labelStyle: const TextStyle(),
+                    unselectedLabelColor: const Color(0xFFB3BFCB),
+                    unselectedLabelStyle: const TextStyle(),
+                    indicatorColor: const Color(0xFFFFC95F),
+                    tabs: const [
                       Tab(
                         child: Text(
-                          "식사 메뉴",
+                          "메뉴  보기",
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       Tab(
                         child: Text(
-                          "추가 메뉴",
+                          "감사 편지 읽기",
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      Tab(
-                        child: Text(
-                          "음료수",
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
+                      // Tab(
+                      //   child: Text(
+                      //     "음료수",
+                      //     overflow: TextOverflow.ellipsis,
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),
@@ -259,10 +257,10 @@ class TabContainerScreenState extends State<TabContainerScreen>
                   ),
                   child: TabBarView(
                     controller: tabviewController,
-                    children: [
-                      menu1(),
-                      menu2(),
-                      menu3(),
+                    children: const [
+                      menu(),
+                      thanks(),
+                      // menu3(),
                     ],
                   ),
                 ),
@@ -280,10 +278,10 @@ class TabContainerScreenState extends State<TabContainerScreen>
                 MaterialPageRoute(
                     builder: (context) => CustomPricePage()));
           },
-          label: Text("예약하기",
+          label: const Text("예약하기",
             style: TextStyle(fontFamily: "Mainfonts",color: Colors.white),
           ),
-          icon: Icon(Icons.check),
+          icon: const Icon(Icons.check),
           backgroundColor: MyColor.DARK_YELLOW,
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat, // 오른쪽 아래에 배치

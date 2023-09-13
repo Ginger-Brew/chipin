@@ -3,18 +3,18 @@ import 'package:flutter/material.dart';
 import '../core/utils/size_utils.dart';
 
 // ignore_for_file: must_be_immutable
-class menu1 extends StatefulWidget {
-  const menu1({Key? key})
+class menu extends StatefulWidget {
+  const menu({Key? key})
       : super(
           key: key,
         );
 
   @override
-  menu1State createState() => menu1State();
+  menuState createState() => menuState();
 }
 
-class menu1State extends State<menu1>
-    with AutomaticKeepAliveClientMixin<menu1> {
+class menuState extends State<menu>
+    with AutomaticKeepAliveClientMixin<menu> {
   @override
   bool get wantKeepAlive => true;
   @override

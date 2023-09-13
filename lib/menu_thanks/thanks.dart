@@ -3,18 +3,18 @@ import 'package:flutter/material.dart';
 import '../core/utils/size_utils.dart';
 
 // ignore_for_file: must_be_immutable
-class menu2 extends StatefulWidget {
-  const menu2({Key? key})
+class thanks extends StatefulWidget {
+  const thanks({Key? key})
       : super(
     key: key,
   );
 
   @override
-  menu2State createState() => menu2State();
+  thanksState createState() => thanksState();
 }
 
-class menu2State extends State<menu2>
-    with AutomaticKeepAliveClientMixin<menu2> {
+class thanksState extends State<thanks>
+    with AutomaticKeepAliveClientMixin<thanks> {
   @override
   bool get wantKeepAlive => true;
   @override
@@ -68,8 +68,8 @@ class menu2State extends State<menu2>
                                           mainAxisAlignment:
                                           MainAxisAlignment.start,
                                           children: [
-                                            Text(
-                                              "고기만두",
+                                            const Text(
+                                              "너무 맛있는 한 끼 였습니다. \n 감사합니다.",
                                               overflow: TextOverflow.ellipsis,
                                               textAlign: TextAlign.left,
                                               // style: theme.textTheme.titleLarge,
@@ -78,8 +78,8 @@ class menu2State extends State<menu2>
                                               padding: getPadding(
                                                 top: 1,
                                               ),
-                                              child: Text(
-                                                "3000원",
+                                              child: const Text(
+                                                "ID1",
                                                 overflow: TextOverflow.ellipsis,
                                                 textAlign: TextAlign.left,
                                                 // style:
@@ -121,8 +121,8 @@ class menu2State extends State<menu2>
                                           mainAxisAlignment:
                                           MainAxisAlignment.start,
                                           children: [
-                                            Text(
-                                              "김치만두",
+                                            const Text(
+                                              "여기 사장님 최고 ㅜㅜ 너무 맛있어요",
                                               overflow: TextOverflow.ellipsis,
                                               textAlign: TextAlign.left,
                                               // style: theme.textTheme.titleLarge,
@@ -131,8 +131,61 @@ class menu2State extends State<menu2>
                                               padding: getPadding(
                                                 top: 1,
                                               ),
-                                              child: Text(
-                                                "4000원",
+                                              child: const Text(
+                                                "ID2",
+                                                overflow: TextOverflow.ellipsis,
+                                                textAlign: TextAlign.left,
+                                                // style:
+                                                // theme.textTheme.bodyLarge,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: getPadding(
+                                      top: 15,
+                                    ),
+                                    child: Divider(
+                                      height: getVerticalSize(
+                                        1,
+                                      ),
+                                      thickness: getVerticalSize(
+                                        1,
+                                      ),
+                                      // color: theme.colorScheme.onError,
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: getPadding(
+                                      top: 15,
+                                      left: 33,
+                                      right: 15,
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Column(
+                                          crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                          mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                          children: [
+                                            const Text(
+                                              "감사해요. 너무 맛있네요",
+                                              overflow: TextOverflow.ellipsis,
+                                              textAlign: TextAlign.left,
+                                              // style: theme.textTheme.titleLarge,
+                                            ),
+                                            Padding(
+                                              padding: getPadding(
+                                                top: 1,
+                                              ),
+                                              child: const Text(
+                                                "ID3",
                                                 overflow: TextOverflow.ellipsis,
                                                 textAlign: TextAlign.left,
                                                 // style:

@@ -9,6 +9,11 @@ import '../colors.dart';
 import '../base_appbar.dart';
 import 'package:kpostal/kpostal.dart';
 import '../base_button.dart';
+import '../core/utils/size_utils.dart';
+
+List<NewMenu> menuItems = [];
+// bool isUpdate = false;
+int menuCount = 0;
 
 class RestaurantInfoRegister extends StatefulWidget {
   const RestaurantInfoRegister({Key? key}) : super(key: key);
@@ -29,8 +34,6 @@ class _RestaurantInfoRegisterState extends State<RestaurantInfoRegister> {
   String address1 = '-';
   String latitude = '-';
   String longitude = '-';
-  String kakaoLatitude = '-';
-  String kakaoLongitude = '-';
 
   TextEditingController _newRestaurantName = TextEditingController();
   TextEditingController _newRestaurantLocation = TextEditingController();
@@ -56,41 +59,27 @@ class _RestaurantInfoRegisterState extends State<RestaurantInfoRegister> {
     super.dispose();
   }
 
-  void writemenudata(String menu, String price) async {
-    final db = FirebaseFirestore.instance.collection(colName).doc(id).collection("Menu").doc(menu);
-
-
-      await db
-          .set({
-        'name': menu,
-        'price' : price
-      })
-          .then((value) => print("document added")) // firestore에 저장이 잘 된 경우
-          .catchError((error) => print("Fail to add doc ${error}"));
-
-
-
-  }
-
   void writeinfodata() async {
     final db = FirebaseFirestore.instance.collection(colName).doc(id);
 
     // firestore에 저장
-    if (pickedImgPath != "") {
+    // if (pickedImgPath != "") {
       await db
           .set({
-        'name': _newRestaurantName.text,
-        'address1': this.address1,
-        'address2':  _newRestaurantLocation.text,
-        'openH':_newRestaurantOpenHour.text,
-        'openM':_newRestaurantOpenMinute.text,
-        'closeH':_newRestaurantCloseHour.text,
-        'closeM':_newRestaurantCloseMinute.text,
-        'closeddays': _newRestaurantClosedday.text,
-        'businessnumber': _newRestaurantBusinessNumber.text,
-        'phone': _newRestaurantPhone.text,
-        'banner': pickedImgPath
-      })
+            'name': _newRestaurantName.text,
+            'address1': this.address1,
+            'address2': _newRestaurantLocation.text,
+            'latitude': this.latitude,
+            'longitude': this.longitude,
+            'openH': _newRestaurantOpenHour.text,
+            'openM': _newRestaurantOpenMinute.text,
+            'closeH': _newRestaurantCloseHour.text,
+            'closeM': _newRestaurantCloseMinute.text,
+            'closeddays': _newRestaurantClosedday.text,
+            'businessnumber': _newRestaurantBusinessNumber.text,
+            'phone': _newRestaurantPhone.text,
+            'banner': pickedImgPath
+          })
           .then((value) => print("document added")) // firestore에 저장이 잘 된 경우
           .catchError((error) => print("Fail to add doc ${error}"));
       pickedImgPath = ""; // 변수 초기화
@@ -99,11 +88,23 @@ class _RestaurantInfoRegisterState extends State<RestaurantInfoRegister> {
           .showSnackBar(SnackBar(content: Text('Image uploaded successfully')));
       Navigator.push(context,
           MaterialPageRoute(builder: (context) => const RestaurantMain()));
-    } else {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('No image selected')));
-    }
+    // } else {
+    //   ScaffoldMessenger.of(context)
+    //       .showSnackBar(SnackBar(content: Text('No image selected')));
+    // }
+  }
 
+  void writemenudata(String menu, String price, String explain) async {
+    final db = FirebaseFirestore.instance
+        .collection(colName)
+        .doc(id)
+        .collection("Menu")
+        .doc(menu);
+
+    await db
+        .set({'name': menu, 'price': price, 'explain': explain})
+        .then((value) => print("document added")) // firestore에 저장이 잘 된 경우
+        .catchError((error) => print("Fail to add doc ${error}"));
   }
 
   Future pickImg() async {
@@ -117,7 +118,6 @@ class _RestaurantInfoRegisterState extends State<RestaurantInfoRegister> {
       });
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -143,7 +143,7 @@ class _RestaurantInfoRegisterState extends State<RestaurantInfoRegister> {
                       alignment: Alignment.centerLeft,
                       child: Text('주소',
                           style:
-                          TextStyle(fontFamily: "Mainfonts", fontSize: 16)),
+                              TextStyle(fontFamily: "Mainfonts", fontSize: 16)),
                     ),
                     SizedBox(
                       height: 10,
@@ -194,7 +194,7 @@ class _RestaurantInfoRegisterState extends State<RestaurantInfoRegister> {
                       alignment: Alignment.centerLeft,
                       child: Text('사업자 등록 번호',
                           style:
-                          TextStyle(fontFamily: "Mainfonts", fontSize: 16)),
+                              TextStyle(fontFamily: "Mainfonts", fontSize: 16)),
                     ),
                     SizedBox(
                       height: 10,
@@ -221,7 +221,7 @@ class _RestaurantInfoRegisterState extends State<RestaurantInfoRegister> {
                     alignment: Alignment.centerLeft,
                     child: Text('가게 대표 사진 등록',
                         style:
-                        TextStyle(fontSize: 16, fontFamily: "Mainfonts")),
+                            TextStyle(fontSize: 16, fontFamily: "Mainfonts")),
                   ),
                   SizedBox(
                     height: 10,
@@ -235,14 +235,14 @@ class _RestaurantInfoRegisterState extends State<RestaurantInfoRegister> {
                     height: 10,
                   ),
                   if (pickedImg.path.isNotEmpty)
-                  Container(
-                    width: 150, // Set the desired width
-                    height: 100, // Set the desired height
-                    child: Image.file(
-                      File(pickedImg.path),
-                      fit: BoxFit.cover,
-                    ),
-                  )
+                    Container(
+                      width: 150, // Set the desired width
+                      height: 100, // Set the desired height
+                      child: Image.file(
+                        File(pickedImg.path),
+                        fit: BoxFit.cover,
+                      ),
+                    )
                 ]),
                 SizedBox(height: 20),
                 RestaurantMenu(),
@@ -250,11 +250,16 @@ class _RestaurantInfoRegisterState extends State<RestaurantInfoRegister> {
                 Row(mainAxisAlignment: MainAxisAlignment.end, children: [
                   ElevatedButton(
                       child: Text("등록", style: TextStyle(fontSize: 16)),
-                      onPressed: () => writeinfodata()
+                      onPressed: () {
+                        writeinfodata();
 
-                        )
-                        ]),
-                        SizedBox(height: 20),
+                        for (int i = 0; i < menuItems.length; i++) {
+                          writemenudata(menuItems[i].menuname,
+                              menuItems[i].menuprice, menuItems[i].menuexplain);
+                        }
+                      })
+                ]),
+                SizedBox(height: 20),
               ],
             ),
           ),
@@ -281,7 +286,7 @@ class RestaurantName extends StatelessWidget {
         TextField(
           controller: controller,
           decoration:
-          InputDecoration(border: OutlineInputBorder(), isDense: true),
+              InputDecoration(border: OutlineInputBorder(), isDense: true),
         )
       ],
     );
@@ -307,7 +312,7 @@ class RestaurantPhone extends StatelessWidget {
         TextField(
             controller: controller,
             decoration:
-            InputDecoration(border: OutlineInputBorder(), isDense: true),
+                InputDecoration(border: OutlineInputBorder(), isDense: true),
             keyboardType: TextInputType.number,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly])
       ],
@@ -323,10 +328,10 @@ class RestaurantOpeningHour extends StatelessWidget {
 
   const RestaurantOpeningHour(
       {Key? key,
-        required this.openhourcontroller,
-        required this.openminutecontroller,
-        required this.closehourcontroller,
-        required this.closeminutecontroller})
+      required this.openhourcontroller,
+      required this.openminutecontroller,
+      required this.closehourcontroller,
+      required this.closeminutecontroller})
       : super(key: key);
 
   @override
@@ -345,12 +350,12 @@ class RestaurantOpeningHour extends StatelessWidget {
           SizedBox(width: 30),
           Expanded(
               child: TextField(
-                controller: openhourcontroller,
-                keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                decoration:
+            controller: openhourcontroller,
+            keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            decoration:
                 InputDecoration(border: OutlineInputBorder(), isDense: true),
-              )),
+          )),
           SizedBox(width: 10),
           Text(
             ":",
@@ -361,12 +366,12 @@ class RestaurantOpeningHour extends StatelessWidget {
           ),
           Expanded(
               child: TextField(
-                controller: openminutecontroller,
-                keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                decoration:
+            controller: openminutecontroller,
+            keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            decoration:
                 InputDecoration(border: OutlineInputBorder(), isDense: true),
-              )),
+          )),
         ],
       ),
       SizedBox(
@@ -377,12 +382,12 @@ class RestaurantOpeningHour extends StatelessWidget {
         SizedBox(width: 30),
         Expanded(
             child: TextField(
-              controller: closehourcontroller,
-              keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              decoration:
+          controller: closehourcontroller,
+          keyboardType: TextInputType.number,
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          decoration:
               InputDecoration(border: OutlineInputBorder(), isDense: true),
-            )),
+        )),
         SizedBox(width: 10),
         Text(
           ":",
@@ -393,12 +398,12 @@ class RestaurantOpeningHour extends StatelessWidget {
         ),
         Expanded(
             child: TextField(
-              controller: closeminutecontroller,
-              keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              decoration:
+          controller: closeminutecontroller,
+          keyboardType: TextInputType.number,
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          decoration:
               InputDecoration(border: OutlineInputBorder(), isDense: true),
-            )),
+        )),
       ]),
     ]);
   }
@@ -422,7 +427,7 @@ class RestaurantClosedDay extends StatelessWidget {
       ),
       TextField(
         decoration:
-        InputDecoration(border: OutlineInputBorder(), isDense: true),
+            InputDecoration(border: OutlineInputBorder(), isDense: true),
         controller: controller,
       )
     ]);
@@ -441,58 +446,241 @@ class _RestaurantMenuState extends State<RestaurantMenu> {
   final String id = "jdh33114";
   final TextEditingController menuname = TextEditingController();
   final TextEditingController menuprice = TextEditingController();
+  final TextEditingController menuexplain = TextEditingController();
 
   @override
-  void dispose(){
+  void dispose() {
     menuname.dispose();
     menuprice.dispose();
     super.dispose();
-  }
-  void writemenudata(String menu, String price) async {
-    final db = FirebaseFirestore.instance.collection(colName).doc(id).collection("Menu").doc(menu);
-
-
-    await db
-        .set({
-      'name': menu,
-      'price' : price
-    })
-        .then((value) => print("document added")) // firestore에 저장이 잘 된 경우
-        .catchError((error) => print("Fail to add doc ${error}"));
-
-
-
   }
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        Align(alignment:Alignment.centerLeft,child: Text('메뉴', style: TextStyle(fontSize: 16, fontFamily: "Mainfonts"))),
+        Align(
+            alignment: Alignment.centerLeft,
+            child: Text('메뉴',
+                style: TextStyle(fontSize: 16, fontFamily: "Mainfonts"))),
         SizedBox(
           height: 10,
         ),
         BaseButton(
           text: "메뉴 추가",
           fontsize: 13,
-          onPressed: () => showMenuDialog(context),
+          onPressed: () => showMenuDialog(context, menuCount++),
         ),
         SizedBox(
           height: 20,
         ),
-        Text('가게 등록을 위해\n한 개 이상의 메뉴를 등록해주세요',
-          style: TextStyle(fontSize: 13, fontFamily: "Pretendard"),textAlign: TextAlign.center,)
+        if (menuItems.isEmpty)
+          Text(
+            '가게 등록을 위해\n한 개 이상의 메뉴를 등록해주세요',
+            style: TextStyle(fontSize: 13, fontFamily: "Pretendard"),
+            textAlign: TextAlign.center,
+          ),
+        if (menuItems.isNotEmpty)
+          Container(
+            width: mediaQueryData.size.width - 50,
+            height: mediaQueryData.size.height / 3,
+            child: ListView.separated(
+              // shrinkWrap: true,
+              itemCount: menuItems.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  contentPadding:
+                      EdgeInsets.symmetric(vertical: 0.0, horizontal: 0.0),
+                  // visualDensity: VisualDensity(horizontal: 0, vertical: 0),
+                  title: Text(
+                    menuItems[index].menuname,
+                    style: TextStyle(color: Colors.black, fontSize: 18),
+                  ),
+                  subtitle: Text(menuItems[index].menuexplain,
+                      style: TextStyle(color: MyColor.GRAY, fontSize: 13)),
+                  trailing: Container(
+                    width: mediaQueryData.size.width / 3,
+                    child: Row(
+                      // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            menuItems[index].menuprice + "원",
+                            style:
+                                TextStyle(fontSize: 15, color: MyColor.PRICE),
+                          ),
+                        ),
+                        Expanded(
+                            child: TextButton(
+                                onPressed: () {
+                                  showMenuUpdateDialog(
+                                      context,
+                                      menuItems[index].menuname,
+                                      menuItems[index].menuprice,
+                                      menuItems[index].menuexplain,
+                                      index);
+                                },
+                                child: Text("수정",
+                                    style: TextStyle(
+                                        color: MyColor.GOLD_YELLOW,
+                                        fontSize: 13)))),
+                        Expanded(
+                            child: TextButton(
+                                onPressed: () {
+                                  setState(() {
+                                    menuItems.removeAt(index);
+                                  });
+                                },
+                                child: Text("삭제",
+                                    style: TextStyle(
+                                        color: MyColor.GOLD_YELLOW,
+                                        fontSize: 13)))),
+                      ],
+                    ),
+                  ),
+                );
+              },
+              separatorBuilder: (BuildContext context, int index) =>
+                  const Divider(),
+            ),
+          )
       ],
     );
   }
 
-  Future<dynamic> showMenuDialog(BuildContext context) async {
+  Future<dynamic> showMenuDialog(BuildContext context, int index) async {
     return showDialog(
         context: context,
         builder: (BuildContext ctx) {
-          return AlertDialog(
+          return SingleChildScrollView(
+            child: AlertDialog(
+              title: const Text(
+                "메뉴 추가하기",
+                style: TextStyle(fontFamily: "Mainfonts", fontSize: 24),
+              ),
+              content: Column(mainAxisSize: MainAxisSize.min, children: [
+                const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      "메뉴명",
+                      style: TextStyle(fontFamily: "Mainfonts", fontSize: 16),
+                    )),
+                SizedBox(
+                  height: 7,
+                ),
+                TextField(
+                  controller: menuname,
+                  decoration: InputDecoration(
+                      border: OutlineInputBorder(), isDense: true),
+                ),
+                SizedBox(
+                  height: 40,
+                ),
+                const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      "가격",
+                      style: TextStyle(fontFamily: "Mainfonts", fontSize: 16),
+                    )),
+                SizedBox(
+                  height: 7,
+                ),
+                TextField(
+                  controller: menuprice,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  decoration: InputDecoration(
+                      border: OutlineInputBorder(), isDense: true),
+                ),
+                SizedBox(
+                  height: 40,
+                ),
+                const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      "추가 설명",
+                      style: TextStyle(fontFamily: "Mainfonts", fontSize: 16),
+                    )),
+                SizedBox(
+                  height: 5,
+                ),
+                const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      "십시일반 식사 제공시 구체적으로\n어떤 음식을 10% 덜 제공할 예정인지 설명해주세요",
+                      style: TextStyle(
+                          fontFamily: "Pretendard",
+                          fontSize: 13,
+                          color: MyColor.GRAY),
+                    )),
+                SizedBox(
+                  height: 7,
+                ),
+                TextField(
+                  controller: menuexplain,
+                  decoration: InputDecoration(
+                      border: OutlineInputBorder(), isDense: true),
+                ),
+              ]),
+              actions: [
+                TextButton(
+                    onPressed: () {
+                      menuname.text = "";
+                      menuprice.text = "";
+                      menuexplain.text = "";
+                      Navigator.pop(context);
+                    },
+                    child: Text(
+                      "취소",
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontFamily: "Pretendard",
+                          color: Colors.black),
+                    )),
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      final itemName = menuname.text;
+                      final itemPrice = menuprice.text;
+                      final itemExplanation = menuexplain.text;
+
+                      if (itemName.isNotEmpty &&
+                          itemPrice.isNotEmpty &&
+                          itemExplanation.isNotEmpty) {
+                        NewMenu newItem = NewMenu(
+                            menuname: itemName,
+                            menuprice: itemPrice,
+                            menuexplain: itemExplanation);
+                        menuItems.add(newItem);
+                      }
+                    });
+
+                    menuname.text = "";
+                    menuprice.text = "";
+                    menuexplain.text = "";
+                    Navigator.pop(context);
+                  },
+                  child: Text("추가하기",
+                      style: TextStyle(
+                          fontFamily: "Pretendard",
+                          fontSize: 16,
+                          color: Colors.black)),
+                )
+              ],
+            ),
+          );
+        });
+  }
+
+  Future<dynamic> showMenuUpdateDialog(BuildContext context, String menu,
+      String price, String explain, int index) async {
+    return showDialog(
+        context: context,
+        builder: (BuildContext ctx) {
+          return SingleChildScrollView(
+              child: AlertDialog(
             title: const Text(
-              "메뉴 추가하기",
+              "메뉴 수정하기",
               style: TextStyle(fontFamily: "Mainfonts", fontSize: 24),
             ),
             content: Column(mainAxisSize: MainAxisSize.min, children: [
@@ -508,7 +696,9 @@ class _RestaurantMenuState extends State<RestaurantMenu> {
               TextField(
                 controller: menuname,
                 decoration: InputDecoration(
-                    border: OutlineInputBorder(), isDense: true),
+                    border: OutlineInputBorder(),
+                    isDense: true,
+                    hintText: menu),
               ),
               SizedBox(
                 height: 40,
@@ -527,15 +717,49 @@ class _RestaurantMenuState extends State<RestaurantMenu> {
                 keyboardType: TextInputType.number,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 decoration: InputDecoration(
-                    border: OutlineInputBorder(), isDense: true),
+                    border: OutlineInputBorder(),
+                    isDense: true,
+                    hintText: price),
+              ),
+              SizedBox(
+                height: 40,
+              ),
+              const Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    "추가 설명",
+                    style: TextStyle(fontFamily: "Mainfonts", fontSize: 16),
+                  )),
+              SizedBox(
+                height: 5,
+              ),
+              const Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    "십시일반 식사 제공시 구체적으로\n어떤 음식을 10% 덜 제공할 예정인지 설명해주세요",
+                    style: TextStyle(
+                        fontFamily: "Pretendard",
+                        fontSize: 13,
+                        color: MyColor.GRAY),
+                  )),
+              SizedBox(
+                height: 7,
+              ),
+              TextField(
+                controller: menuexplain,
+                decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    isDense: true,
+                    hintText: explain),
               ),
             ]),
             actions: [
               TextButton(
                   onPressed: () {
-                    Navigator.pop(context);
                     menuname.text = "";
                     menuprice.text = "";
+                    menuexplain.text = "";
+                    Navigator.pop(context);
                   },
                   child: Text(
                     "취소",
@@ -546,19 +770,61 @@ class _RestaurantMenuState extends State<RestaurantMenu> {
                   )),
               ElevatedButton(
                 onPressed: () {
-                  writemenudata(menuname.text, menuprice.text);
+                  setState(() {
+                    String itemName = menu;
+                    String itemPrice = price;
+                    String itemExplanation = explain;
+
+                    if (menuname.text != '') itemName = menuname.text;
+                    if (menuprice.text != '') itemPrice = menuprice.text;
+                    if (menuexplain.text != '')
+                      itemExplanation = menuexplain.text;
+
+                    if (itemName.isNotEmpty &&
+                        itemPrice.isNotEmpty &&
+                        itemExplanation.isNotEmpty) {
+                      NewMenu newItem = NewMenu(
+                        menuname: itemName,
+                        menuprice: itemPrice,
+                        menuexplain: itemExplanation,
+                      );
+
+                      menuItems.removeAt(index);
+                      menuItems.insert(index, newItem);
+
+                    }
+                  });
                   menuname.text = "";
                   menuprice.text = "";
+                  menuexplain.text = "";
                   Navigator.pop(context);
+                  // Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
+                  //     builder: (BuildContext context) =>
+                  //         RestaurantInfoRegister()), (route) => false);
                 },
-                child: Text("추가하기",
+                child: Text("수정하기",
                     style: TextStyle(
                         fontFamily: "Pretendard",
                         fontSize: 16,
                         color: Colors.black)),
               )
             ],
-          );
+          ));
         });
+  }
+}
+
+class NewMenu {
+  late String menuname;
+  late String menuprice;
+  late String menuexplain;
+
+  NewMenu(
+      {required String menuname,
+      required String menuprice,
+      required String menuexplain}) {
+    this.menuname = menuname;
+    this.menuprice = menuprice;
+    this.menuexplain = menuexplain;
   }
 }

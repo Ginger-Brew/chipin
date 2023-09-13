@@ -8,6 +8,10 @@ import '../core/utils/size_utils.dart';
 import 'RestaurantPayment.dart';
 
 class RestaurantDiscount extends StatefulWidget {
+  final String enterednumber;
+
+  const RestaurantDiscount(this.enterednumber);
+
   @override
   _RestaurantDiscountState createState() => _RestaurantDiscountState();
 }
@@ -27,61 +31,99 @@ class _RestaurantDiscountState extends State<RestaurantDiscount> {
   String address1 = "-";
   String address2 = "";
 
+//할인 코드가 유효한지 확인 - 아동 db에서 할인 코드와 동일한 이름의 도큐먼트가 있는지 확인
+  Future<int> isCodeValid() async {
+    final db = FirebaseFirestore.instance.collection("Child").doc("child@test.com").collection("ReservationInfo");
 
-  bool get isCodeValid {
-    if (result.join().length == 4) {
-      return true;
-    } else {
-      return false;
+    try {
+      final querySnapshot = await db.where('reservationCode', isEqualTo: result.join()).get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        for (var docSnapshot in querySnapshot.docs) {
+          print('${docSnapshot.id} => ${docSnapshot.data()}');
+          print(docSnapshot.data()['reservationPrice']);
+          return docSnapshot.data()['reservationPrice'];
+        }
+      }
+    } catch (e) {
+      print("Error completing: $e");
     }
+
+    return -1;
   }
 
-  void readdata() async {
-    final readdb = FirebaseFirestore.instance.collection(colName).doc(id);
 
-    await readdb.get().then((DocumentSnapshot ds) {
+  // 화면 상단에 식당 정보를 표기하기 위해 필요 - 식당 db에서 식당 정보 가져오기
+  void readRestaurantData() async {
+    final db = FirebaseFirestore.instance.collection(colName).doc(id);
+
+    await db.get().then((DocumentSnapshot ds) {
       Map<String, dynamic> data = ds.data() as Map<String, dynamic>;
 
       setState(() {
         name = data['name'];
         address1 = data['address1'];
         address2 = data['address2'];
-
-
       });
     });
   }
 
-
-  void writedata() async {
-    final db = FirebaseFirestore.instance;
-
-    db
-        .collection("Child")
-        .doc("tlqkftlqk@naver.com")
-        .collection("ReservationInfo")
-        .doc(result.join())
-        .get()
-        .then((DocumentSnapshot ds) {
-      Map<String, dynamic> data = ds.data() as Map<String, dynamic>;
-
-      int reservationprice = data['price'];
-    });
+// 식당 db에 차감 내역을 작성하기 위해 필요 - 이전 페이지에서 전달받은 값과 아동 db에서 가져온 예약 금액을 가져와서 비교 후 저장
+  void writeRedeemData(int redeemPoint, int payment, DateTime redeemDate, num totalPoint) async {
+    final db = FirebaseFirestore.instance
+        .collection("Restaurant")
+        .doc("jdh33114")
+        .collection("RedeemList")
+        .doc(result.join());
 
     // firestore에 저장
     await db
-        .collection(colName)
-        .doc(id)
-        .collection(subColName)
-        .doc(subColName)
-        .set({'discountcode': "adf"})
+        .set({'redeemPoint': redeemPoint, 'redeemDate' : redeemDate, 'totalPoint' :totalPoint-redeemPoint})
         .then((value) => print("document added")) // firestore에 저장이 잘 된 경우
         .catchError((error) => print("Fail to add doc ${error}"));
 
-    Navigator.push(context, MaterialPageRoute(
-        builder: (context) =>  RestaurantPayment()));
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => RestaurantPayment(payment)));
   }
+// 식당 db에 차감 내역을 작성할 때 표기할 전체 포인트를 구하기 위해 필요 - earnlist의 값의 합에서 redeemlist의 값의 합을 뺌
+  Future<num> readtotalPoint() async {
 
+    num earnPoint = 0;
+    num redeemPoint = 0;
+
+
+  final db = FirebaseFirestore.instance.collection("Restaurant").doc("jdh33114");
+
+  try {
+      final queryEarnSnapshot = await db.collection("EarnList").get();
+
+      if (queryEarnSnapshot.docs.isNotEmpty) {
+        for (var docSnapshot in queryEarnSnapshot.docs) {
+          print('${docSnapshot.id} => ${docSnapshot.data()}');
+          earnPoint += docSnapshot.data()['earnPoint'];
+        }
+      }
+    } catch (e) {
+      print("Error completing: $e");
+    }
+
+    try {
+      final queryEarnSnapshot = await db.collection("RedeemList").get();
+
+      if (queryEarnSnapshot.docs.isNotEmpty) {
+        for (var docSnapshot in queryEarnSnapshot.docs) {
+          print('${docSnapshot.id} => ${docSnapshot.data()}');
+          redeemPoint += docSnapshot.data()['redeemPoint'];
+        }
+      }
+    } catch (e) {
+      print("Error completing: $e");
+    }
+
+  return earnPoint-redeemPoint;
+      }
   @override
   void initState() {
     super.initState();
@@ -115,7 +157,6 @@ class _RestaurantDiscountState extends State<RestaurantDiscount> {
 
   @override
   Widget build(BuildContext context) {
-
     List<Widget> textFields = controllers.asMap().entries.map((entry) {
       int index = entry.key;
       TextEditingController controller = entry.value;
@@ -151,7 +192,7 @@ class _RestaurantDiscountState extends State<RestaurantDiscount> {
         ),
       );
     }).toList();
-    readdata();
+    readRestaurantData();
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: const BaseAppBar(title: "가게정보"),
@@ -173,7 +214,7 @@ class _RestaurantDiscountState extends State<RestaurantDiscount> {
                         children: [
                           Padding(
                             padding: getPadding(left: 1),
-                            child:  Text(
+                            child: Text(
                               name,
                               overflow: TextOverflow.ellipsis,
                               textAlign: TextAlign.left,
@@ -184,7 +225,7 @@ class _RestaurantDiscountState extends State<RestaurantDiscount> {
                               ),
                             ),
                           ),
-                           Padding(
+                          Padding(
                             padding: EdgeInsets.only(top: 2),
                             child: Row(
                               children: [
@@ -196,7 +237,7 @@ class _RestaurantDiscountState extends State<RestaurantDiscount> {
                                 Padding(
                                   padding: EdgeInsets.only(left: 4),
                                   child: Text(
-                                    address1+" "+address2,
+                                    address1 + " " + address2,
                                     overflow: TextOverflow.ellipsis,
                                     textAlign: TextAlign.left,
                                     style: TextStyle(fontSize: 20),
@@ -227,19 +268,24 @@ class _RestaurantDiscountState extends State<RestaurantDiscount> {
                 ),
                 SizedBox(height: 50),
                 ElevatedButton(
-                  // onPressed: isCodeValid ? () => Navigator.push(context, MaterialPageRoute(
-                  //     builder: (context) =>  RestaurantDiscount())) : null,
-                  onPressed: isCodeValid ? () => writedata() : null,
-                  // onPressed: () => writedata(),
+                  onPressed: () async {
+                    int reservationPrice = await isCodeValid();
+                    int redeemPoint = reservationPrice > int.parse(widget.enterednumber) ? int.parse(widget.enterednumber) : reservationPrice;
+                    int payment = reservationPrice > int.parse(widget.enterednumber) ? 0 : int.parse(widget.enterednumber) - reservationPrice;
+                    DateTime redeemDate = DateTime.now();
+                    num totalPoint = await readtotalPoint();
+                    // debugPrint("debug : ${reservationPrice}");
+                    // debugPrint("debug : ${redeemPoint}");
+                    // debugPrint("debug : ${payment}");
+                    // Call the async function and await the result
+                    if (reservationPrice != "fail") {
+                      writeRedeemData(redeemPoint, payment, redeemDate, totalPoint);
+                    }
+                  },
                   style: ButtonStyle(
                     foregroundColor: MaterialStateProperty.all(Colors.white),
                     backgroundColor:
-                        MaterialStateProperty.resolveWith<Color>((states) {
-                      if (!isCodeValid) {
-                        return Colors.grey; // 비활성화 상태일 때 회색 배경색
-                      }
-                      return MyColor.DARK_YELLOW; // 활성화 상태일 때 파란 배경색
-                    }),
+                        MaterialStateProperty.all(MyColor.DARK_YELLOW),
                     shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                         RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(18.0),
@@ -250,7 +296,6 @@ class _RestaurantDiscountState extends State<RestaurantDiscount> {
                           48), // 가로 길이를 화면 가로 길이 - 32로 설정
                     ),
                   ),
-
                   child: const Text(
                     "확인",
                     style: TextStyle(

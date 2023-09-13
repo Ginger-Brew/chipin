@@ -1,6 +1,7 @@
 import 'package:chipin/child_code_generate/code_generate_screen.dart';
 import 'package:chipin/colors.dart';
 import 'package:chipin/custom_price/custom_price.dart';
+import 'package:chipin/restaurant_main/RestaurantMain.dart';
 import 'package:chipin/tab_container_screen/tab_container_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -79,6 +80,7 @@ class MyApp extends StatelessWidget {
             // debugShowCheckedModeBanner : 오른쪽상단 빨간색 표시
             debugShowCheckedModeBanner: false,
 
+
             routes: {
               // '/home': (context) => NavigationHomeScreen(pagename: DrawerIndex.HOME),
               '/login': (context) => LoginPage(),
@@ -94,5 +96,6 @@ class MyApp extends StatelessWidget {
             // 실행 시 가장 먼저 보여지는 화면 (splash 화면을 따로 만들거면 그 화면으로 해야함)
             initialRoute: '/login'
         ));
+
   }
 }

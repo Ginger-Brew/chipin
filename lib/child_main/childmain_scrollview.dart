@@ -76,7 +76,7 @@ class ScrollingRestaurants extends StatelessWidget {
             SizedBox(height: 20),
             CustomRestaurantCategory("팔각도 대전괴정롯데점", "대전광역시 서구 괴정동",
                 "오후 8:00시까지 영업", "assets/images/eightangle.png"),
-           
+
           ],
         ),
       ),
@@ -101,7 +101,7 @@ class ResultText extends StatelessWidget {
       //only to left align the text
       child: Row(
         children: <Widget>[
-          Text("13개 결과",
+          Text("5개 결과",
               style: TextStyle(fontFamily: "Mainfonts", fontSize: 14))
         ],
       ),

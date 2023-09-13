@@ -8,6 +8,10 @@ import '../core/utils/size_utils.dart';
 import '../restaurant_main/RestaurantMain.dart';
 
 class RestaurantPayment extends StatefulWidget {
+  final int payment;
+
+  const RestaurantPayment(this.payment);
+
   @override
   _RestaurantPaymentState createState() => _RestaurantPaymentState();
 }
@@ -159,7 +163,7 @@ class _RestaurantPaymentState extends State<RestaurantPayment> {
                 ),
                 const SizedBox(height: 30),
                 Text(
-                  '2300원',
+                  widget.payment.toString(),
                   style: TextStyle(
                       fontFamily: "Pretendard",
                       color: Colors.grey,

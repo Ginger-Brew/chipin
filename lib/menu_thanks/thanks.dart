@@ -88,6 +88,20 @@ class thanksState extends State<thanks>
                                             ),
                                           ],
                                         ),
+                                        TextButton(
+                                          onPressed: () {
+                                            // 신고 버튼을 클릭할 때 수행할 동작을 여기에 추가
+                                          },
+                                          child: const Text(
+                                            "신고하기",
+                                            style: TextStyle(
+                                              fontFamily: "Mainfonts",
+                                              color: Colors.grey, // 회색으로 설정
+                                              fontSize: 12, // 원하는 글씨 크기 설정
+                                            ),
+                                          ),
+                                        ),
+
                                       ],
                                     ),
                                   ),
@@ -139,7 +153,22 @@ class thanksState extends State<thanks>
                                                 // theme.textTheme.bodyLarge,
                                               ),
                                             ),
+
                                           ],
+
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            // 신고 버튼을 클릭할 때 수행할 동작을 여기에 추가
+                                          },
+                                          child: const Text(
+                                            "신고하기",
+                                            style: TextStyle(
+                                              fontFamily: "Mainfonts",
+                                              color: Colors.grey, // 회색으로 설정
+                                              fontSize: 12, // 원하는 글씨 크기 설정
+                                            ),
+                                          ),
                                         ),
                                       ],
                                     ),
@@ -192,7 +221,21 @@ class thanksState extends State<thanks>
                                                 // theme.textTheme.bodyLarge,
                                               ),
                                             ),
+
                                           ],
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            // 신고 버튼을 클릭할 때 수행할 동작을 여기에 추가
+                                          },
+                                          child: const Text(
+                                            "신고하기",
+                                            style: TextStyle(
+                                              fontFamily: "Mainfonts",
+                                              color: Colors.grey, // 회색으로 설정
+                                              fontSize: 12, // 원하는 글씨 크기 설정
+                                            ),
+                                          ),
                                         ),
                                       ],
                                     ),

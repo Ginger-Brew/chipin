@@ -188,12 +188,15 @@ class _ChoiceRoleState extends State<ChoiceRole> {
                     if (role == "/childmain") {
                       updaterole["child"] = true;
                       nowrole = "child";
+                      await FirebaseFirestore.instance.collection("Child").doc(userid).set({});
                     } else if (role == "/storemain") {
                       updaterole["restaurant"] = true;
                       nowrole = "restaurant";
+                      await FirebaseFirestore.instance.collection("Restaurant").doc(userid).set({});
                     } else if (role == "/clientmain") {
                       updaterole["client"] = true;
                       nowrole = "client";
+                      await FirebaseFirestore.instance.collection("Client").doc(userid).set({});
                     }
 
                     await FirebaseFirestore.instance.collection("Users").doc(userid).collection("userinfo").doc("userinfo").update({'totalrole' : updaterole});

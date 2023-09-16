@@ -1,11 +1,11 @@
 import 'package:chipin/child_code_generate/code_generate_screen.dart';
 import 'package:chipin/colors.dart';
-import 'package:chipin/custom_price/custom_price.dart';
 import 'package:chipin/tab_container_screen/tab_container_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
+import 'child_custom_price/custom_price.dart';
 import 'child_main/ChildMain.dart';
 import 'customer_main/ClientMain.dart';
 import 'login/login.dart';

@@ -29,10 +29,41 @@ class _RegisterDetailUnderPageState extends State<RegisterDetailUnderPage> {
     return ChangeNotifierProvider(
         create: (_) => RegisterModel(),
         child: Scaffold(
-          appBar: BaseAppBar(title: 'under'),
+          appBar: AppBar(
+            elevation: 1,
+          ),
           body: Column(
             children: [
-              Padding(padding: EdgeInsets.only(top: 10)),
+              Expanded(
+                  flex: 1,
+                  child: Align(
+                      alignment: Alignment.centerLeft,
+                      child:Container(
+                        margin:EdgeInsets.only(left: 50),
+                        child:const Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                "회원가입",
+                                style: TextStyle(
+                                    fontSize: 30,
+                                    fontFamily: "Pretendard",
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.black),
+                              ),
+                              Text(
+                                "만 14세 미만입니다.",
+                                style: TextStyle(
+                                    fontSize: 18,
+                                    fontFamily: "Pretendard",
+                                    fontWeight: FontWeight.w400,
+                                    color: Colors.black54),
+                              )
+                            ]),
+                      )
+                  )
+              ),
               IDInput(),
               PasswordInput(),
               PasswordConfirmInput(),

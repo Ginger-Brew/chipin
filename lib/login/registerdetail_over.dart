@@ -35,7 +35,7 @@ class _RegisterDetailOverPageState extends State<RegisterDetailOverPage> {
           body: Column(
             children: [
               Expanded(
-                  flex: 2,
+                  flex: 1,
                   child: Align(
                       alignment: Alignment.centerLeft,
                       child:Container(

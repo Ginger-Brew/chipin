@@ -54,10 +54,12 @@ class _ChildMainState extends State<ChildMain> {
             initialChildSize: 0.30,
             minChildSize: 0.15,
             builder: (BuildContext context, ScrollController scrollController) {
+              //return
+              //  ScrollingRestaurants();
               return SingleChildScrollView(
-                key: _containerkey,
-                controller: scrollController,
-                child: CustomScrollViewContent(),
+               key: _containerkey,
+               controller: scrollController,
+               child: CustomScrollViewContent(),
               );
             },
           ),

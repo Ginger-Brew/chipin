@@ -2,7 +2,8 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 import '../../base_appbar.dart';
 import '../../colors.dart';
 import '../../core/utils/size_utils.dart';
@@ -15,83 +16,51 @@ class CodeGenerateScreen extends StatefulWidget {
 }
 
 class _CodeGenerateScreenState extends State<CodeGenerateScreen> {
-  String randomCode = '';
-  bool codeGenerated = false;
-  int countdownSeconds = 60;
-  late Timer countdownTimer;
-  bool isTimerRunning = false;
-  bool isButtonEnabled = true;
+  final String colName = "Child";
+  final String email = "child@test.com";
+  final String reservation = "ReservationInfo";
+  final String RestaurantID = "aaaa";
+  String reservationCode = "0000";
+  String reservationDate = "";
+  int reservationPrice = 0;
+  String cancellationDate = "1";
 
-  void generateRandomCode() {
-    if (isTimerRunning) {
-      return; // 타이머 작동 중일 때는 버튼을 누를 수 없도록 막음
-    }
-    final random = Random();
-    randomCode = random.nextInt(10000).toString().padLeft(4, '0');
-    setState(() {
-      codeGenerated = true;
-      startCountdown();
-      isTimerRunning = true;
-    });
-  }
+  String restaurantID = "ohyang";
+  String reservationDeadline = " ";
 
-  void startCountdown() {
-    countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+
+  void readData() async {
+    final db = FirebaseFirestore.instance
+        .collection(colName)
+        .doc(email)
+        .collection(reservation)
+        .doc(RestaurantID);
+    db.get().then((DocumentSnapshot ds) {
+      Map<String, dynamic> data = ds.data() as Map<String, dynamic>;
       setState(() {
-        countdownSeconds--;
+        // cancellationDate = data[cancellationDate];
+        reservationCode = data["reservationCode"];
+        // reservationDate = DateFormat('yy/MM/dd').format(data["reservationDate"]);
+        // reservationDate = DateFormat('yy/MM/dd').format(DateTime.now());
+        Timestamp t = data["reservationDate"];
+        DateTime date = t.toDate();
+        reservationDate = DateFormat('yy/MM/dd HH:mm:ss').format(date);
+
+        reservationDeadline = DateFormat('yy/MM/dd HH:mm:ss').format(date.add(const Duration(hours: 1)));
+        reservationPrice = data["reservationPrice"];
       });
-
-      if (countdownSeconds <= 0) {
-        timer.cancel();
-        resetCountdown();
-      }
     });
   }
-  void resetCountdown() {
-    setState(() {
-      countdownSeconds = 60;
-      codeGenerated = false;
-      isTimerRunning = false;
-      isButtonEnabled = true; // 코드 만료 후 버튼 활성화
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text("코드 만료"),
-            content: const Text("코드가 만료되었습니다."),
-            actions: [
-              TextButton(
-                child: const Text("다시 코드 발급받기"),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  generateRandomCode();
-                },
-              ),
-            ],
-          );
-        },
-      );
-    });
 
-
-  }
-  @override
-  void initState() {
-    super.initState();
-  }
-  @override
-  void dispose() {
-    countdownTimer.cancel();
-    super.dispose();
-  }
   @override
   Widget build(BuildContext context) {
+    readData();
     mediaQueryData = MediaQuery.of(context);
     return SafeArea(
       child: Scaffold(
-        backgroundColor: MyColor.BACKGROUND,
+        backgroundColor: Colors.white,
         resizeToAvoidBottomInset: false,
-        appBar: const BaseAppBar(title: "코드생성"),
+        appBar: const BaseAppBar(title: "가게정보"),
         body: SizedBox(
           height: mediaQueryData.size.height,
           width: double.maxFinite,
@@ -107,51 +76,76 @@ class _CodeGenerateScreenState extends State<CodeGenerateScreen> {
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Padding(
-                    padding: EdgeInsets.only(left: 2, right: 11, top: 20),
+                    padding: getPadding(left: 2, right: 11, top: 20),
                     child: Row(
+                      // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Container(
-                          width: 80, // 이미지의 너비 설정 (적절한 값으로 조정)
-                          height: 80, // 이미지의 높이 설정 (적절한 값으로 조정)
-                          decoration: BoxDecoration(
+                          width: 122,
+                          height: 122,
+                          decoration: const BoxDecoration(
                             image: DecorationImage(
-                              image: AssetImage('assets/images/ohyang_restaurant.png'),
+                              image: AssetImage(
+                                  'assets/images/ohyang_restaurant.png'),
                               fit: BoxFit.cover,
                             ),
+                            // borderRadius: BorderRadius.circular(61),
                           ),
                           margin: const EdgeInsets.only(left: 21),
                         ),
-                        SizedBox(width: 10), // 이미지와 텍스트 사이의 간격
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            const Text(
-                              "현재 예약중!",
-                              overflow: TextOverflow.ellipsis,
-                              textAlign: TextAlign.left,
-                            ),
-                            const SizedBox(height: 6),
-                            const Text(
-                              "오양칼국수",
-                              overflow: TextOverflow.ellipsis,
-                              textAlign: TextAlign.left,
-                            ),
-                            const SizedBox(height: 6),
-                            const Text(
-                              "충청남도 보령시 오천면 소성리 691-52",
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              softWrap: true,
-                              textAlign: TextAlign.left,
-                            ),
-                          ],
+                        Padding(
+                          padding: getPadding(
+                            left: 15,
+                            top: 24,
+                            bottom: 25,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              const Text(
+                                "현재 예약중!",
+
+                                overflow: TextOverflow.ellipsis,
+                                textAlign: TextAlign.left,
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontFamily: "Mainfonts",
+                                  color: Colors.black,
+                                ),
+                              ),
+                              Padding(
+                                padding: getPadding(
+                                  top: 6,
+                                ),
+                                child: const Text(
+                                  "오양칼국수",
+                                  overflow: TextOverflow.ellipsis,
+                                  textAlign: TextAlign.left,
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontFamily: "Mainfonts",
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(
+                                width: 200, // 원하는 너비 설정
+                                child: Text(
+                                  "충청남도 보령시 오천면 소성리 691-52",
+                                  overflow: TextOverflow.ellipsis,
+                                  textAlign: TextAlign.left,
+                                  style: TextStyle(fontSize: 14),
+                                  maxLines: 3, // 한 줄에 표시하고 자동으로 줄바꿈
+                                ),
+                              )
+                            ],
+                          ),
                         ),
                       ],
                     ),
                   ),
                 ),
-
                 Padding(
                   padding: getPadding(
                     top: 24,
@@ -163,105 +157,153 @@ class _CodeGenerateScreenState extends State<CodeGenerateScreen> {
                     thickness: getVerticalSize(
                       1,
                     ),
-                    color: Colors.blueGrey,
+                    color: Colors.grey,
                   ),
                 ),
                 const SizedBox(
-                  height: 30,
+                  height: 10,
                 ),
-                ElevatedButton(
-                  onPressed: isButtonEnabled ? generateRandomCode : null,
-                  // onPressed: () {
-                  //   generateRandomCode();
-                  //   isTimerRunning = true;
-                  // },
-                  style: ButtonStyle(
-                    foregroundColor: MaterialStateProperty.all(Colors.white),
-                    backgroundColor: MaterialStateProperty.all(
-                      codeGenerated ? MyColor.DARK_YELLOW : Colors.white,
-                    ),
-                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                      RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(18.0),
-                        // side: BorderSide(color: Colors.red)
-                      ),
-                    ),
-                    fixedSize: MaterialStateProperty.all<Size>(
-                      Size(MediaQuery.of(context).size.width - 32, 48),
-                    ),
+                Container(
+                  margin: getMargin(
+                    left: 21,
+                    top: 24,
+                    right: 21,
                   ),
-                  child: Text(
-                    codeGenerated ? "확인 코드 생성 완료!" : "확인 코드 생성하기",
-                    style: const TextStyle(
-                        fontFamily: "Pretendard",
-                        color: Colors.black,
-                        fontSize: 20),
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-
-                Padding(
                   padding: getPadding(
-                    left: 83,
+                    left: 14,
+                    right: 14,
                     top: 14,
-                    right: 82,
                     bottom: 14,
                   ),
-                  child :  Container(
-                    padding: const EdgeInsets.all(16),
-                    // decoration: BoxDecoration(
-                    //   color: Colors.white,
-                    //   borderRadius: BorderRadius.circular(10),
-                    //   border: Border.all(
-                    //     color: codeGenerated ? Colors.grey : Colors.transparent,
-                    //   ),
-                    // ),
-                    child: codeGenerated
-                        ? Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        _buildCodeBox(randomCode[0]),
-                        _buildCodeBox(randomCode[1]),
-                        _buildCodeBox(randomCode[2]),
-                        _buildCodeBox(randomCode[3]),
-                      ],
-                    )
-                        : Container(),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      // color:  Color(0XFFB3BFCB).withOpacity(0.46)
+                      color: const Color(0xFFB3BFCB).withOpacity(0.46)),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Padding(
+                        padding: getPadding(
+                          left: 1,
+                          top: 1,
+                          bottom: 3,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                const Icon(
+                                  Icons.star_rate_rounded,
+                                  color: Colors.black,
+                                  size: 20,
+                                ),
+                                Padding(
+                                  padding: getPadding(
+                                    left: 7,
+                                    top: 3,
+                                    bottom: 1,
+                                  ),
+                                  child: Text(
+                                    "예약 포인트 $reservationPrice원",
+                                    overflow: TextOverflow.ellipsis,
+                                    textAlign: TextAlign.left,
+                                    // style: theme.textTheme.titleSmall,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Padding(
+                              padding: getPadding(
+                                left: 3,
+                                top: 11,
+                              ),
+                              child: Row(
+                                children: [
+                                  const Icon(
+                                    Icons.access_time_filled_rounded,
+                                    color: Colors.black,
+                                    size: 15,
+                                  ),
+                                  Padding(
+                                    padding: getPadding(
+                                      left: 9,
+                                      top: 1,
+                                    ),
+                                    child: Text(
+                                      "예약 확정 시간 : $reservationDate",
+                                      overflow: TextOverflow.ellipsis,
+                                      textAlign: TextAlign.left,
+                                      // style: theme.textTheme.titleSmall,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Padding(
+                              padding: getPadding(
+                                left: 3,
+                                top: 11,
+                              ),
+                              child: Row(
+                                children: [
+                                  const Icon(
+                                    Icons.access_time_filled_rounded,
+                                    color: Colors.black,
+                                    size: 15,
+                                  ),
+                                  Padding(
+                                    padding: getPadding(
+                                      left: 9,
+                                      top: 1,
+                                    ),
+                                    child: Text(
+                                      "예약 마감 시간 : $reservationDeadline",
+                                      overflow: TextOverflow.ellipsis,
+                                      textAlign: TextAlign.left,
+                                      // style: theme.textTheme.titleSmall,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-
-                  // child: PinCodeTextField(
-                  //   appContext: context,
-                  //   length: 4,
-                  //   obscureText: false,
-                  //   obscuringCharacter: '*',
-                  //   keyboardType: TextInputType.number,
-                  //   autoDismissKeyboard: true,
-                  //   enableActiveFill: true,
-                  //   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  //   onChanged: (value) {},
-                  //   controller: TextEditingController(text: randomCode), // Set the generated code
-                  //   pinTheme: PinTheme(
-                  //     fieldHeight: getHorizontalSize(43),
-                  //     fieldWidth: getHorizontalSize(35),
-                  //     shape: PinCodeFieldShape.box,
-                  //     borderRadius: BorderRadius.circular(getHorizontalSize(5)),
-                  //     selectedFillColor: appTheme.background_white_main,
-                  //     activeFillColor: appTheme.background_white_main,
-                  //     inactiveFillColor: appTheme.background_white_main,
-                  //     inactiveColor: appTheme.gray500,
-                  //     selectedColor: appTheme.gray500,
-                  //     activeColor: appTheme.gray500,
-                  //   ),
-                  // ),
                 ),
-                const SizedBox(height: 20),
-                isTimerRunning
-                    ? Text(
-                  "남은 시간: $countdownSeconds 초",
-                  style: const TextStyle(fontSize: 16),
-                )
-                    : const SizedBox(),
+                Padding(
+                  padding: getPadding(
+                    top: 14,
+                    bottom: 14,
+                  ),
+                  child: Center(
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center, // 가운데 정렬
+                        children: [
+                          _buildCodeBox(reservationCode[0]),
+                          const SizedBox(width: 10), // 10 픽셀의 간격
+                          _buildCodeBox(reservationCode[1]),
+                          const SizedBox(width: 10), // 10 픽셀의 간격
+                          _buildCodeBox(reservationCode[2]),
+                          const SizedBox(width: 10), // 10 픽셀의 간격
+                          _buildCodeBox(reservationCode[3]),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                const Text(
+                  "코드를 매장 직원에게 보여주세요",
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.left,
+                  // style:
+                  // CustomTextStyles.titleLargeGyeonggiTitleB,
+                ),
               ],
             ),
           ),
@@ -269,25 +311,23 @@ class _CodeGenerateScreenState extends State<CodeGenerateScreen> {
       ),
     );
   }
-  Widget _buildCodeBox(String code) {
-    double screenWidth = MediaQuery.of(context).size.width;
-    double boxSize = screenWidth * 0.1; // 스크린 너비의 일부로 박스 크기 조정
 
+  Widget _buildCodeBox(String code) {
     return Container(
-      width: boxSize,
-      height: boxSize,
+      width: 60,
+      height: 60,
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: codeGenerated ? Colors.grey : Colors.transparent,
+          color: Colors.grey,
         ),
       ),
       child: Text(
         code,
         style: const TextStyle(
-          fontSize: 16,
+          fontSize: 20,
           // fontWeight: FontWeight.bold
         ),
       ),

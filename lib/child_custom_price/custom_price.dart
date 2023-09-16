@@ -1,6 +1,7 @@
+import 'dart:math';
 
 import 'package:flutter/material.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:chipin/base_appbar.dart';
 import '../colors.dart';
 import '../core/utils/size_utils.dart';
@@ -11,9 +12,34 @@ class CustomPricePage extends StatefulWidget {
 }
 
 class _CustomPricePageState extends State<CustomPricePage> {
+  final String colName = "Child";
+  final String email = "child@test.com";
   String enteredNumber = '';
+  String randomCode = '';
+  bool codeGenerated = false;
 
   int get maxRegister => 10000;
+  bool idInReservation = false;
+
+  void readData() async {
+    final db = FirebaseFirestore.instance
+        .collection(colName)
+        .doc(email);
+    db.get().then((DocumentSnapshot ds) {
+      Map<String, dynamic> data = ds.data() as Map<String, dynamic>;
+      setState(() {
+        idInReservation = data["idInReservation"];
+      });
+    });
+  }
+
+  void generateRandomCode() {
+    final random = Random();
+    randomCode = random.nextInt(10000).toString().padLeft(4, '0');
+    setState(() {
+      codeGenerated = true;
+    });
+  }
 
   void _onKeyPressed(String key) {
     if (key == '←') {
@@ -49,19 +75,40 @@ class _CustomPricePageState extends State<CustomPricePage> {
   }
 
   bool get isAmountValid {
-    if (enteredNumber.isNotEmpty){
+    if (enteredNumber.isNotEmpty) {
       int enteredAmount = int.tryParse(enteredNumber) ?? 0;
       return enteredAmount > 0 && enteredAmount <= (maxRegister ?? 0);
     }
     return false;
   }
-  
+
   @override
   Widget build(BuildContext context) {
-
+    readData();
+    if (idInReservation == true) {
+      showDialog(context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("알림"),
+            content: Text("예약이 안됩니다."),
+            actions: <Widget>[
+              TextButton(
+                child: Text("확인"),
+                onPressed: () {
+                  // AlertDialog를 닫고 화면을 나감
+                  Navigator.of(context).pop();
+                  // 화면을 나가려면 다음 줄을 사용 (화면을 나갈 화면이 없으면 뒤로가기와 같음)
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar:  const BaseAppBar(title: "가게정보"),
+      appBar: const BaseAppBar(title: "가게정보"),
       body: SizedBox(
         width: mediaQueryData.size.width,
         child: Column(
@@ -77,7 +124,7 @@ class _CustomPricePageState extends State<CustomPricePage> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Padding(padding: getPadding(
-                        left: 1
+                          left: 1
                       ),
                         child: const Text(
                           "오양칼국수",
@@ -132,18 +179,22 @@ class _CustomPricePageState extends State<CustomPricePage> {
 
             ),
             Padding(padding: const EdgeInsets.only(top: 21),
-              child:RichText(
+              child: RichText(
                 text: TextSpan(
-                  children: [
-                    const TextSpan(
-                      text: "최대 예약 가능 금액 ",
-                      style : TextStyle(fontFamily: "Pretendard",color: Colors.blueGrey, fontSize: 18),
-                    ),
-                    TextSpan(
-                      text: "$maxRegister원",
-                      style: const TextStyle(fontFamily: "Pretendard",color: MyColor.DARK_YELLOW, fontSize: 18),
-                    )
-                  ]
+                    children: [
+                      const TextSpan(
+                        text: "최대 예약 가능 금액 ",
+                        style: TextStyle(fontFamily: "Pretendard",
+                            color: Colors.blueGrey,
+                            fontSize: 18),
+                      ),
+                      TextSpan(
+                        text: "$maxRegister원",
+                        style: const TextStyle(fontFamily: "Pretendard",
+                            color: MyColor.DARK_YELLOW,
+                            fontSize: 18),
+                      )
+                    ]
 
                 ),
                 textAlign: TextAlign.left,
@@ -158,28 +209,34 @@ class _CustomPricePageState extends State<CustomPricePage> {
               // onPressed: () => _showConfirmationDialog(),
               style: ButtonStyle(
 
-                  foregroundColor: MaterialStateProperty.all(Colors.white),
-                  backgroundColor: MaterialStateProperty.resolveWith<Color>((states) {
-                    if (states.contains(MaterialState.disabled)) {
-                      return Colors.grey; // 비활성화 상태일 때 회색 배경색
-                    }
-                    return MyColor.DARK_YELLOW; // 활성화 상태일 때 파란 배경색
-                  }),
-                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                foregroundColor: MaterialStateProperty.all(Colors.white),
+                backgroundColor: MaterialStateProperty.resolveWith<Color>((
+                    states) {
+                  if (states.contains(MaterialState.disabled)) {
+                    return Colors.grey; // 비활성화 상태일 때 회색 배경색
+                  }
+                  return MyColor.DARK_YELLOW; // 활성화 상태일 때 파란 배경색
+                }),
+                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                     RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(18.0),
                       // side: BorderSide(color: Colors.red)
                     )
 
-                  ),
+                ),
 
-                  fixedSize: MaterialStateProperty.all<Size>(
-              Size(MediaQuery.of(context).size.width - 32, 48), // 가로 길이를 화면 가로 길이 - 32로 설정
-    ),
+                fixedSize: MaterialStateProperty.all<Size>(
+                  Size(MediaQuery
+                      .of(context)
+                      .size
+                      .width - 32, 48), // 가로 길이를 화면 가로 길이 - 32로 설정
+                ),
               ),
 
               child: const Text("예약 확정하기",
-                style: TextStyle(fontFamily: "Pretendard",color: Colors.black, fontSize: 20),
+                style: TextStyle(fontFamily: "Pretendard",
+                    color: Colors.black,
+                    fontSize: 20),
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,),
 
@@ -241,23 +298,26 @@ class _CustomPricePageState extends State<CustomPricePage> {
           } else {
             _onKeyPressed(label);
           }
-
         },
-        style:(
-        TextButton.styleFrom(
-          backgroundColor:  Colors.white, foregroundColor: MyColor.GRAY
-        )
-        ) ,
+        style: (
+            TextButton.styleFrom(
+                backgroundColor: Colors.white, foregroundColor: MyColor.GRAY
+            )
+        ),
         child: Text(label,
           overflow: TextOverflow.ellipsis,
           textAlign: TextAlign.left,
-          style: TextStyle(fontFamily: "GyeonggiTitleB", fontSize: 30, color: Colors.black,fontWeight: FontWeight.bold),
+          style: TextStyle(fontFamily: "GyeonggiTitleB",
+              fontSize: 30,
+              color: Colors.black,
+              fontWeight: FontWeight.bold),
           // style: CustomTextStyles
           //     .bodyLargePrimaryContainer,
         ),
       ),
     );
   }
+
   Future<void> _showConfirmationDialog() async {
     bool confirm = await showDialog(
       context: context,
@@ -265,15 +325,18 @@ class _CustomPricePageState extends State<CustomPricePage> {
         return AlertDialog(
           title: const Row(
             children: [
-              Icon(Icons.check_circle_rounded,color: MyColor.ALERT,),
+              Icon(Icons.check_circle_rounded, color: MyColor.ALERT,),
               SizedBox(width: 8),
               Text('주의사항',
-                style: TextStyle(color: MyColor.ALERT,fontFamily: "Pretendard",fontWeight: FontWeight.w500),),
+                style: TextStyle(color: MyColor.ALERT,
+                    fontFamily: "Pretendard",
+                    fontWeight: FontWeight.w500),),
             ],
           ),
           content: const Text(
               '예약 확정 후 1시간 내에 식사하세요!\n1시간 내에 사용하지 않으면 예약이 자동 취소됩니다.',
-              style: TextStyle(fontFamily: "Pretendard",fontWeight: FontWeight.w500)
+              style: TextStyle(
+                  fontFamily: "Pretendard", fontWeight: FontWeight.w500)
           ),
           actions: [
 
@@ -310,7 +373,9 @@ class _CustomPricePageState extends State<CustomPricePage> {
 
     if (confirm == true) {
       // 예약 확정 처리
-      // ...
+      // 램덤 코드 생성
+      // 식당 데이터 베이스에 아동 이름, 예약 날짜시간 write
+      // 아동 reservationinfo에 식당 id, 예약 날짜, 생성 코드 저장
     }
   }
 }

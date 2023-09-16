@@ -1,9 +1,9 @@
 import 'package:chipin/colors.dart';
-import 'package:chipin/custom_price/custom_price.dart';
 import 'package:chipin/main.dart';
 import 'package:flutter/material.dart';
 
 import 'package:chipin/base_appbar.dart';
+import '../child_custom_price/custom_price.dart';
 import '../core/utils/size_utils.dart';
 import '../menu_meals/meals.dart';
 import '../menu_thanks/thanks.dart';

@@ -18,7 +18,7 @@ import 'firebase_options.dart';
 import 'model/model_menu_provider.dart';
 import 'model/model_restaurant_provider.dart';
 import 'restaurant_register/RestaurantInfoRegister.dart';
-
+import 'trash/api_Test.dart';
 class ColorService { //테마 컬러를 지정할 때 사용하는 classs
   static MaterialColor createMaterialColor(Color color) {
     List strengths = <double>[.05];
@@ -75,7 +75,7 @@ class MyApp extends StatelessWidget {
             title: 'CHIPIN',
             theme: ThemeData(
                 primarySwatch: ColorService.createMaterialColor(
-                    MyColor.PRICE)), //테마 컬러를 dark_yellow로 설정함
+                    MyColor.DARK_YELLOW)), //테마 컬러를 dark_yellow로 설정함
 
             // debugShowCheckedModeBanner : 오른쪽상단 빨간색 표시
             debugShowCheckedModeBanner: false,

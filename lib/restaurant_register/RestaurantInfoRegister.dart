@@ -10,10 +10,12 @@ import '../base_appbar.dart';
 import 'package:kpostal/kpostal.dart';
 import '../base_button.dart';
 import '../core/utils/size_utils.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 List<NewMenu> menuItems = [];
-// bool isUpdate = false;
 int menuCount = 0;
+String beResult = "";
 
 class RestaurantInfoRegister extends StatefulWidget {
   const RestaurantInfoRegister({Key? key}) : super(key: key);
@@ -30,10 +32,21 @@ class _RestaurantInfoRegisterState extends State<RestaurantInfoRegister> {
   //firestore에 이미지 저장할 때 쓸 변수
   String pickedImgPath = "";
   XFile pickedImg = XFile('');
-  String postCode = '-';
-  String address1 = '-';
+  String address1 = "";
   String latitude = '-';
   String longitude = '-';
+
+  bool isValidBsNum = false;
+
+  bool isPresentBsNum = true;
+  bool isPresentName = true;
+  bool isPresentTel = true;
+
+  bool isPresentCloseDay = true;
+  bool isPresentAddr = true;
+  bool isPresentOpeningHour = true;
+  bool isPresentMenu = true;
+  bool isPresentImg = true;
 
   TextEditingController _newRestaurantName = TextEditingController();
   TextEditingController _newRestaurantLocation = TextEditingController();
@@ -59,11 +72,62 @@ class _RestaurantInfoRegisterState extends State<RestaurantInfoRegister> {
     super.dispose();
   }
 
+  bool checkValid() {
+    bool validCheck = true;
+    isPresentBsNum = true;
+    isPresentName = true;
+    isPresentTel = true;
+    isPresentAddr = true;
+    isPresentCloseDay = true;
+    isPresentOpeningHour = true;
+    isPresentMenu = true;
+    isPresentImg = true;
+
+    setState(() {
+      if (_newRestaurantName.text == "") {
+        validCheck = false;
+        isPresentName = false;
+      }
+      if (_newRestaurantLocation.text == "" || address1 == "") {
+        validCheck = false;
+        isPresentAddr = false;
+      }
+      if (_newRestaurantPhone.text == "") {
+        validCheck = false;
+        isPresentTel = false;
+      }
+      if (_newRestaurantBusinessNumber.text == "") {
+        validCheck = false;
+        isPresentBsNum = false;
+      }
+      if (_newRestaurantClosedday.text == "") {
+        validCheck = false;
+        isPresentCloseDay = false;
+      }
+      if (_newRestaurantOpenHour.text == "" ||
+          _newRestaurantOpenMinute.text == "" ||
+          _newRestaurantCloseHour.text == "" ||
+          _newRestaurantCloseMinute.text == "") {
+        validCheck = false;
+        isPresentOpeningHour = false;
+      }
+      if (menuItems.isEmpty) {
+        validCheck = false;
+        isPresentMenu = false;
+      }
+      if (pickedImgPath == "") {
+        validCheck = false;
+        isPresentImg = false;
+      }
+    });
+    return validCheck;
+  }
+
   void writeinfodata() async {
     final db = FirebaseFirestore.instance.collection(colName).doc(id);
 
     // firestore에 저장
-    // if (pickedImgPath != "") {
+    if (checkValid() && isValidBsNum) {
       await db
           .set({
             'name': _newRestaurantName.text,
@@ -85,13 +149,13 @@ class _RestaurantInfoRegisterState extends State<RestaurantInfoRegister> {
       pickedImgPath = ""; // 변수 초기화
 
       ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Image uploaded successfully')));
+          .showSnackBar(SnackBar(content: Text('가게 정보가 등록되었습니다')));
       Navigator.push(context,
           MaterialPageRoute(builder: (context) => const RestaurantMain()));
-    // } else {
-    //   ScaffoldMessenger.of(context)
-    //       .showSnackBar(SnackBar(content: Text('No image selected')));
-    // }
+    } else {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('입력되지 않은 값이 있습니다')));
+    }
   }
 
   void writemenudata(String menu, String price, String explain) async {
@@ -119,6 +183,53 @@ class _RestaurantInfoRegisterState extends State<RestaurantInfoRegister> {
     }
   }
 
+  Future<void> checkBusinessNumber() async {
+    String reg1 = _newRestaurantBusinessNumber.text;
+    String bsNum = reg1;
+
+    if (bsNum.length == 10) {
+      try {
+        // First, send a POST request to an API
+        final response = await http.post(
+          Uri.parse(
+              "https://api.odcloud.kr/api/nts-businessman/v1/status?serviceKey=ojn0FinFuT9TLfshP39B49UkYEyiPYtsMozX94RMoiyb%2BI4Q%2Bw9GRC5gnpPMEg48oMjRz0XE3fPja6Yh4jU9cw%3D%3D"),
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: jsonEncode({
+            "b_no": [bsNum],
+          }),
+        );
+
+        if (response.statusCode == 200) {
+          final Map<String, dynamic> result = jsonDecode(response.body);
+          String code = result['data'][0]['b_stt_cd'];
+
+          setState(() {
+            if (code == "01") {
+              beResult = "사업자 번호 확인이 완료되었습니다";
+              isValidBsNum = true;
+            } else if (code == "02" || code == "03") {
+              beResult = "휴/폐업한 사업자번호입니다";
+            } else {
+              beResult = "등록되지 않은 사업자번호입니다";
+            }
+          });
+        } else {
+          setState(() {
+            beResult = "올바른 사업자 번호를 입력해주세요";
+          });
+        }
+      } catch (e) {
+        // Handle exceptions
+      }
+    } else {
+      setState(() {
+        beResult = "사업자 번호는 10자여야 합니다";
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -133,17 +244,32 @@ class _RestaurantInfoRegisterState extends State<RestaurantInfoRegister> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 SizedBox(height: 50),
-                RestaurantName(controller: _newRestaurantName),
+                RestaurantName(
+                  controller: _newRestaurantName,
+                  isPresentName: isPresentName,
+                ),
                 SizedBox(height: 20),
-                RestaurantPhone(controller: _newRestaurantPhone),
+                RestaurantPhone(
+                  controller: _newRestaurantPhone,
+                  isPresentPhone: isPresentTel,
+                ),
                 SizedBox(height: 20),
                 Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text('주소',
-                          style:
-                              TextStyle(fontFamily: "Mainfonts", fontSize: 16)),
+                    Row(
+                      children: [
+                        Text('주소',
+                            style: TextStyle(
+                                fontFamily: "Mainfonts", fontSize: 16)),
+                        SizedBox(width: 10),
+                        if (!isPresentAddr)
+                          Text("* 주소를 입력해주세요",
+                              style: TextStyle(
+                                  fontSize: 13,
+                                  fontFamily: "Pretendard",
+                                  color: Colors.red))
+                      ],
                     ),
                     SizedBox(
                       height: 10,
@@ -158,17 +284,11 @@ class _RestaurantInfoRegisterState extends State<RestaurantInfoRegister> {
                           context,
                           MaterialPageRoute(
                             builder: (_) => KpostalView(
-                              // kakaoKey: '{Add your KAKAO DEVELOPERS JS KEY}',
                               callback: (Kpostal result) {
                                 setState(() {
-                                  // this.postCode = result.postCode;
                                   this.address1 = result.address;
                                   this.latitude = result.latitude.toString();
                                   this.longitude = result.longitude.toString();
-                                  // this.kakaoLatitude =
-                                  //     result.kakaoLatitude.toString();
-                                  // this.kakaoLongitude =
-                                  //     result.kakaoLongitude.toString();
                                 });
                               },
                             ),
@@ -189,20 +309,66 @@ class _RestaurantInfoRegisterState extends State<RestaurantInfoRegister> {
                 ),
                 SizedBox(height: 20),
                 Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text('사업자 등록 번호',
-                          style:
-                              TextStyle(fontFamily: "Mainfonts", fontSize: 16)),
+                    Row(
+                      children: [
+                        Text('사업자 등록 번호',
+                            style: TextStyle(
+                                fontFamily: "Mainfonts", fontSize: 16)),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        if (!isPresentBsNum)
+                          Text("* 사업자 등록 번호를 입력해주세요",
+                              style: TextStyle(
+                                  fontSize: 13,
+                                  fontFamily: "Pretendard",
+                                  color: Colors.red))
+                      ],
                     ),
                     SizedBox(
                       height: 10,
                     ),
-                    TextField(
-                        decoration: InputDecoration(
-                            border: OutlineInputBorder(), isDense: true),
-                        onTap: () => {}),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                              // maxLength: 10,
+                              controller: _newRestaurantBusinessNumber,
+                              decoration: InputDecoration(
+                                  border: OutlineInputBorder(),
+                                  isDense: true,
+                                  hintText: "-를 제외한 10자리 숫자만 입력해주세요"),
+                              keyboardType: TextInputType.number,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly
+                              ],
+                              onTap: () => {}),
+                        ),
+                        SizedBox(width: 20),
+                        ElevatedButton(
+                            child: Text("확인",
+                                style: TextStyle(
+                                    fontFamily: "Pretendard", fontSize: 16)),
+                            onPressed: checkBusinessNumber)
+                      ],
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    if (isValidBsNum)
+                      Text(beResult,
+                          style: TextStyle(
+                              fontSize: 13,
+                              fontFamily: "Pretendard",
+                              color: Colors.green))
+                    else if (!isValidBsNum)
+                      Text(beResult,
+                          style: TextStyle(
+                              fontSize: 13,
+                              fontFamily: "Pretendard",
+                              color: Colors.red))
                   ],
                 ),
                 SizedBox(height: 70),
@@ -210,18 +376,29 @@ class _RestaurantInfoRegisterState extends State<RestaurantInfoRegister> {
                     openhourcontroller: _newRestaurantOpenHour,
                     openminutecontroller: _newRestaurantOpenMinute,
                     closehourcontroller: _newRestaurantCloseHour,
-                    closeminutecontroller: _newRestaurantCloseMinute),
+                    closeminutecontroller: _newRestaurantCloseMinute,
+                    isPresentOpeningHour: isPresentOpeningHour),
                 SizedBox(height: 20),
                 RestaurantClosedDay(
-                  controller: _newRestaurantClosedday,
-                ),
+                    controller: _newRestaurantClosedday,
+                    isPresentCloseDay: isPresentCloseDay),
                 SizedBox(height: 20),
-                Column(children: [
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text('가게 대표 사진 등록',
-                        style:
-                            TextStyle(fontSize: 16, fontFamily: "Mainfonts")),
+                Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
+                  Row(
+                    children: [
+                      Text('가게 대표 사진 등록',
+                          style:
+                              TextStyle(fontSize: 16, fontFamily: "Mainfonts")),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      if (!isPresentImg)
+                        Text("* 가게 대표 사진을 등록해주세요",
+                            style: TextStyle(
+                                fontSize: 13,
+                                fontFamily: "Pretendard",
+                                color: Colors.red))
+                    ],
                   ),
                   SizedBox(
                     height: 10,
@@ -245,11 +422,13 @@ class _RestaurantInfoRegisterState extends State<RestaurantInfoRegister> {
                     )
                 ]),
                 SizedBox(height: 20),
-                RestaurantMenu(),
+                RestaurantMenu(isPresentMenu: isPresentMenu),
                 SizedBox(height: 30),
                 Row(mainAxisAlignment: MainAxisAlignment.end, children: [
                   ElevatedButton(
-                      child: Text("등록", style: TextStyle(fontSize: 16)),
+                      child: Text("등록",
+                          style: TextStyle(
+                              fontSize: 16, fontFamily: "Pretendard")),
                       onPressed: () {
                         writeinfodata();
 
@@ -269,17 +448,29 @@ class _RestaurantInfoRegisterState extends State<RestaurantInfoRegister> {
 
 class RestaurantName extends StatelessWidget {
   final TextEditingController controller;
+  final bool isPresentName;
 
-  const RestaurantName({Key? key, required this.controller}) : super(key: key);
+  const RestaurantName(
+      {Key? key, required this.controller, required this.isPresentName})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Align(
-            alignment: Alignment.centerLeft,
-            child: Text('상호',
-                style: TextStyle(fontFamily: "Mainfonts", fontSize: 16))),
+        Row(
+          children: [
+            Text('상호', style: TextStyle(fontFamily: "Mainfonts", fontSize: 16)),
+            SizedBox(width: 10),
+            if (!isPresentName)
+              Text("* 상호를 입력해주세요",
+                  style: TextStyle(
+                      fontSize: 13,
+                      fontFamily: "Pretendard",
+                      color: Colors.red))
+          ],
+        ),
         SizedBox(
           height: 10,
         ),
@@ -295,17 +486,30 @@ class RestaurantName extends StatelessWidget {
 
 class RestaurantPhone extends StatelessWidget {
   final TextEditingController controller;
+  final bool isPresentPhone;
 
-  const RestaurantPhone({Key? key, required this.controller}) : super(key: key);
+  const RestaurantPhone(
+      {Key? key, required this.controller, required this.isPresentPhone})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Align(
-            alignment: Alignment.centerLeft,
-            child: Text('유선전화',
-                style: TextStyle(fontFamily: "Mainfonts", fontSize: 16))),
+        Row(
+          children: [
+            Text('유선전화',
+                style: TextStyle(fontFamily: "Mainfonts", fontSize: 16)),
+            SizedBox(width: 10),
+            if (!isPresentPhone)
+              Text("* 전화번호를 입력해주세요",
+                  style: TextStyle(
+                      fontSize: 13,
+                      fontFamily: "Pretendard",
+                      color: Colors.red))
+          ],
+        ),
         SizedBox(
           height: 10,
         ),
@@ -325,22 +529,31 @@ class RestaurantOpeningHour extends StatelessWidget {
   final TextEditingController openminutecontroller;
   final TextEditingController closehourcontroller;
   final TextEditingController closeminutecontroller;
+  final bool isPresentOpeningHour;
 
   const RestaurantOpeningHour(
       {Key? key,
       required this.openhourcontroller,
       required this.openminutecontroller,
       required this.closehourcontroller,
-      required this.closeminutecontroller})
+      required this.closeminutecontroller,
+      required this.isPresentOpeningHour})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: [
-      Align(
-          alignment: Alignment.centerLeft,
-          child: Text('영업 시간',
-              style: TextStyle(fontSize: 16, fontFamily: "Mainfonts"))),
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Row(
+        children: [
+          Text('영업 시간',
+              style: TextStyle(fontSize: 16, fontFamily: "Mainfonts")),
+          SizedBox(width: 10),
+          if (!isPresentOpeningHour)
+            Text("* 영업 시간을 입력해주세요",
+                style: TextStyle(
+                    fontSize: 13, fontFamily: "Pretendard", color: Colors.red))
+        ],
+      ),
       SizedBox(
         height: 10,
       ),
@@ -411,17 +624,25 @@ class RestaurantOpeningHour extends StatelessWidget {
 
 class RestaurantClosedDay extends StatelessWidget {
   final TextEditingController controller;
+  final bool isPresentCloseDay;
 
-  const RestaurantClosedDay({Key? key, required this.controller})
+  const RestaurantClosedDay(
+      {Key? key, required this.controller, required this.isPresentCloseDay})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: [
-      Align(
-          alignment: Alignment.centerLeft,
-          child: Text('휴무일',
-              style: TextStyle(fontFamily: "Mainfonts", fontSize: 16))),
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Row(
+        children: [
+          Text('휴무일', style: TextStyle(fontFamily: "Mainfonts", fontSize: 16)),
+          SizedBox(width: 10),
+          if (!isPresentCloseDay)
+            Text("* 휴무일을 입력해주세요",
+                style: TextStyle(
+                    fontSize: 13, fontFamily: "Pretendard", color: Colors.red)),
+        ],
+      ),
       SizedBox(
         height: 10,
       ),
@@ -435,7 +656,10 @@ class RestaurantClosedDay extends StatelessWidget {
 }
 
 class RestaurantMenu extends StatefulWidget {
-  const RestaurantMenu({Key? key}) : super(key: key);
+  final bool isPresentMenu;
+
+  const RestaurantMenu({Key? key, required this.isPresentMenu})
+      : super(key: key);
 
   @override
   State<RestaurantMenu> createState() => _RestaurantMenuState();
@@ -458,11 +682,20 @@ class _RestaurantMenuState extends State<RestaurantMenu> {
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
-        Align(
-            alignment: Alignment.centerLeft,
-            child: Text('메뉴',
-                style: TextStyle(fontSize: 16, fontFamily: "Mainfonts"))),
+        Row(
+          children: [
+            Text('메뉴', style: TextStyle(fontSize: 16, fontFamily: "Mainfonts")),
+            SizedBox(width: 10),
+            if (!widget.isPresentMenu)
+              Text("* 한 개 이상의 메뉴를 등록해주세요",
+                  style: TextStyle(
+                      fontSize: 13,
+                      fontFamily: "Pretendard",
+                      color: Colors.red)),
+          ],
+        ),
         SizedBox(
           height: 10,
         ),
@@ -791,7 +1024,6 @@ class _RestaurantMenuState extends State<RestaurantMenu> {
 
                       menuItems.removeAt(index);
                       menuItems.insert(index, newItem);
-
                     }
                   });
                   menuname.text = "";

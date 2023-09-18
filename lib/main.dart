@@ -86,7 +86,7 @@ class MyApp extends StatelessWidget {
               '/register': (context) => RegisterPage(),
               '/childmain': (context) => ChildMain(),
               '/storemain': (context) => RestaurantInfoRegister(),
-              '/restaurantdetail' : (context) => TabContainerScreen(),
+              // '/restaurantdetail' : (context) => TabContainerScreen(),
               '/customprice' : (context) => CustomPricePage(),
               '/clientmain' : (context) => ClientMain(),
               '/codegenerate' : (context) => CodeGenerateScreen()

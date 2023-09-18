@@ -55,35 +55,37 @@ class ScrollingRestaurants extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      // child: SingleChildScrollView(
-      //   scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.only(bottom: 16),
+        // child: SingleChildScrollView(
+        //   scrollDirection: Axis.horizontal,
         child: StreamBuilder(
-          stream: FirebaseFirestore.instance.collection('Restaurant').snapshots(),
+          stream:
+              FirebaseFirestore.instance.collection('Restaurant').snapshots(),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               final docs = snapshot.data!.docs;
-              return Column(
-                children:[
-                  ResultText(docs.length),
-                  SizedBox(height: 16),
-                  Center(
-                      child:ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: docs.length,
-                        itemBuilder: (context, index) {
-                          return RestaurantCard(docs[index]['name'], docs[index]['address1'], docs[index]['closeH'], docs[index]['closeM'], docs[index]['banner']);
-                        },
-                      )
-                  )
-                ]
-              );
+              return Column(children: [
+                ResultText(docs.length),
+                SizedBox(height: 16),
+                Center(
+                    child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: docs.length,
+                  itemBuilder: (context, index) {
+                    return RestaurantCard(
+                        docs[index].get('name'),
+                        docs[index].get('address1'),
+                        docs[index].get('closeH'),
+                        docs[index].get('closeM'),
+                        docs[index].get('banner'));
+                  },
+                ))
+              ]);
             } else {
               return CircularProgressIndicator();
             }
           },
-        )
-    );
+        ));
   }
 }
 
@@ -96,18 +98,14 @@ class RestaurantCard extends StatelessWidget {
 
   RestaurantCard(this.name, this.address, this.closeH, this.closeM, this.image);
 
-
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        CustomRestaurantCategory(name, address,
-            closeH+" : "+closeM+"까지 영업", image),
-        DivideLine(),
-        SizedBox(height: 20),
-      ]
-    );
+    return Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+      CustomRestaurantCategory(
+          name, address, closeH + " : " + closeM + "까지 영업", image),
+      DivideLine(),
+      SizedBox(height: 20),
+    ]);
   }
 }
 
@@ -154,66 +152,92 @@ class CustomRestaurantCategory extends StatelessWidget {
     return Padding(
         padding: const EdgeInsets.only(bottom: 20),
         child: Container(
-          width : 340,
+            width: 340,
             child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                GestureDetector(
-                    /// 수정 필요
-                    // 각각 해당하는 가게 정보로 넘어가야함.
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => TabContainerScreen()));
-                    },
-                    child: Container(
-                        height: 90,
-                        width: 90,
-                        child: Image(
-                          image: AssetImage(image),
-                          fit: BoxFit.fill,
-                        ))),
-                SizedBox(width: 8),
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(title,
-                      style: TextStyle(
-                          fontFamily: "Mainfonts",
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20)),
-                  Row(
-                    children: <Widget>[
-                      Icon(Icons.location_on, size: 20),
-                      SizedBox(width: 8),
-                      Text(location,
-                          style:
-                              TextStyle(fontFamily: "Pretendard", fontSize: 15))
-                    ],
-                  ),
-                  Row(
-                    children: <Widget>[
-                      Icon(Icons.access_time_filled, size: 20),
-                      SizedBox(width: 8),
-                      Text(time,
-                          style:
-                              TextStyle(fontFamily: "Pretendard", fontSize: 15))
-                    ],
-                  ),
-                ]),
+                Row(
+                  children: [
+                    GestureDetector(
+
+                        /// 수정 필요
+                        // 각각 해당하는 가게 정보로 넘어가야함.
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => TabContainerScreen(
+                                    // restaurantName: "오양칼국수",
+                                    // restaurantAddress: "충남 보령시 보령남로 125-7",
+                                    // openingHours: "매일 09:00 ~ 19:00",
+                                    // bannerImageUrl: "assets/images/ohyang_restaurant.png",
+                                        restaurantName: title,
+                                        restaurantAddress: location,
+                                        openingHours: time,
+                                        bannerImageUrl: image,
+                                      )
+                              )
+                          );
+                        },
+                        child: Container(
+                            height: 90,
+                            width: 90,
+                            child: Image(
+                              image: AssetImage(image),
+                              fit: BoxFit.fill,
+                            ))),
+                    SizedBox(width: 8),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: TextStyle(
+                            fontFamily: "Mainfonts",
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                          ),
+                        ),
+                        Row(
+                          children: <Widget>[
+                            Icon(Icons.location_on, size: 20),
+                            SizedBox(width: 8),
+                            Container(
+                              width: MediaQuery.of(context).size.width - 250, // 48은 아이콘과 간격 등을 고려한 값입니다. 필요에 따라 조정하세요.
+                              child: Text(
+                                location,
+                                maxLines: 3,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontFamily: "Pretendard",
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: <Widget>[
+                            Icon(Icons.access_time_filled, size: 20),
+                            SizedBox(width: 8),
+                            Text(time, style: TextStyle(fontFamily: "Pretendard", fontSize: 15)),
+                          ],
+                        ),
+                      ],
+                    ),
+
+                  ],
+                ),
+                Container(
+                  height: 40,
+                  width: 40,
+                  child: Icon(Icons.favorite, size: 12, color: Colors.black54),
+                  decoration: BoxDecoration(
+                      color: Colors.grey[200],
+                      borderRadius: BorderRadius.circular(100)),
+                ),
               ],
-            ),
-            Container(
-              height: 40,
-              width: 40,
-              child: Icon(Icons.favorite, size: 12, color: Colors.black54),
-              decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(100)),
-            ),
-          ],
-        )));
+            )));
   }
 }
 

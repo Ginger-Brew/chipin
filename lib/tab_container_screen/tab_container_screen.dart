@@ -9,13 +9,21 @@ import '../menu_meals/meals.dart';
 import '../menu_thanks/thanks.dart';
 
 class TabContainerScreen extends StatefulWidget {
-  const TabContainerScreen({Key? key})
-      : super(
-          key: key,
-        );
+  final String restaurantName;
+  final String restaurantAddress;
+  final String openingHours;
+  final String bannerImageUrl;
+
+  const TabContainerScreen({
+    Key? key,
+    required this.restaurantName,
+    required this.restaurantAddress,
+    required this.openingHours,
+    required this.bannerImageUrl,
+  }) : super(key: key);
   // final Set<TabContainerScreenState> _saved = new Set<TabContainerScreenState>();
   @override
-  TabContainerScreenState createState() => TabContainerScreenState();
+  TabContainerScreenState createState() => TabContainerScreenState(restaurantName: restaurantName, restaurantAddress: restaurantAddress, openingHours: openingHours, bannerImageUrl: bannerImageUrl);
 }
 
 class TabContainerScreenState extends State<TabContainerScreen>
@@ -24,8 +32,24 @@ class TabContainerScreenState extends State<TabContainerScreen>
   // final bool alreadySaved = _saved.contains(pair);
   bool _isFavorite = false; // 즐겨찾기 상태
   final List<String> _favoriteItems = []; // 즐겨찾기 리스트
-  final String _restaurantName = "오양칼국수";
 
+  late String _restaurantName = "";
+  late String _restaurantAddress = "";
+  late String _openingHours = "";
+  late String _bannerImageUrl = "";
+  // 생성자를 추가하여 인자로 변수들을 받아옵니다.
+  TabContainerScreenState({
+    required String restaurantName,
+    required String restaurantAddress,
+    required String openingHours,
+    required String bannerImageUrl,
+  }) {
+    _restaurantName = restaurantName;
+    _restaurantAddress = restaurantAddress;
+    _openingHours = openingHours;
+    _bannerImageUrl = bannerImageUrl;
+    // 나머지 변수들을 이용하여 원하는 작업 수행
+  }
   @override
   void initState() {
     super.initState();
@@ -47,8 +71,8 @@ class TabContainerScreenState extends State<TabContainerScreen>
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                const Image(
-                  image: AssetImage("assets/images/ohyang_restaurant.png"),
+                Image(
+                  image: AssetImage(_bannerImageUrl),
                   width: 390,
                   height: 176,
                   fit: BoxFit.fill,
@@ -95,8 +119,8 @@ class TabContainerScreenState extends State<TabContainerScreen>
                                   padding: getPadding(
                                     left: 4,
                                   ),
-                                  child: const Text(
-                                    "충남 보령시 보령남로 125-7",
+                                  child: Text(
+                                    _restaurantAddress,
                                     overflow: TextOverflow.ellipsis,
                                     textAlign: TextAlign.left,
                                     // style: CustomTextStyles
@@ -198,8 +222,8 @@ class TabContainerScreenState extends State<TabContainerScreen>
                                       left: 9,
                                       top: 1,
                                     ),
-                                    child: const Text(
-                                      "매일 09:00 ~ 19:00",
+                                    child: Text(
+                                      _openingHours,
                                       overflow: TextOverflow.ellipsis,
                                       textAlign: TextAlign.left,
                                       // style: theme.textTheme.titleSmall,

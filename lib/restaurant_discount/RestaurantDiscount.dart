@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'package:chipin/base_appbar.dart';
@@ -26,10 +27,29 @@ class _RestaurantDiscountState extends State<RestaurantDiscount> {
   //firestore에 저장할 때 사용할 컬렉션 이름과 도큐먼트 이름
   final String colName = "Restaurant";
   final String subColName = "RedeemList";
-  final String id = "jdh33114";
   String name = "";
-  String address1 = "-";
+  String address1 = "";
   String address2 = "";
+
+
+  User? getUser() {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      // Name, email address, and profile photo URL
+      final name = user.displayName;
+      final email = user.email;
+      final photoUrl = user.photoURL;
+
+      // Check if user's email is verified
+      final emailVerified = user.emailVerified;
+
+      // The user's ID, unique to the Firebase project. Do NOT use this value to
+      // authenticate with your backend server, if you have one. Use
+      // User.getIdToken() instead.
+      final uid = user.uid;
+    }
+    return user;
+  }
 
 //할인 코드가 유효한지 확인 - 아동 db에서 할인 코드와 동일한 이름의 도큐먼트가 있는지 확인
   Future<int> isCodeValid() async {
@@ -55,37 +75,50 @@ class _RestaurantDiscountState extends State<RestaurantDiscount> {
 
   // 화면 상단에 식당 정보를 표기하기 위해 필요 - 식당 db에서 식당 정보 가져오기
   void readRestaurantData() async {
-    final db = FirebaseFirestore.instance.collection(colName).doc(id);
+    User? currentUser = getUser();
 
-    await db.get().then((DocumentSnapshot ds) {
-      Map<String, dynamic> data = ds.data() as Map<String, dynamic>;
+    if(currentUser != null) {
+      final db = FirebaseFirestore.instance.collection(colName).doc(currentUser.email);
 
-      setState(() {
-        name = data['name'];
-        address1 = data['address1'];
-        address2 = data['address2'];
-      });
-    });
+      await db.get().then((DocumentSnapshot ds) {
+        Map<String, dynamic> data = ds.data() as Map<String, dynamic>;
+
+          name = data['name'];
+          address1 = data['address1'];
+          address2 = data['address2'];
+        });
+
+    }
   }
 
 // 식당 db에 차감 내역을 작성하기 위해 필요 - 이전 페이지에서 전달받은 값과 아동 db에서 가져온 예약 금액을 가져와서 비교 후 저장
   void writeRedeemData(int redeemPoint, int payment, DateTime redeemDate, num totalPoint) async {
-    final db = FirebaseFirestore.instance
-        .collection("Restaurant")
-        .doc("jdh33114")
-        .collection("RedeemList")
-        .doc(result.join());
+    User? currentUser = getUser();
 
-    // firestore에 저장
-    await db
-        .set({'redeemPoint': redeemPoint, 'redeemDate' : redeemDate, 'totalPoint' :totalPoint-redeemPoint})
-        .then((value) => print("document added")) // firestore에 저장이 잘 된 경우
-        .catchError((error) => print("Fail to add doc ${error}"));
+    if (currentUser != null) {
+      final db = FirebaseFirestore.instance
+          .collection("Restaurant")
+          .doc(currentUser.email)
+          .collection("RedeemList")
+          .doc(result.join());
 
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => RestaurantPayment(payment)));
+      // firestore에 저장
+      await db
+          .set({
+        'redeemPoint': redeemPoint,
+        'redeemDate': redeemDate,
+        'totalPoint': totalPoint - redeemPoint
+      })
+          .then((value) => print("document added")) // firestore에 저장이 잘 된 경우
+          .catchError((error) => print("Fail to add doc ${error}"));
+
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => RestaurantPayment(payment)));
+    }else {
+
+    }
   }
 // 식당 db에 차감 내역을 작성할 때 표기할 전체 포인트를 구하기 위해 필요 - earnlist의 값의 합에서 redeemlist의 값의 합을 뺌
   Future<num> readtotalPoint() async {
@@ -93,33 +126,37 @@ class _RestaurantDiscountState extends State<RestaurantDiscount> {
     num earnPoint = 0;
     num redeemPoint = 0;
 
+    User? currentUser = getUser();
 
-  final db = FirebaseFirestore.instance.collection("Restaurant").doc("jdh33114");
+    if(currentUser != null) {
+      final db = FirebaseFirestore.instance.collection("Restaurant").doc(
+          currentUser.email);
 
-  try {
-      final queryEarnSnapshot = await db.collection("EarnList").get();
+      try {
+        final queryEarnSnapshot = await db.collection("EarnList").get();
 
-      if (queryEarnSnapshot.docs.isNotEmpty) {
-        for (var docSnapshot in queryEarnSnapshot.docs) {
-          print('${docSnapshot.id} => ${docSnapshot.data()}');
-          earnPoint += docSnapshot.data()['earnPoint'];
+        if (queryEarnSnapshot.docs.isNotEmpty) {
+          for (var docSnapshot in queryEarnSnapshot.docs) {
+            print('${docSnapshot.id} => ${docSnapshot.data()}');
+            earnPoint += docSnapshot.data()['earnPoint'];
+          }
         }
+      } catch (e) {
+        print("Error completing: $e");
       }
-    } catch (e) {
-      print("Error completing: $e");
-    }
 
-    try {
-      final queryEarnSnapshot = await db.collection("RedeemList").get();
+      try {
+        final queryEarnSnapshot = await db.collection("RedeemList").get();
 
-      if (queryEarnSnapshot.docs.isNotEmpty) {
-        for (var docSnapshot in queryEarnSnapshot.docs) {
-          print('${docSnapshot.id} => ${docSnapshot.data()}');
-          redeemPoint += docSnapshot.data()['redeemPoint'];
+        if (queryEarnSnapshot.docs.isNotEmpty) {
+          for (var docSnapshot in queryEarnSnapshot.docs) {
+            print('${docSnapshot.id} => ${docSnapshot.data()}');
+            redeemPoint += docSnapshot.data()['redeemPoint'];
+          }
         }
+      } catch (e) {
+        print("Error completing: $e");
       }
-    } catch (e) {
-      print("Error completing: $e");
     }
 
   return earnPoint-redeemPoint;
@@ -128,6 +165,7 @@ class _RestaurantDiscountState extends State<RestaurantDiscount> {
   void initState() {
     super.initState();
     // Add listeners to each controller
+    readRestaurantData();
     for (int i = 0; i < controllers.length; i++) {
       controllers[i].addListener(() {
         if (controllers[i].text.length == 1) {
@@ -278,8 +316,11 @@ class _RestaurantDiscountState extends State<RestaurantDiscount> {
                     // debugPrint("debug : ${redeemPoint}");
                     // debugPrint("debug : ${payment}");
                     // Call the async function and await the result
-                    if (reservationPrice != "fail") {
+                    if (reservationPrice != -1) {
                       writeRedeemData(redeemPoint, payment, redeemDate, totalPoint);
+                    } else {
+                      ScaffoldMessenger.of(context)
+                          .showSnackBar(SnackBar(content: Text('유효하지 않은 할인 코드입니다')));
                     }
                   },
                   style: ButtonStyle(

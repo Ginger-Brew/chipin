@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'package:chipin/base_appbar.dart';
@@ -26,9 +27,8 @@ class _RestaurantPaymentState extends State<RestaurantPayment> {
   //firestore에 저장할 때 사용할 컬렉션 이름과 도큐먼트 이름
   final String colName = "Restaurant";
   final String subColName = "RedeemList";
-  final String id = "jdh33114";
   String name = "";
-  String address1 = "-";
+  String address1 = "";
   String address2 = "";
 
 
@@ -40,20 +40,44 @@ class _RestaurantPaymentState extends State<RestaurantPayment> {
     }
   }
 
+
+  User? getUser() {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      // Name, email address, and profile photo URL
+      final name = user.displayName;
+      final email = user.email;
+      final photoUrl = user.photoURL;
+
+      // Check if user's email is verified
+      final emailVerified = user.emailVerified;
+
+      // The user's ID, unique to the Firebase project. Do NOT use this value to
+      // authenticate with your backend server, if you have one. Use
+      // User.getIdToken() instead.
+      final uid = user.uid;
+    }
+    return user;
+  }
+
   void readdata() async {
-    final readdb = FirebaseFirestore.instance.collection(colName).doc(id);
+    User? currentUser = getUser();
 
-    await readdb.get().then((DocumentSnapshot ds) {
-      Map<String, dynamic> data = ds.data() as Map<String, dynamic>;
+    if(currentUser != null) {
+      final readdb = FirebaseFirestore.instance.collection(colName).doc(currentUser.email);
 
-      setState(() {
-        name = data['name'];
-        address1 = data['address1'];
-        address2 = data['address2'];
+      await readdb.get().then((DocumentSnapshot ds) {
+        Map<String, dynamic> data = ds.data() as Map<String, dynamic>;
 
-
+        setState(() {
+          name = data['name'];
+          address1 = data['address1'];
+          address2 = data['address2'];
+        });
       });
-    });
+    } else {
+
+    }
   }
 
 

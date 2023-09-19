@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'package:chipin/base_appbar.dart';
@@ -14,25 +15,49 @@ class RestaurantTotalPrice extends StatefulWidget {
 class _RestaurantTotalPriceState extends State<RestaurantTotalPrice> {
   String enteredNumber = '';
   final String colName = "Restaurant";
-  final String id = "jdh33114";
   String name = "";
   String address1 = "-";
   String address2 = "";
 
+
+  User? getUser() {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      // Name, email address, and profile photo URL
+      final name = user.displayName;
+      final email = user.email;
+      final photoUrl = user.photoURL;
+
+      // Check if user's email is verified
+      final emailVerified = user.emailVerified;
+
+      // The user's ID, unique to the Firebase project. Do NOT use this value to
+      // authenticate with your backend server, if you have one. Use
+      // User.getIdToken() instead.
+      final uid = user.uid;
+    }
+    return user;
+  }
+
   void readdata() async {
-    final readdb = FirebaseFirestore.instance.collection(colName).doc(id);
 
-    await readdb.get().then((DocumentSnapshot ds) {
-      Map<String, dynamic> data = ds.data() as Map<String, dynamic>;
+    User? currentUser = getUser();
 
-      setState(() {
-        name = data['name'];
-        address1 = data['address1'];
-        address2 = data['address2'];
+    if(currentUser != null) {
+      final readdb = FirebaseFirestore.instance.collection(colName).doc(currentUser.email);
 
+      await readdb.get().then((DocumentSnapshot ds) {
+        Map<String, dynamic> data = ds.data() as Map<String, dynamic>;
 
+        setState(() {
+          name = data['name'];
+          address1 = data['address1'];
+          address2 = data['address2'];
+        });
       });
-    });
+    } else {
+
+    }
   }
 
   void _onKeyPressed(String key) {

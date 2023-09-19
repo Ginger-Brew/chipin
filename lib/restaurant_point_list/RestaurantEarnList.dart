@@ -1,8 +1,10 @@
+import 'dart:ffi';
 import 'dart:math';
 import 'package:chipin/base_appbar.dart';
 import 'package:chipin/colors.dart';
 import 'package:chipin/core/utils/size_utils.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:chipin/restaurant_point_list/restaurant_point_header.dart';
 
@@ -18,6 +20,26 @@ class _RestaurantEarnListState extends State<RestaurantEarnList> {
   var _redeembuttoncolor = MyColor.LIGHT_GRAY;
   bool showList1 = true;
   bool showList2 = false;
+
+
+  User? getUser() {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      // Name, email address, and profile photo URL
+      final name = user.displayName;
+      final email = user.email;
+      final photoUrl = user.photoURL;
+
+      // Check if user's email is verified
+      final emailVerified = user.emailVerified;
+
+      // The user's ID, unique to the Firebase project. Do NOT use this value to
+      // authenticate with your backend server, if you have one. Use
+      // User.getIdToken() instead.
+      final uid = user.uid;
+    }
+    return user;
+  }
 
   void _toggleList1() {
     setState(() {
@@ -39,77 +61,90 @@ class _RestaurantEarnListState extends State<RestaurantEarnList> {
 
   Future<num> readTotalChild() async {
     num totalChild = 0;
+    User? currentUser = getUser();
 
-    final db = FirebaseFirestore.instance
-        .collection("Restaurant")
-        .doc("jdh33114")
-        .collection("RedeemList");
+    if(currentUser != null) {
+      final db = FirebaseFirestore.instance
+          .collection("Restaurant")
+          .doc(currentUser.email)
+          .collection("RedeemList");
 
-    try {
-      final query = await db.count().get();
-      totalChild = query.count;
-    } catch (e) {
-      print("Error completing: $e");
+      try {
+        final query = await db.count().get();
+        totalChild = query.count;
+      } catch (e) {
+        print("Error completing: $e");
+      }
     }
+    else {
 
+    }
     return totalChild;
   }
 
   Future<num> readAccumulationPoint() async {
     num accumulationPoint = 0;
+    User? currentUser = getUser();
 
-    final db =
-    FirebaseFirestore.instance.collection("Restaurant").doc("jdh33114");
+    if(currentUser != null) {
+      final db =
+      FirebaseFirestore.instance.collection("Restaurant").doc(currentUser.email);
 
-    try {
-      final queryEarnSnapshot = await db.collection("RedeemList").get();
+      try {
+        final queryEarnSnapshot = await db.collection("RedeemList").get();
 
-      if (queryEarnSnapshot.docs.isNotEmpty) {
-        for (var docSnapshot in queryEarnSnapshot.docs) {
-          print('${docSnapshot.id} => ${docSnapshot.data()}');
-          accumulationPoint += docSnapshot.data()['redeemPoint'];
+        if (queryEarnSnapshot.docs.isNotEmpty) {
+          for (var docSnapshot in queryEarnSnapshot.docs) {
+            print('${docSnapshot.id} => ${docSnapshot.data()}');
+            accumulationPoint += docSnapshot.data()['redeemPoint'];
+          }
         }
+      } catch (e) {
+        print("Error completing: $e");
       }
-    } catch (e) {
-      print("Error completing: $e");
-    }
+    }else {
 
+    }
     return accumulationPoint;
   }
 
     Future<num> readRemainingPoint() async {
     num earnPoint = 0;
     num redeemPoint = 0;
+    User? currentUser = getUser();
 
-    final db =
-        FirebaseFirestore.instance.collection("Restaurant").doc("jdh33114");
+    if(currentUser!=null) {
+      final db =
+      FirebaseFirestore.instance.collection("Restaurant").doc(currentUser.email);
 
-    try {
-      final queryEarnSnapshot = await db.collection("EarnList").get();
+      try {
+        final queryEarnSnapshot = await db.collection("EarnList").get();
 
-      if (queryEarnSnapshot.docs.isNotEmpty) {
-        for (var docSnapshot in queryEarnSnapshot.docs) {
-          print('${docSnapshot.id} => ${docSnapshot.data()}');
-          earnPoint += docSnapshot.data()['earnPoint'];
+        if (queryEarnSnapshot.docs.isNotEmpty) {
+          for (var docSnapshot in queryEarnSnapshot.docs) {
+            print('${docSnapshot.id} => ${docSnapshot.data()}');
+            earnPoint += docSnapshot.data()['earnPoint'];
+          }
         }
+      } catch (e) {
+        print("Error completing: $e");
       }
-    } catch (e) {
-      print("Error completing: $e");
-    }
 
-    try {
-      final queryEarnSnapshot = await db.collection("RedeemList").get();
+      try {
+        final queryEarnSnapshot = await db.collection("RedeemList").get();
 
-      if (queryEarnSnapshot.docs.isNotEmpty) {
-        for (var docSnapshot in queryEarnSnapshot.docs) {
-          print('${docSnapshot.id} => ${docSnapshot.data()}');
-          redeemPoint += docSnapshot.data()['redeemPoint'];
+        if (queryEarnSnapshot.docs.isNotEmpty) {
+          for (var docSnapshot in queryEarnSnapshot.docs) {
+            print('${docSnapshot.id} => ${docSnapshot.data()}');
+            redeemPoint += docSnapshot.data()['redeemPoint'];
+          }
         }
+      } catch (e) {
+        print("Error completing: $e");
       }
-    } catch (e) {
-      print("Error completing: $e");
-    }
+    }else {
 
+    }
     return earnPoint - redeemPoint;
   }
 
@@ -300,142 +335,164 @@ class _RestaurantEarnListState extends State<RestaurantEarnList> {
   }
 
   Widget _buildList1() {
-    final db = FirebaseFirestore.instance;
-    // Replace this with your first list widget implementation
-    return StreamBuilder<QuerySnapshot>(
-        stream: db
-            .collection("Restaurant")
-            .doc("jdh33114")
-            .collection("EarnList")
-        .orderBy("earnDate",descending: true)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return Center(
-              child: Text("적립 내역이 존재하지 않습니다"),
-            );
-          } else if (snapshot.connectionState == ConnectionState.waiting) {
-            // While the data is being fetched, show a loading indicator or screen
-            return Center(
-                child: Container(
-                    width: mediaQueryData.size.width / 5,
-                    height: mediaQueryData.size.width / 5,
-                    child:
-                        CircularProgressIndicator())); // You can replace this with your loading screen widget.
-          } else if (snapshot.hasError) {
-            // If there's an error, show an error screen or message
-            return Text('Error: ${snapshot.error}');
-          } else {
-            final docs = snapshot.data!.docs;
-            return ListView.separated(
-              itemCount: docs.length,
-              itemBuilder: (context, index) => ListTile(
-                visualDensity: VisualDensity.compact,
-                contentPadding: EdgeInsets.symmetric(horizontal: 40),
-                title: Text(
-                  "십시일반 적립금",
-                  style: TextStyle(
-                      fontFamily: "Pretendard",
-                      fontWeight: FontWeight.bold,
-                      fontSize: 17,
-                      color: Colors.black),
-                ),
-                subtitle: Text(
-                  docs[index]['earnDate'].toDate().toString(),
-                  style: TextStyle(fontSize: 10),
-                ),
-                trailing: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                  Text('${docs[index]['earnPoint']}P',
-                      style: TextStyle(
-                          fontFamily: "Pretendard",
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                          color: MyColor.PRICE)),
-                  Text(
-                    '${docs[index]['totalPoint']}P',
-                    style: TextStyle(fontSize: 10, color: MyColor.GRAY),
-                  )
-                ]),
-              ),
-              separatorBuilder: (BuildContext context, int index) {
-                return Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 30),
-                    child: Divider());
-              },
-            );
-          }
-        });
+
+    User? currentUser = getUser();
+
+    if(currentUser != null) {
+      final db = FirebaseFirestore.instance;
+      // Replace this with your first list widget implementation
+      return StreamBuilder<QuerySnapshot>(
+          stream: db
+              .collection("Restaurant")
+              .doc(currentUser.email)
+              .collection("EarnList")
+              .orderBy("earnDate", descending: true)
+              .snapshots(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return Center(
+                child: Text("적립 내역이 존재하지 않습니다"),
+              );
+            } else if (snapshot.connectionState == ConnectionState.waiting) {
+              // While the data is being fetched, show a loading indicator or screen
+              return Center(
+                  child: Container(
+                      width: mediaQueryData.size.width / 5,
+                      height: mediaQueryData.size.width / 5,
+                      child:
+                      CircularProgressIndicator())); // You can replace this with your loading screen widget.
+            } else if (snapshot.hasError) {
+              // If there's an error, show an error screen or message
+              return Text('Error: ${snapshot.error}');
+            } else {
+              final docs = snapshot.data!.docs;
+              return ListView.separated(
+                itemCount: docs.length,
+                itemBuilder: (context, index) =>
+                    ListTile(
+                      visualDensity: VisualDensity.compact,
+                      contentPadding: EdgeInsets.symmetric(horizontal: 40),
+                      title: Text(
+                        "십시일반 적립금",
+                        style: TextStyle(
+                            fontFamily: "Pretendard",
+                            fontWeight: FontWeight.bold,
+                            fontSize: 17,
+                            color: Colors.black),
+                      ),
+                      subtitle: Text(
+                        docs[index]['earnDate'].toDate().toString(),
+                        style: TextStyle(fontSize: 10),
+                      ),
+                      trailing: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text('${docs[index]['earnPoint']}P',
+                                style: TextStyle(
+                                    fontFamily: "Pretendard",
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 20,
+                                    color: MyColor.PRICE)),
+                            Text(
+                              '${docs[index]['totalPoint']}P',
+                              style: TextStyle(
+                                  fontSize: 10, color: MyColor.GRAY),
+                            )
+                          ]),
+                    ),
+                separatorBuilder: (BuildContext context, int index) {
+                  return Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 30),
+                      child: Divider());
+                },
+              );
+            }
+          });
+    }else {
+      return Center(
+        child: Text("로그인 정보가 유효하지 않습니다"),
+      );
+    }
   }
 
   Widget _buildList2() {
-    final db = FirebaseFirestore.instance;
-    // Replace this with your first list widget implementation
-    return StreamBuilder<QuerySnapshot>(
-        stream: db
-            .collection("Restaurant")
-            .doc("jdh33114")
-            .collection("RedeemList")
-        .orderBy("redeemDate", descending: true)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return Center(
-              child: Text("차감 내역이 존재하지 않습니다"),
-            );
-          } else if (snapshot.connectionState == ConnectionState.waiting) {
-            // While the data is being fetched, show a loading indicator or screen
-            return Center(
-                child: Container(
-                    width: mediaQueryData.size.width / 5,
-                    height: mediaQueryData.size.width / 5,
-                    child:
-                        CircularProgressIndicator())); // You can replace this with your loading screen widget.
-          } else if (snapshot.hasError) {
-            // If there's an error, show an error screen or message
-            return Text('Error: ${snapshot.error}');
-          } else {
-            final docs = snapshot.data!.docs;
-            return ListView.separated(
-              itemCount: docs.length,
-              itemBuilder: (context, index) => ListTile(
-                visualDensity: VisualDensity.compact,
-                contentPadding: EdgeInsets.symmetric(horizontal: 40),
-                title: Text(
-                  "십시일반 예약금 차감",
-                  style: TextStyle(
-                      fontFamily: "Pretendard",
-                      fontWeight: FontWeight.bold,
-                      fontSize: 17,
-                      color: Colors.black),
-                ),
-                subtitle: Text(
-                  docs[index]['redeemDate'].toDate().toString(),
-                  style: TextStyle(fontSize: 10),
-                ),
-                trailing: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                  Text('-${docs[index]['redeemPoint']}P',
-                      style: TextStyle(
-                          fontFamily: "Pretendard",
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                          color: Colors.blue)),
-                  Text(
-                    '${docs[index]['totalPoint']}P',
-                    style: TextStyle(fontSize: 10, color: MyColor.GRAY),
-                  )
-                ]),
-              ),
-              separatorBuilder: (BuildContext context, int index) {
-                return Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 30),
-                    child: Divider());
-              },
-            );
-          }
-        });
+
+    User? currentUser = getUser();
+
+    if(currentUser != null) {
+      final db = FirebaseFirestore.instance;
+      // Replace this with your first list widget implementation
+      return StreamBuilder<QuerySnapshot>(
+          stream: db
+              .collection("Restaurant")
+              .doc(currentUser.email)
+              .collection("RedeemList")
+              .orderBy("redeemDate", descending: true)
+              .snapshots(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return Center(
+                child: Text("차감 내역이 존재하지 않습니다"),
+              );
+            } else if (snapshot.connectionState == ConnectionState.waiting) {
+              // While the data is being fetched, show a loading indicator or screen
+              return Center(
+                  child: Container(
+                      width: mediaQueryData.size.width / 5,
+                      height: mediaQueryData.size.width / 5,
+                      child:
+                      CircularProgressIndicator())); // You can replace this with your loading screen widget.
+            } else if (snapshot.hasError) {
+              // If there's an error, show an error screen or message
+              return Text('Error: ${snapshot.error}');
+            } else {
+              final docs = snapshot.data!.docs;
+              return ListView.separated(
+                itemCount: docs.length,
+                itemBuilder: (context, index) =>
+                    ListTile(
+                      visualDensity: VisualDensity.compact,
+                      contentPadding: EdgeInsets.symmetric(horizontal: 40),
+                      title: Text(
+                        "십시일반 예약금 차감",
+                        style: TextStyle(
+                            fontFamily: "Pretendard",
+                            fontWeight: FontWeight.bold,
+                            fontSize: 17,
+                            color: Colors.black),
+                      ),
+                      subtitle: Text(
+                        docs[index]['redeemDate'].toDate().toString(),
+                        style: TextStyle(fontSize: 10),
+                      ),
+                      trailing: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text('-${docs[index]['redeemPoint']}P',
+                                style: TextStyle(
+                                    fontFamily: "Pretendard",
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 20,
+                                    color: Colors.blue)),
+                            Text(
+                              '${docs[index]['totalPoint']}P',
+                              style: TextStyle(
+                                  fontSize: 10, color: MyColor.GRAY),
+                            )
+                          ]),
+                    ),
+                separatorBuilder: (BuildContext context, int index) {
+                  return Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 30),
+                      child: Divider());
+                },
+              );
+            }
+          });
+    } else {
+      return Center(
+        child: Text("로그인 정보가 유효하지 않습니다"),
+      );
+    }
   }
 }

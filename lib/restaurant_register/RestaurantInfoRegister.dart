@@ -2,9 +2,11 @@ import 'dart:io';
 
 import 'package:chipin/restaurant_main/RestaurantMain.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 import '../colors.dart';
 import '../base_appbar.dart';
 import 'package:kpostal/kpostal.dart';
@@ -15,7 +17,6 @@ import 'dart:convert';
 
 List<NewMenu> menuItems = [];
 int menuCount = 0;
-String beResult = "";
 
 class RestaurantInfoRegister extends StatefulWidget {
   const RestaurantInfoRegister({Key? key}) : super(key: key);
@@ -27,21 +28,20 @@ class RestaurantInfoRegister extends StatefulWidget {
 class _RestaurantInfoRegisterState extends State<RestaurantInfoRegister> {
   //firestore에 저장할 때 사용할 컬렉션 이름과 도큐먼트 이름
   final String colName = "Restaurant";
-  final String id = "jdh33114";
+  String beResult = "-를 제외한 10자리 숫자만 입력해주세요";
 
   //firestore에 이미지 저장할 때 쓸 변수
   String pickedImgPath = "";
   XFile pickedImg = XFile('');
   String address1 = "";
-  String latitude = '-';
-  String longitude = '-';
+  String latitude = '';
+  String longitude = '';
 
   bool isValidBsNum = false;
 
   bool isPresentBsNum = true;
   bool isPresentName = true;
   bool isPresentTel = true;
-
   bool isPresentCloseDay = true;
   bool isPresentAddr = true;
   bool isPresentOpeningHour = true;
@@ -57,6 +57,25 @@ class _RestaurantInfoRegisterState extends State<RestaurantInfoRegister> {
   TextEditingController _newRestaurantOpenMinute = TextEditingController();
   TextEditingController _newRestaurantCloseHour = TextEditingController();
   TextEditingController _newRestaurantCloseMinute = TextEditingController();
+
+  User? getUser() {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      // Name, email address, and profile photo URL
+      final name = user.displayName;
+      final email = user.email;
+      final photoUrl = user.photoURL;
+
+      // Check if user's email is verified
+      final emailVerified = user.emailVerified;
+
+      // The user's ID, unique to the Firebase project. Do NOT use this value to
+      // authenticate with your backend server, if you have one. Use
+      // User.getIdToken() instead.
+      final uid = user.uid;
+    }
+    return user;
+  }
 
   @override
   void dispose() {
@@ -124,10 +143,13 @@ class _RestaurantInfoRegisterState extends State<RestaurantInfoRegister> {
   }
 
   void writeinfodata() async {
-    final db = FirebaseFirestore.instance.collection(colName).doc(id);
+    User? currentUser = getUser();
 
-    // firestore에 저장
-    if (checkValid() && isValidBsNum) {
+    if (currentUser != null) {
+      final db =
+          FirebaseFirestore.instance.collection(colName).doc(currentUser.email);
+
+      // firestore에 저장
       await db
           .set({
             'name': _newRestaurantName.text,
@@ -150,25 +172,29 @@ class _RestaurantInfoRegisterState extends State<RestaurantInfoRegister> {
 
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text('가게 정보가 등록되었습니다')));
-      Navigator.push(context,
-          MaterialPageRoute(builder: (context) => const RestaurantMain()));
     } else {
       ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('입력되지 않은 값이 있습니다')));
+          .showSnackBar(SnackBar(content: Text('로그인 정보가 유효하지 않습니다')));
     }
   }
 
   void writemenudata(String menu, String price, String explain) async {
-    final db = FirebaseFirestore.instance
-        .collection(colName)
-        .doc(id)
-        .collection("Menu")
-        .doc(menu);
+    User? currentUser = getUser();
+    if (currentUser != null) {
+      final db = FirebaseFirestore.instance
+          .collection(colName)
+          .doc(currentUser.email)
+          .collection("Menu")
+          .doc(menu);
 
-    await db
-        .set({'name': menu, 'price': price, 'explain': explain})
-        .then((value) => print("document added")) // firestore에 저장이 잘 된 경우
-        .catchError((error) => print("Fail to add doc ${error}"));
+      await db
+          .set({'name': menu, 'price': price, 'explain': explain})
+          .then((value) => print("document added")) // firestore에 저장이 잘 된 경우
+          .catchError((error) => print("Fail to add doc ${error}"));
+    } else {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('사용자 정보가 유효하지 않습니다')));
+    }
   }
 
   Future pickImg() async {
@@ -180,6 +206,15 @@ class _RestaurantInfoRegisterState extends State<RestaurantInfoRegister> {
         pickedImgPath = image.path;
         pickedImg = image;
       });
+    }
+  }
+
+  Future<void> requestGalleryPermission() async {
+    final status = await Permission.storage.request();
+    if (status.isGranted) {
+      await pickImg();
+    } else {
+      // 권한이 거부되었을 때 사용자에게 설명을 제공하거나 다시 권한을 요청할 수 있는 UI를 표시합니다.
     }
   }
 
@@ -337,9 +372,7 @@ class _RestaurantInfoRegisterState extends State<RestaurantInfoRegister> {
                               // maxLength: 10,
                               controller: _newRestaurantBusinessNumber,
                               decoration: InputDecoration(
-                                  border: OutlineInputBorder(),
-                                  isDense: true,
-                                  hintText: "-를 제외한 10자리 숫자만 입력해주세요"),
+                                  border: OutlineInputBorder(), isDense: true),
                               keyboardType: TextInputType.number,
                               inputFormatters: [
                                 FilteringTextInputFormatter.digitsOnly
@@ -383,44 +416,46 @@ class _RestaurantInfoRegisterState extends State<RestaurantInfoRegister> {
                     controller: _newRestaurantClosedday,
                     isPresentCloseDay: isPresentCloseDay),
                 SizedBox(height: 20),
-                Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
-                  Row(
+                Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Text('가게 대표 사진 등록',
-                          style:
-                              TextStyle(fontSize: 16, fontFamily: "Mainfonts")),
+                      Row(
+                        children: [
+                          Text('가게 대표 사진 등록',
+                              style: TextStyle(
+                                  fontSize: 16, fontFamily: "Mainfonts")),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          if (!isPresentImg)
+                            Text("* 가게 대표 사진을 등록해주세요",
+                                style: TextStyle(
+                                    fontSize: 13,
+                                    fontFamily: "Pretendard",
+                                    color: Colors.red))
+                        ],
+                      ),
                       SizedBox(
-                        width: 10,
+                        height: 10,
                       ),
-                      if (!isPresentImg)
-                        Text("* 가게 대표 사진을 등록해주세요",
-                            style: TextStyle(
-                                fontSize: 13,
-                                fontFamily: "Pretendard",
-                                color: Colors.red))
-                    ],
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  BaseButton(
-                    text: "파일 첨부",
-                    fontsize: 13,
-                    onPressed: () => pickImg(),
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  if (pickedImg.path.isNotEmpty)
-                    Container(
-                      width: 150, // Set the desired width
-                      height: 100, // Set the desired height
-                      child: Image.file(
-                        File(pickedImg.path),
-                        fit: BoxFit.cover,
+                      BaseButton(
+                        text: "파일 첨부",
+                        fontsize: 13,
+                        onPressed: () => pickImg(),
                       ),
-                    )
-                ]),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      if (pickedImg.path.isNotEmpty)
+                        Container(
+                          width: 150, // Set the desired width
+                          height: 100, // Set the desired height
+                          child: Image.file(
+                            File(pickedImg.path),
+                            fit: BoxFit.cover,
+                          ),
+                        )
+                    ]),
                 SizedBox(height: 20),
                 RestaurantMenu(isPresentMenu: isPresentMenu),
                 SizedBox(height: 30),
@@ -430,11 +465,24 @@ class _RestaurantInfoRegisterState extends State<RestaurantInfoRegister> {
                           style: TextStyle(
                               fontSize: 16, fontFamily: "Pretendard")),
                       onPressed: () {
-                        writeinfodata();
+                        if (checkValid() && isValidBsNum) {
+                          writeinfodata();
 
-                        for (int i = 0; i < menuItems.length; i++) {
-                          writemenudata(menuItems[i].menuname,
-                              menuItems[i].menuprice, menuItems[i].menuexplain);
+                          for (int i = 0; i < menuItems.length; i++) {
+                            writemenudata(
+                                menuItems[i].menuname,
+                                menuItems[i].menuprice,
+                                menuItems[i].menuexplain);
+                          }
+
+                        Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      const RestaurantMain()),(route) => false);
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('입력되지 않은 값이 있습니다')));
                         }
                       })
                 ]),

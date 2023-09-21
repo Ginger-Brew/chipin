@@ -2,6 +2,7 @@ import 'dart:ffi';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
@@ -60,7 +61,9 @@ class _RestaurantInfoCorrectionState extends State<RestaurantInfoCorrection> {
 
   //firestore에 이미지 저장할 때 쓸 변수
   String pickedImgPath = "";
-  XFile pickedImg = XFile('');
+  // XFile pickedImg = XFile('');
+  File? testimage;
+
 
   // String postCode = '-';
   String address1 = "-";
@@ -242,6 +245,12 @@ class _RestaurantInfoCorrectionState extends State<RestaurantInfoCorrection> {
       final db =
           FirebaseFirestore.instance.collection(colName).doc(currentUser.email);
 
+      final Reference storageRef = FirebaseStorage.instance.ref().child('images/${DateTime.now()}.png');
+      final UploadTask uploadTask = storageRef.putFile(testimage!);
+
+      final TaskSnapshot snapshot = await uploadTask.whenComplete(() => null);
+      final String downloadURL = await snapshot.ref.getDownloadURL();
+
         if (_newRestaurantName.text != "") name = _newRestaurantName.text;
         if (_newRestaurantOpenHour.text != "")
           openH = _newRestaurantOpenHour.text;
@@ -308,7 +317,7 @@ class _RestaurantInfoCorrectionState extends State<RestaurantInfoCorrection> {
     if (image != null) {
       setState(() {
         pickedImgPath = image.path;
-        pickedImg = image;
+        testimage = File(pickedImgPath);
       });
     }
   }
@@ -489,8 +498,8 @@ class _RestaurantInfoCorrectionState extends State<RestaurantInfoCorrection> {
                     Container(
                       width: 150, // Set the desired width
                       height: 100, // Set the desired height
-                      child: Image.file(
-                        File(pickedImgPath),
+                      child: Image.network(
+                        pickedImgPath,
                         fit: BoxFit.cover,
                       ),
                     )

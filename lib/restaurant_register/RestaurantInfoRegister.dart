@@ -14,6 +14,8 @@ import '../base_button.dart';
 import '../core/utils/size_utils.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:firebase_storage/firebase_storage.dart';
+
 
 List<NewMenu> menuItems = [];
 int menuCount = 0;
@@ -32,7 +34,9 @@ class _RestaurantInfoRegisterState extends State<RestaurantInfoRegister> {
 
   //firestore에 이미지 저장할 때 쓸 변수
   String pickedImgPath = "";
-  XFile pickedImg = XFile('');
+  // XFile pickedImg = XFile('');
+  File? testimage;
+
   String address1 = "";
   String latitude = '';
   String longitude = '';
@@ -145,10 +149,29 @@ class _RestaurantInfoRegisterState extends State<RestaurantInfoRegister> {
   void writeinfodata() async {
     User? currentUser = getUser();
 
+    // if (testimage == null) {
+    //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    //     content: Text('이미지를 선택해주세요.'),
+    //   ));
+    //   return;
+    // }
+
+
+
+    // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    //   content: Text('이미지 업로드 완료'),
+    // ));
+    // print('Download URL: $downloadURL');
+
     if (currentUser != null) {
       final db =
           FirebaseFirestore.instance.collection(colName).doc(currentUser.email);
 
+      final Reference storageRef = FirebaseStorage.instance.ref().child('images/${DateTime.now()}.png');
+      final UploadTask uploadTask = storageRef.putFile(testimage!);
+
+      final TaskSnapshot snapshot = await uploadTask.whenComplete(() => null);
+      final String downloadURL = await snapshot.ref.getDownloadURL();
       // firestore에 저장
       await db
           .set({
@@ -164,11 +187,14 @@ class _RestaurantInfoRegisterState extends State<RestaurantInfoRegister> {
             'closeddays': _newRestaurantClosedday.text,
             'businessnumber': _newRestaurantBusinessNumber.text,
             'phone': _newRestaurantPhone.text,
-            'banner': pickedImgPath
+            'banner': downloadURL
           })
           .then((value) => print("document added")) // firestore에 저장이 잘 된 경우
           .catchError((error) => print("Fail to add doc ${error}"));
-      pickedImgPath = ""; // 변수 초기화
+
+      // pickedImgPath = ""; // 변수 초기화
+      //
+      // testimage;
 
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text('가게 정보가 등록되었습니다')));
@@ -204,11 +230,15 @@ class _RestaurantInfoRegisterState extends State<RestaurantInfoRegister> {
     if (image != null) {
       setState(() {
         pickedImgPath = image.path;
-        pickedImg = image;
+        testimage = File(pickedImgPath);
+        // pickedImg = image;
       });
     }
   }
 
+  // Future<void> _uploadImage() async {
+  //
+  // }
   Future<void> requestGalleryPermission() async {
     final status = await Permission.storage.request();
     if (status.isGranted) {
@@ -446,12 +476,12 @@ class _RestaurantInfoRegisterState extends State<RestaurantInfoRegister> {
                       SizedBox(
                         height: 10,
                       ),
-                      if (pickedImg.path.isNotEmpty)
+                      if (pickedImgPath != "")
                         Container(
                           width: 150, // Set the desired width
                           height: 100, // Set the desired height
                           child: Image.file(
-                            File(pickedImg.path),
+                            File(pickedImgPath),
                             fit: BoxFit.cover,
                           ),
                         )

@@ -108,7 +108,46 @@ class PasswordInput extends StatelessWidget {
   }
 }
 
-class LoginButton extends StatelessWidget {
+class LoginButton extends StatefulWidget {
+  @override
+  State<LoginButton> createState() => _LoginButtonState();
+}
+
+class _LoginButtonState extends State<LoginButton> {
+
+  User? getUser() {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      // Name, email address, and profile photo URL
+      final name = user.displayName;
+      final email = user.email;
+      final photoUrl = user.photoURL;
+
+      // Check if user's email is verified
+      final emailVerified = user.emailVerified;
+
+      // The user's ID, unique to the Firebase project. Do NOT use this value to
+      // authenticate with your backend server, if you have one. Use
+      // User.getIdToken() instead.
+      final uid = user.uid;
+    }
+    return user;
+  }
+  Future<int> isPresentRestaurantInfo() async {
+    User? currentUser = getUser();
+    if (currentUser != null) {
+      FirebaseFirestore firestore = FirebaseFirestore.instance;
+      DocumentSnapshot document = await firestore.collection("Restaurant").doc(currentUser.email).get();
+
+      if (document.exists) {
+        return 1;
+      } else {
+        return -1;
+      }
+    } else {
+      return 0;
+    }
+  }
   @override
   Widget build(BuildContext context) {
     final authClient =
@@ -139,13 +178,20 @@ class LoginButton extends StatelessWidget {
               //var logger = Logger();
               final docRef = FirebaseFirestore.instance.collection("Users").doc(login.id).collection("userinfo").doc("nowrole");
               docRef.get().then(
-                    (DocumentSnapshot doc) {
-                  final data = doc.data() as Map<String, dynamic>;
+                    (DocumentSnapshot doc) async {
+                  final data = doc.data() as  Map<String, dynamic>;
                   nowrole = data["nowrole"];
                   if (nowrole == "child") {
                     Navigator.pushReplacementNamed(context, '/childmain');
-                  } else if (nowrole == "restaurant") {
-                    Navigator.pushReplacementNamed(context, '/storemain');
+                  } else if (nowrole == "restaurant" ) {
+                    int direnction = await isPresentRestaurantInfo();
+                    debugPrint("debug + ${direnction}");
+
+                    if (direnction == 1){
+                      Navigator.pushReplacementNamed(context, '/storemain');
+                    } else {
+                      Navigator.pushReplacementNamed(context, '/storeregister');
+                    }
                   } else if (nowrole == "client") {
                     Navigator.pushReplacementNamed(context, '/clientmain');
                   } else {

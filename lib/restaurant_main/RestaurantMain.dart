@@ -48,23 +48,33 @@ class _RestaurantMainState extends State<RestaurantMain> {
     if(currentUser != null) {
       final db = FirebaseFirestore.instance.collection(colName).doc(currentUser.email);
 
+      debugPrint("debug: +${currentUser.email}");
+
+
       await db.get().then((DocumentSnapshot ds) {
         Map<String, dynamic> data = ds.data() as Map<String, dynamic>;
 
-        setState(() {
-          name = data['name'];
-          address1 = data['address1'];
-          address2 = data['address2'];
-          openH = data['openH'];
-          openM = data['openM'];
-          closeH = data['closeH'];
-          closeM = data['closeM'];
-          closeddays = data['closeddays'];
-          phone = data['phone'];
-          banner = data['banner'];
-        });
+setState(() {
+  name = data['name'];
+  address1 = data['address1'];
+  address2 = data['address2'];
+  openH = data['openH'];
+  openM = data['openM'];
+  closeH = data['closeH'];
+  closeM = data['closeM'];
+  closeddays = data['closeddays'];
+  phone = data['phone'];
+  banner = data['banner'];
+});
+
       });
+
+    } else {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('로그인 정보가 유효하지 않습니다')));
     }
+
+
 
 
   }
@@ -303,8 +313,8 @@ class RestaurantInfoButton extends StatelessWidget {
                       Container(
                         width: 300, // Set the desired width
                         height: 200, // Set the desired height
-                        child: Image.file(
-                          File(banner),
+                        child: Image.network(
+                          banner,
                           fit: BoxFit.cover,
                         ),
                       )

@@ -18,8 +18,7 @@ import 'firebase_options.dart';
 import 'model/model_menu_provider.dart';
 import 'model/model_restaurant_provider.dart';
 import 'restaurant_register/RestaurantInfoRegister.dart';
-import 'trash/api_Test.dart';
-import 'test.dart';
+
 class ColorService { //테마 컬러를 지정할 때 사용하는 classs
   static MaterialColor createMaterialColor(Color color) {
     List strengths = <double>[.05];

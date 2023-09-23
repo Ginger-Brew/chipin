@@ -3,12 +3,10 @@ import 'package:flutter/material.dart';
 
 import '../core/utils/size_utils.dart';
 
-// ignore_for_file: must_be_immutable
 class MenuPage extends StatefulWidget {
   final String restaurantId;
   const MenuPage({
     Key? key,
-    // required this.menuDataList
     required this.restaurantId
   })
       : super(
@@ -34,7 +32,7 @@ class MenuPageState extends State<MenuPage> {
 
     List<Map<String,dynamic>> menuDataList = [] ;
     for (final doc in menuDocs.docs) {
-      menuDataList.add(doc.data() as Map<String, dynamic>);
+      menuDataList.add(doc.data());
     }
     return menuDataList;
   }
@@ -94,17 +92,7 @@ class MenuPageState extends State<MenuPage> {
   }
 
   List<Widget> _buildMenuItems(List<Map<String, dynamic>> menuDataList) {
-    // return menuDataList.map((menuData) {
-    //   // 'name'과 'price' 값을 가져오기
-    //   final name = menuData['name'] ?? '';
-    //   final price = menuData['price'] ?? '';
-    //
-    //   // 각 메뉴 항목을 만들어 반환하는 코드를 작성
-    //   return ListTile(
-    //     title: Text(name),
-    //     subtitle: Text('Price: $price'), // 'Price' 정보를 subtitle에 추가
-    //   );
-    // }).toList();
+
     List<Widget> menuItems = [];
 
     for (int i = 0; i < menuDataList.length; i++) {
@@ -143,14 +131,6 @@ class MenuPageState extends State<MenuPage> {
           ),
         ),
       );
-      // menuItems.add(ListTile(
-      //   title: Text(name,
-      //     overflow: TextOverflow.ellipsis,
-      //     textAlign: TextAlign.left,),
-      //   subtitle: Text('$price원',
-      //     overflow: TextOverflow.ellipsis,
-      //     textAlign: TextAlign.left,),
-      // ));
 
       // 마지막 항목이 아닌 경우 Divider를 추가
       if (i < menuDataList.length - 1) {

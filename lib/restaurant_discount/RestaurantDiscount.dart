@@ -1,3 +1,4 @@
+import 'package:chipin/restaurant_appbar/RestaurantAppBar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +7,7 @@ import 'package:chipin/base_appbar.dart';
 import 'package:flutter/services.dart';
 import '../colors.dart';
 import '../core/utils/size_utils.dart';
+import '../restaurant_appbar/RestaurantDrawerMenu.dart';
 import 'RestaurantPayment.dart';
 
 class RestaurantDiscount extends StatefulWidget {
@@ -53,7 +55,7 @@ class _RestaurantDiscountState extends State<RestaurantDiscount> {
 
 //할인 코드가 유효한지 확인 - 아동 db에서 할인 코드와 동일한 이름의 도큐먼트가 있는지 확인
   Future<int> isCodeValid() async {
-    final db = FirebaseFirestore.instance.collection("Child").doc("child@test.com").collection("ReservationInfo");
+    final db = FirebaseFirestore.instance.collection("DiscountCode");
 
     try {
       final querySnapshot = await db.where('reservationCode', isEqualTo: result.join()).get();
@@ -62,7 +64,11 @@ class _RestaurantDiscountState extends State<RestaurantDiscount> {
         for (var docSnapshot in querySnapshot.docs) {
           print('${docSnapshot.id} => ${docSnapshot.data()}');
           print(docSnapshot.data()['reservationPrice']);
-          return docSnapshot.data()['reservationPrice'];
+          if(docSnapshot.data()['isUsed'] == false && docSnapshot.data()['isValid']) {
+            return docSnapshot.data()['reservationPrice'];
+          } else {
+            return -1;
+          }
         }
       }
     } catch (e) {
@@ -230,10 +236,10 @@ class _RestaurantDiscountState extends State<RestaurantDiscount> {
         ),
       );
     }).toList();
-    readRestaurantData();
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: const BaseAppBar(title: "가게정보"),
+      appBar: const RestaurantAppBar(title: "가게정보"),
+      endDrawer: RestaurantDrawerMenu(),
       body: Container(
           width: mediaQueryData.size.width,
           child: SingleChildScrollView(
@@ -263,27 +269,27 @@ class _RestaurantDiscountState extends State<RestaurantDiscount> {
                               ),
                             ),
                           ),
-                          Padding(
-                            padding: EdgeInsets.only(top: 2),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.location_on_rounded,
-                                  color: Colors.black,
-                                  size: 19,
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.only(left: 4),
-                                  child: Text(
-                                    address1 + " " + address2,
-                                    overflow: TextOverflow.ellipsis,
-                                    textAlign: TextAlign.left,
-                                    style: TextStyle(fontSize: 20),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )
+                          // Padding(
+                          //   padding: EdgeInsets.fromLTRB(4, 2, 0, 0),
+                          //   child: Row(
+                          //     children: [
+                          //       Icon(
+                          //         Icons.location_on_rounded,
+                          //         color: Colors.black,
+                          //         size: 19,
+                          //       ),
+                          //       Flexible(
+                          //           child: Text(
+                          //             address1 + " " + address2,
+                          //             overflow: TextOverflow.ellipsis,
+                          //             maxLines:2,
+                          //             textAlign: TextAlign.left,
+                          //             style: TextStyle(fontSize: 20),
+                          //           ),
+                          //       ),
+                          //     ],
+                          //   ),
+                          // )
                         ],
                       )
                     ],

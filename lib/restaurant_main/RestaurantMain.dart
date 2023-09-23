@@ -9,6 +9,8 @@ import 'package:chipin/colors.dart';
 import 'package:chipin/base_appbar.dart';
 import 'package:image_picker/image_picker.dart';
 import '../core/utils/size_utils.dart';
+import '../restaurant_appbar/RestaurantAppBar.dart';
+import '../restaurant_appbar/RestaurantDrawerMenu.dart';
 import 'restaurant_splitbutton.dart';
 import 'restaurant_info.dart';
 import 'restaurant_camera.dart';
@@ -98,6 +100,7 @@ setState(() {
     return user;
   }
 
+
   Future<num> readRemainingData() async {
     User? currentUser = getUser();
     num earnPoint = 0;
@@ -136,12 +139,14 @@ setState(() {
 
     return earnPoint - redeemPoint;
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: MyColor.BACKGROUND,
-        appBar: BaseAppBar(title: "십시일반"),
+        appBar: RestaurantAppBar(title: "십시일반"),
+        endDrawer: RestaurantDrawerMenu(),
+
+
         body: Container(
             child: SingleChildScrollView(
                 child: Center(
@@ -252,7 +257,7 @@ setState(() {
                       height: 420,
                       child: RestaurantInfoButton(
 
-                        address: this.address1 + this.address2,
+                        address: this.address1 + " " + this.address2,
                         open: this.openH + ":" + this.openM,
                         close: this.closeH + ":" + this.closeM,
                         phone: this.phone,
@@ -300,13 +305,12 @@ class RestaurantInfoButton extends StatelessWidget {
         ]),
         child: ElevatedButton(
             style: ElevatedButton.styleFrom(
+              padding: EdgeInsets.all(20),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10)),
                 backgroundColor: Colors.white,
                 foregroundColor: MyColor.HOVER),
             onPressed: () {},
-            child: Padding(
-                padding: EdgeInsets.all(20),
                 child: Column(
                   children: [
                     if (banner != "")
@@ -330,12 +334,16 @@ class RestaurantInfoButton extends StatelessWidget {
                     ),
                     Row(
                       children: [
-                        Text(
-                          name,
-                          style: TextStyle(
-                              fontSize: 25,
-                              fontFamily: "Mainfonts",
-                              color: Colors.black),
+                        Flexible(
+                          child: Text(
+                            overflow: TextOverflow.ellipsis,
+                            maxLines:2,
+                            name,
+                            style: TextStyle(
+                                fontSize: 25,
+                                fontFamily: "Mainfonts",
+                                color: Colors.black),
+                          ),
                         )
                       ],
                     ),
@@ -350,12 +358,16 @@ class RestaurantInfoButton extends StatelessWidget {
                         SizedBox(
                           width: 10,
                         ),
-                        Text(
-                          address,
-                          style: TextStyle(
-                              fontSize: 16,
-                              fontFamily: "Mainfonts",
-                              color: Colors.black),
+                        Flexible(
+                          child: Text(
+                            overflow: TextOverflow.ellipsis,
+                            maxLines:2,
+                            address,
+                            style: TextStyle(
+                                fontSize: 16,
+                                fontFamily: "Mainfonts",
+                                color: Colors.black),
+                          ),
                         )
                       ],
                     ),
@@ -387,6 +399,7 @@ class RestaurantInfoButton extends StatelessWidget {
                           width: 10,
                         ),
                         Text(
+                          overflow: TextOverflow.ellipsis,
                           closeddays,
                           style: TextStyle(
                               fontSize: 16,
@@ -396,7 +409,7 @@ class RestaurantInfoButton extends StatelessWidget {
                       ],
                     ),
                   ],
-                ))));
+                )));
   }
 }
 // class PointButton extends StatefulWidget {

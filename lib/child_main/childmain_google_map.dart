@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
@@ -8,23 +10,7 @@ class CustomGoogleMap extends StatefulWidget {
   State<CustomGoogleMap> createState() => _CustomGoogleMapState();
 }
 
-final _foodies = [
-  {
-    "name": "오양칼국수",
-    "latitude": 37.4999613,
-    "longitude": 127.0281036,
-  },
-  {
-    "name": "권영철 콩짬뽕",
-    "latitude": 37.5039059,
-    "longitude": 127.0263972,
-  },
-  {
-    "name": "파이브가이즈",
-    "latitude": 37.5012238,
-    "longitude": 127.0256401,
-  },
-];
+List<Map<String, dynamic>> _foodies = [];
 
 final _markers = <Marker>{};
 
@@ -33,6 +19,19 @@ class _CustomGoogleMapState extends State<CustomGoogleMap> {
 
   @override
   void initState() {
+    FirebaseFirestore.instance
+      .collection('Restaurant')
+      .snapshots()
+      .listen((data) {
+        for (var element in data.docs) {
+          _foodies.add({
+            "name" : element['name'],
+            "latitude": element['latitude'],
+            "longitude": element['longitude'],
+          });
+        }
+    });
+
     _markers.addAll(
       _foodies.map(
             (e) => Marker(

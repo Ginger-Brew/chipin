@@ -1,8 +1,9 @@
 import 'dart:async';
-
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import '../tab_container_screen/tab_container_screen.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 /// Content of the DraggableBottomSheet's child SingleChildScrollView
 class CustomScrollViewContent extends StatelessWidget {
@@ -52,6 +53,13 @@ class CustomDraggingHandle extends StatelessWidget {
 class ScrollingRestaurants extends StatelessWidget {
   StreamController<String> streamController = StreamController<String>();
 
+// 이미지 다운로드 함수
+  Future<String> downloadImage(String imagePath) async {
+    Reference reference = FirebaseStorage.instance.ref(imagePath);
+    String downloadURL = await reference.getDownloadURL();
+    return downloadURL;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -72,12 +80,17 @@ class ScrollingRestaurants extends StatelessWidget {
                   shrinkWrap: true,
                   itemCount: docs.length,
                   itemBuilder: (context, index) {
+                    final restaurantData = docs[index].data();
+                    final ownerId = docs[index].id;
                     return RestaurantCard(
                         docs[index].get('name'),
                         docs[index].get('address1'),
                         docs[index].get('closeH'),
                         docs[index].get('closeM'),
-                        docs[index].get('banner'));
+                        docs[index].get('banner'),
+                        ownerId,
+                        //collection이름?
+                    );
                   },
                 ))
               ]);
@@ -95,14 +108,15 @@ class RestaurantCard extends StatelessWidget {
   String closeH;
   String closeM;
   String image;
+  String ownerId; // Firestore collection 이름을 저장할 변수
 
-  RestaurantCard(this.name, this.address, this.closeH, this.closeM, this.image);
+  RestaurantCard(this.name, this.address, this.closeH, this.closeM, this.image, this.ownerId);
 
   @override
   Widget build(BuildContext context) {
     return Column(mainAxisAlignment: MainAxisAlignment.center, children: [
       CustomRestaurantCategory(
-          name, address, closeH + " : " + closeM + "까지 영업", image),
+          name, address, closeH + " : " + closeM + "까지 영업", image,ownerId),
       DivideLine(),
       SizedBox(height: 20),
     ]);
@@ -143,10 +157,20 @@ class CustomRestaurantCategory extends StatelessWidget {
   final String location;
   final String time;
   final String image;
+  final String collectionName; // Firestore collection 이름을 저장할 변수
+  String imageURL = "";
 
-  const CustomRestaurantCategory(
-      this.title, this.location, this.time, this.image);
+  CustomRestaurantCategory(
+      this.title, this.location, this.time, this.image, this.collectionName, {super.key}) {
+    imageURL = image; // 이미지 URL을 초기화
+  }
 
+// 이미지 다운로드 함수
+  Future<String> downloadImage(String imagePath) async {
+    Reference reference = FirebaseStorage.instance.ref(imagePath);
+    String downloadURL = await reference.getDownloadURL();
+    return downloadURL;
+  }
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -171,10 +195,11 @@ class CustomRestaurantCategory extends StatelessWidget {
                                     // restaurantAddress: "충남 보령시 보령남로 125-7",
                                     // openingHours: "매일 09:00 ~ 19:00",
                                     // bannerImageUrl: "assets/images/ohyang_restaurant.png",
-                                        restaurantName: title,
-                                        restaurantAddress: location,
-                                        openingHours: time,
-                                        bannerImageUrl: image,
+                                        title: title,
+                                        location: location,
+                                        time: time,
+                                        banner: imageURL,
+                                        ownerId: collectionName,
                                       )
                               )
                           );
@@ -182,10 +207,16 @@ class CustomRestaurantCategory extends StatelessWidget {
                         child: Container(
                             height: 90,
                             width: 90,
-                            child: Image(
-                              image: AssetImage(image),
-                              fit: BoxFit.fill,
-                            ))),
+                          child: Image.network(imageURL,
+                            fit: BoxFit.cover,) // 이미지를 정사각형 비율로 크롭), // imageURL을 사용
+                            // child: Image.network(
+                            //     downloadImage(image) as String)
+                          // child: Image.file(
+                          //   File(image),
+                          //   fit: BoxFit.fill,
+                          // ),
+                        )
+                    ),
                     SizedBox(width: 8),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

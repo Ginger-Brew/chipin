@@ -1,14 +1,20 @@
 import 'dart:math';
 
+import 'package:chipin/child_main/ChildMain.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:chipin/base_appbar.dart';
 import '../colors.dart';
 import '../core/utils/size_utils.dart';
-
+import 'package:firebase_auth/firebase_auth.dart';
 class CustomPricePage extends StatefulWidget {
+  final String ownerId;
+  CustomPricePage({
+    required this.ownerId,
+  });
+
   @override
-  _CustomPricePageState createState() => _CustomPricePageState();
+  _CustomPricePageState createState() => _CustomPricePageState(ownerId: ownerId);
 }
 
 class _CustomPricePageState extends State<CustomPricePage> {
@@ -16,26 +22,31 @@ class _CustomPricePageState extends State<CustomPricePage> {
   final String email = "child@test.com";
   String enteredNumber = '';
   String randomCode = '';
+  String uid ="";
   bool codeGenerated = false;
 
+  late String _ownerId = "";
+  _CustomPricePageState({
+    required String ownerId,
+}) {
+    _ownerId = ownerId;
+  }
   int get maxRegister => 10000;
   bool idInReservation = false;
 
-  void readData() async {
-    final db = FirebaseFirestore.instance
-        .collection(colName)
-        .doc(email);
-    db.get().then((DocumentSnapshot ds) {
-      Map<String, dynamic> data = ds.data() as Map<String, dynamic>;
-      setState(() {
-        idInReservation = data["idInReservation"];
-      });
-    });
-  }
 
   void generateRandomCode() {
     final random = Random();
-    randomCode = random.nextInt(10000).toString().padLeft(4, '0');
+    const int codeLength = 4;
+    const String chars = '0123456789abcdefghijklmnopqrstuvwxyz';
+
+    String code = '';
+    for (int i = 0; i < codeLength; i++) {
+      final index = random.nextInt(chars.length);
+      code += chars[index];
+    }
+
+    randomCode = code;
     setState(() {
       codeGenerated = true;
     });
@@ -84,7 +95,8 @@ class _CustomPricePageState extends State<CustomPricePage> {
 
   @override
   Widget build(BuildContext context) {
-    readData();
+    // readData();
+
     if (idInReservation == true) {
       showDialog(context: context,
         builder: (BuildContext context) {
@@ -355,7 +367,15 @@ class _CustomPricePageState extends State<CustomPricePage> {
                 ),
                 const SizedBox(width: 25), // 버튼 사이 간격
                 TextButton(
-                  onPressed: () => Navigator.of(context).pop(true),
+                  onPressed: () async {
+                    // 랜덤 코드 생성
+                    generateRandomCode();
+
+                    // Firebase Firestore에 예약 정보 저장
+                    await saveReservationData();
+
+                    Navigator.of(context).pop(true);
+                  },
                   style: TextButton.styleFrom(
                     backgroundColor: MyColor.DARK_YELLOW, // 배경색 노란색으로 설정
                   ),
@@ -372,10 +392,64 @@ class _CustomPricePageState extends State<CustomPricePage> {
     );
 
     if (confirm == true) {
-      // 예약 확정 처리
-      // 램덤 코드 생성
-      // 식당 데이터 베이스에 아동 이름, 예약 날짜시간 write
-      // 아동 reservationinfo에 식당 id, 예약 날짜, 생성 코드 저장
+      // 예약 확정 처리 완료 후 팝업 표시
+      _showReservationCompletePopup();
+
+      // 예약 확정 처리 완료 후 메인 화면으로 이동
+      Navigator.of(context).pop();
+
+      // 예약 완료 팝업이 닫힌 후 메인 화면으로 이동
+      await Future.delayed(Duration(seconds: 2));
+      Navigator.of(context).pushReplacement(MaterialPageRoute(
+        builder: (context) => ChildMain(), // 이동할 화면
+      ));
     }
   }
+  void _showReservationCompletePopup() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('예약 완료'),
+          content: Text('예약이 성공적으로 완료되었습니다.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('확인'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+  Future<void> saveReservationData() async {
+    try {
+      final db = FirebaseFirestore.instance;
+      // final user = FirebaseAuth.instance.currentUser;
+      //   String reservationId = FirebaseFirestore.instance.collection('Child').doc().id;
+      // if (user != null) {
+        // String uid = user.uid;
+        await db.collection('Child').doc(email).collection('ReservationInfo').doc(randomCode).set({
+          'restaurantId' : _ownerId,
+          // 'isCancelled' : false,
+          'reservationPrice' : int.parse(enteredNumber),
+          'ReservationCode' : randomCode,
+          'reservationDate' : FieldValue.serverTimestamp(),
+        });
+        await db.collection('DiscountCode').doc(randomCode).set({
+          'isValid' : false,
+          'isUsed' : false
+        });
+
+        //idInReservation
+        await db.collection(colName).doc(email).update({'idInReservation': true});
+
+      }
+    // }
+    catch(e) {
+      print('예약 정보 저장 중 오류 발생: $e');
+    }
+  }
+
+
 }

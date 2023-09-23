@@ -400,9 +400,10 @@ class _CustomPricePageState extends State<CustomPricePage> {
 
       // 예약 완료 팝업이 닫힌 후 메인 화면으로 이동
       await Future.delayed(Duration(seconds: 2));
-      Navigator.of(context).pushReplacement(MaterialPageRoute(
-        builder: (context) => ChildMain(), // 이동할 화면
-      ));
+      Navigator.of(context).popUntil((route) => route.isFirst);
+      // Navigator.of(context).pushReplacement(MaterialPageRoute(
+      //   builder: (context) => ChildMain(), // 이동할 화면
+      // ));
     }
   }
   void _showReservationCompletePopup() {

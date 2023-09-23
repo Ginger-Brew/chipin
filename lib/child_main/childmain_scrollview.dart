@@ -82,6 +82,8 @@ class ScrollingRestaurants extends StatelessWidget {
                   itemBuilder: (context, index) {
                     final restaurantData = docs[index].data();
                     final ownerId = docs[index].id;
+                    print("_------------------------------------------------------------------------------------------------");
+                    print(ownerId);
                     return RestaurantCard(
                         docs[index].get('name'),
                         docs[index].get('address1'),

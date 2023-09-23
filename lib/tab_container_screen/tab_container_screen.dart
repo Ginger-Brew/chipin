@@ -21,11 +21,11 @@ class TabContainerScreen extends StatefulWidget {
 
   const TabContainerScreen({
     Key? key,
-    required this.ownerId,
     required this.title,
     required this.location,
     required this.time,
     required this.banner,
+    required this.ownerId,
   }) : super(key: key);
   // final Set<TabContainerScreenState> _saved = new Set<TabContainerScreenState>();
   @override
@@ -42,7 +42,7 @@ class TabContainerScreenState extends State<TabContainerScreen>
   bool _isFavorite = false; // 즐겨찾기 상태
   final List<String> _favoriteItems = []; // 즐겨찾기 리스트
   User? user = FirebaseAuth.instance.currentUser;
-  List<Map<String, dynamic>> menuDataList = []; // 이 부분이 menuDataList 변수 선언입니다.
+  // List<Map<String, dynamic>> menuDataList = []; // 이 부분이 menuDataList 변수 선언입니다.
 
   late String _title = "";
   late String _location = "";
@@ -69,30 +69,11 @@ class TabContainerScreenState extends State<TabContainerScreen>
   void initState() {
     super.initState();
     tabviewController = TabController(length: 2, vsync: this);
-
-    fetchMenuData();
-  }
-
-  void fetchMenuData() async {
-    try {
-      final db = FirebaseFirestore.instance;
-      final restaurantId = _ownerId;
-      final querySnapshot = await db.collection('Restaurant').doc(restaurantId).collection('Menu').get();
-      final menuData = querySnapshot.docs.map((doc) => doc.data()).toList();
-
-      // MenuPage 위젯에 데이터 전달
-      setState(() {
-        menuDataList = menuData;
-      });
-    }catch (e) {
-      print('Error fetching menu data: $e');
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     mediaQueryData = MediaQuery.of(context);
-
     return SafeArea(
       child: Scaffold(
         backgroundColor: MyColor.BACKGROUND,
@@ -318,7 +299,7 @@ class TabContainerScreenState extends State<TabContainerScreen>
                   child: TabBarView(
                     controller: tabviewController,
                     children: [
-                      MenuPage(menuDataList: menuDataList), // Menu 데이터 전달),
+                      MenuPage(restaurantId: _ownerId,), // Menu 데이터 전달),
                       thanks(),
                       // menu3(),
                     ],

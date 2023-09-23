@@ -1,7 +1,11 @@
+import 'dart:io';
+
 import 'package:chipin/colors.dart';
 import 'package:chipin/main.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:chipin/base_appbar.dart';
 import '../child_custom_price/custom_price.dart';
 import '../core/utils/size_utils.dart';
@@ -9,21 +13,26 @@ import '../menu_meals/meals.dart';
 import '../menu_thanks/thanks.dart';
 
 class TabContainerScreen extends StatefulWidget {
-  final String restaurantName;
-  final String restaurantAddress;
-  final String openingHours;
-  final String bannerImageUrl;
+  final String title;
+  final String location;
+  final String time;
+  final String banner;
+  final String ownerId;
 
   const TabContainerScreen({
     Key? key,
-    required this.restaurantName,
-    required this.restaurantAddress,
-    required this.openingHours,
-    required this.bannerImageUrl,
+    required this.ownerId,
+    required this.title,
+    required this.location,
+    required this.time,
+    required this.banner,
   }) : super(key: key);
   // final Set<TabContainerScreenState> _saved = new Set<TabContainerScreenState>();
   @override
-  TabContainerScreenState createState() => TabContainerScreenState(restaurantName: restaurantName, restaurantAddress: restaurantAddress, openingHours: openingHours, bannerImageUrl: bannerImageUrl);
+  TabContainerScreenState createState() => TabContainerScreenState(
+    ownerId: ownerId,
+      title: title, location: location, time: time, banner: banner
+  );
 }
 
 class TabContainerScreenState extends State<TabContainerScreen>
@@ -32,28 +41,52 @@ class TabContainerScreenState extends State<TabContainerScreen>
   // final bool alreadySaved = _saved.contains(pair);
   bool _isFavorite = false; // 즐겨찾기 상태
   final List<String> _favoriteItems = []; // 즐겨찾기 리스트
+  User? user = FirebaseAuth.instance.currentUser;
+  List<Map<String, dynamic>> menuDataList = []; // 이 부분이 menuDataList 변수 선언입니다.
 
-  late String _restaurantName = "";
-  late String _restaurantAddress = "";
-  late String _openingHours = "";
-  late String _bannerImageUrl = "";
+  late String _title = "";
+  late String _location = "";
+  late String _time = "";
+  late String _banner = "";
+  late String _ownerId = "";
+
   // 생성자를 추가하여 인자로 변수들을 받아옵니다.
   TabContainerScreenState({
-    required String restaurantName,
-    required String restaurantAddress,
-    required String openingHours,
-    required String bannerImageUrl,
+    required String ownerId,
+    required String title,
+    required String location,
+    required String time,
+    required String banner,
   }) {
-    _restaurantName = restaurantName;
-    _restaurantAddress = restaurantAddress;
-    _openingHours = openingHours;
-    _bannerImageUrl = bannerImageUrl;
+    _ownerId = ownerId;
+    _title = title;
+    _location = location;
+    _time = time;
+    _banner = banner;
     // 나머지 변수들을 이용하여 원하는 작업 수행
   }
   @override
   void initState() {
     super.initState();
-    tabviewController = TabController(length: 3, vsync: this);
+    tabviewController = TabController(length: 2, vsync: this);
+
+    fetchMenuData();
+  }
+
+  void fetchMenuData() async {
+    try {
+      final db = FirebaseFirestore.instance;
+      final restaurantId = _ownerId;
+      final querySnapshot = await db.collection('Restaurant').doc(restaurantId).collection('Menu').get();
+      final menuData = querySnapshot.docs.map((doc) => doc.data()).toList();
+
+      // MenuPage 위젯에 데이터 전달
+      setState(() {
+        menuDataList = menuData;
+      });
+    }catch (e) {
+      print('Error fetching menu data: $e');
+    }
   }
 
   @override
@@ -63,7 +96,9 @@ class TabContainerScreenState extends State<TabContainerScreen>
     return SafeArea(
       child: Scaffold(
         backgroundColor: MyColor.BACKGROUND,
-        appBar: const BaseAppBar(title: "가게정보"),
+        appBar: const BaseAppBar(title:
+        "가게정보"
+        ),
 
         body: SizedBox(
           width: mediaQueryData.size.width,
@@ -71,11 +106,11 @@ class TabContainerScreenState extends State<TabContainerScreen>
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                Image(
-                  image: AssetImage(_bannerImageUrl),
-                  width: 390,
-                  height: 176,
-                  fit: BoxFit.fill,
+                Container(
+                  width: mediaQueryData.size.width, // Set the desired width
+                  height: 200, // Set the desired height
+                    child: Image.network(_banner,
+                      fit: BoxFit.cover,)
                 ),
 
                 Padding(
@@ -97,7 +132,8 @@ class TabContainerScreenState extends State<TabContainerScreen>
                               left: 1,
                             ),
                             child: Text(
-                                _restaurantName,
+                                _title,
+                              // user as String,
                               overflow: TextOverflow.ellipsis,
                               textAlign: TextAlign.left,
                                 style: const TextStyle(fontSize:24, fontFamily: "Mainfonts",color: Colors.black)
@@ -120,7 +156,7 @@ class TabContainerScreenState extends State<TabContainerScreen>
                                     left: 4,
                                   ),
                                   child: Text(
-                                    _restaurantAddress,
+                                    _location,
                                     overflow: TextOverflow.ellipsis,
                                     textAlign: TextAlign.left,
                                     // style: CustomTextStyles
@@ -139,9 +175,9 @@ class TabContainerScreenState extends State<TabContainerScreen>
                           _isFavorite = !_isFavorite;
 
                           if (_isFavorite) {
-                            _favoriteItems.add(_restaurantName); // 즐겨찾기 리스트에 아이템 추가
+                            _favoriteItems.add(_title); // 즐겨찾기 리스트에 아이템 추가
                           } else {
-                            _favoriteItems.remove(_restaurantName); // 즐겨찾기 리스트에서 아이템 제거
+                            _favoriteItems.remove(_title); // 즐겨찾기 리스트에서 아이템 제거
                           }
                         });
 
@@ -223,7 +259,7 @@ class TabContainerScreenState extends State<TabContainerScreen>
                                       top: 1,
                                     ),
                                     child: Text(
-                                      _openingHours,
+                                      _time,
                                       overflow: TextOverflow.ellipsis,
                                       textAlign: TextAlign.left,
                                       // style: theme.textTheme.titleSmall,
@@ -281,8 +317,8 @@ class TabContainerScreenState extends State<TabContainerScreen>
                   ),
                   child: TabBarView(
                     controller: tabviewController,
-                    children: const [
-                      menu(),
+                    children: [
+                      MenuPage(menuDataList: menuDataList), // Menu 데이터 전달),
                       thanks(),
                       // menu3(),
                     ],
@@ -300,7 +336,9 @@ class TabContainerScreenState extends State<TabContainerScreen>
             Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => CustomPricePage()));
+                    builder: (context) => CustomPricePage(
+                      ownerId : widget.ownerId
+                    )));
           },
           label: const Text("예약하기",
             style: TextStyle(fontFamily: "Mainfonts",color: Colors.white),

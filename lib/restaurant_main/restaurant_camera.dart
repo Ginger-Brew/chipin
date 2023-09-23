@@ -30,7 +30,7 @@ class CameraButton extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(CupertinoIcons.camera_fill,
+                    Icon(CupertinoIcons.hand_draw_fill,
                         color: MyColor.DARK_YELLOW, size: 45)
                   ],
                 ),

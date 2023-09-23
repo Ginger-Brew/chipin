@@ -225,15 +225,28 @@ class _RestaurantInfoRegisterState extends State<RestaurantInfoRegister> {
 
   Future pickImg() async {
     final ImagePicker _picker = ImagePicker();
-
-    XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-    if (image != null) {
-      setState(() {
-        pickedImgPath = image.path;
-        testimage = File(pickedImgPath);
-        // pickedImg = image;
-      });
+    XFile? image;
+    final status = await Permission.storage.request();
+    if (status.isGranted) {
+      image = await _picker.pickImage(source: ImageSource.gallery);
+      if (image != null) {
+        setState(() {
+          pickedImgPath = image!.path;
+          testimage = File(pickedImgPath);
+          // pickedImg = image;
+        });
+      } else {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('가게 대표 이미지를 선택해주세요')));
+      }
     }
+    else {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text('가게 대표 이미지가 기본 이미지로 설정됩니다')));
+
+
+    }
+
   }
 
   // Future<void> _uploadImage() async {
@@ -803,18 +816,25 @@ class _RestaurantMenuState extends State<RestaurantMenu> {
                   contentPadding:
                       EdgeInsets.symmetric(vertical: 0.0, horizontal: 0.0),
                   // visualDensity: VisualDensity(horizontal: 0, vertical: 0),
-                  title: Text(
-                    menuItems[index].menuname,
-                    style: TextStyle(color: Colors.black, fontSize: 18),
+                  title: Container(
+                    width:  (mediaQueryData.size.width-50) / 2,
+                    child: Text(
+                      menuItems[index].menuname,
+                      style: TextStyle(color: Colors.black, fontSize: 18),
+                    ),
                   ),
-                  subtitle: Text(menuItems[index].menuexplain,
-                      style: TextStyle(color: MyColor.GRAY, fontSize: 13)),
+                  subtitle: Container(
+                    width:  (mediaQueryData.size.width-50) / 2,
+                    child: Text(menuItems[index].menuexplain,
+                        style: TextStyle(color: MyColor.GRAY, fontSize: 13)),
+                  ),
                   trailing: Container(
-                    width: mediaQueryData.size.width / 3,
+                    width: 150,
                     child: Row(
                       // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Expanded(
+                        Container(
+                          width : 70,
                           child: Text(
                             menuItems[index].menuprice + "원",
                             style:

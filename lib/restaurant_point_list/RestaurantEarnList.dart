@@ -3,10 +3,13 @@ import 'dart:math';
 import 'package:chipin/base_appbar.dart';
 import 'package:chipin/colors.dart';
 import 'package:chipin/core/utils/size_utils.dart';
+import 'package:chipin/restaurant_appbar/RestaurantAppBar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:chipin/restaurant_point_list/restaurant_point_header.dart';
+
+import '../restaurant_appbar/RestaurantDrawerMenu.dart';
 
 class RestaurantEarnList extends StatefulWidget {
   const RestaurantEarnList({Key? key}) : super(key: key);
@@ -151,9 +154,10 @@ class _RestaurantEarnListState extends State<RestaurantEarnList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: BaseAppBar(
+      appBar: RestaurantAppBar(
         title: "우리 가게 포인트",
       ),
+      endDrawer: RestaurantDrawerMenu(),
       body: Container(
         child: Column(
           children: [

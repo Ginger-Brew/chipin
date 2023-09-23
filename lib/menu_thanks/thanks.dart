@@ -1,6 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import '../core/utils/size_utils.dart';
+import '../report/report_detail.dart';
 
 // ignore_for_file: must_be_immutable
 class thanks extends StatefulWidget {
@@ -15,258 +17,131 @@ class thanks extends StatefulWidget {
 
 class thanksState extends State<thanks>
     with AutomaticKeepAliveClientMixin<thanks> {
+
   @override
   bool get wantKeepAlive => true;
+
   @override
   Widget build(BuildContext context) {
     mediaQueryData = MediaQuery.of(context);
 
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        body: SizedBox(
-          width: mediaQueryData.size.width,
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: getPadding(
-                    top: 26,
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        height: getVerticalSize(
-                          369,
-                        ),
-                        width: double.maxFinite,
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
+    return Padding(
+        padding: const EdgeInsets.only(bottom: 16),
+        child: StreamBuilder(
+          stream:
+          FirebaseFirestore.instance.collection('Review').snapshots(),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              final docs = snapshot.data!.docs;
+              return Column(children: [
+                SizedBox(height: 16),
+                Center(
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: docs.length,
+                      itemBuilder: (context, index) {
+                        return RestaurantCard(
+                            docs[index].get('childId'),
+                            docs[index].get('restaurantId'),
+                            docs[index].get('content'),
+                            docs[index].get('childNickname'));
+                      },
+                    ))
+              ]);
+            } else {
+              return CircularProgressIndicator();
+            }
+          },
+        ));
+  }
+}
 
-                            Align(
-                              alignment: Alignment.topCenter,
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Padding(
-                                    padding: getPadding(
 
-                                      left: 33,
-                                      right: 15,
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Column(
-                                          crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                          mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                          children: [
-                                            const Text(
-                                              "너무 맛있는 한 끼 였습니다. \n 감사합니다.",
-                                              overflow: TextOverflow.ellipsis,
-                                              textAlign: TextAlign.left,
-                                              // style: theme.textTheme.titleLarge,
-                                            ),
-                                            Padding(
-                                              padding: getPadding(
-                                                top: 1,
-                                              ),
-                                              child: const Text(
-                                                "ID1",
-                                                overflow: TextOverflow.ellipsis,
-                                                textAlign: TextAlign.left,
-                                                // style:
-                                                // theme.textTheme.bodyLarge,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        TextButton(
-                                          onPressed: () {
-                                            // 신고 버튼을 클릭할 때 수행할 동작을 여기에 추가
-                                          },
-                                          child: const Text(
-                                            "신고하기",
-                                            style: TextStyle(
-                                              fontFamily: "Mainfonts",
-                                              color: Colors.grey, // 회색으로 설정
-                                              fontSize: 12, // 원하는 글씨 크기 설정
-                                            ),
-                                          ),
-                                        ),
+class RestaurantCard extends StatelessWidget {
+  String childId;
+  String restaurantId;
+  String content;
+  String childNickname;
 
-                                      ],
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: getPadding(
-                                      top: 15,
-                                    ),
-                                    child: Divider(
-                                      height: getVerticalSize(
-                                        1,
-                                      ),
-                                      thickness: getVerticalSize(
-                                        1,
-                                      ),
-                                      // color: theme.colorScheme.onError,
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: getPadding(
-                                      top: 15,
-                                      left: 33,
-                                      right: 15,
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Column(
-                                          crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                          mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                          children: [
-                                            const Text(
-                                              "여기 사장님 최고 ㅜㅜ 너무 맛있어요",
-                                              overflow: TextOverflow.ellipsis,
-                                              textAlign: TextAlign.left,
-                                              // style: theme.textTheme.titleLarge,
-                                            ),
-                                            Padding(
-                                              padding: getPadding(
-                                                top: 1,
-                                              ),
-                                              child: const Text(
-                                                "ID2",
-                                                overflow: TextOverflow.ellipsis,
-                                                textAlign: TextAlign.left,
-                                                // style:
-                                                // theme.textTheme.bodyLarge,
-                                              ),
-                                            ),
+  RestaurantCard(this.childId, this.restaurantId, this.content, this.childNickname);
 
-                                          ],
+  @override
+  Widget build(BuildContext context) {
+    return Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+      CustomRestaurantCategory(
+          childId, restaurantId, content, childNickname),
+      SizedBox(height: 20),
+    ]);
+  }
+}
 
-                                        ),
-                                        TextButton(
-                                          onPressed: () {
-                                            // 신고 버튼을 클릭할 때 수행할 동작을 여기에 추가
-                                          },
-                                          child: const Text(
-                                            "신고하기",
-                                            style: TextStyle(
-                                              fontFamily: "Mainfonts",
-                                              color: Colors.grey, // 회색으로 설정
-                                              fontSize: 12, // 원하는 글씨 크기 설정
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: getPadding(
-                                      top: 15,
-                                    ),
-                                    child: Divider(
-                                      height: getVerticalSize(
-                                        1,
-                                      ),
-                                      thickness: getVerticalSize(
-                                        1,
-                                      ),
-                                      // color: theme.colorScheme.onError,
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: getPadding(
-                                      top: 15,
-                                      left: 33,
-                                      right: 15,
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Column(
-                                          crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                          mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                          children: [
-                                            const Text(
-                                              "감사해요. 너무 맛있네요",
-                                              overflow: TextOverflow.ellipsis,
-                                              textAlign: TextAlign.left,
-                                              // style: theme.textTheme.titleLarge,
-                                            ),
-                                            Padding(
-                                              padding: getPadding(
-                                                top: 1,
-                                              ),
-                                              child: const Text(
-                                                "ID3",
-                                                overflow: TextOverflow.ellipsis,
-                                                textAlign: TextAlign.left,
-                                                // style:
-                                                // theme.textTheme.bodyLarge,
-                                              ),
-                                            ),
+class CustomRestaurantCategory extends StatelessWidget {
+  final String childId;
+  final String restaurantId;
+  final String content;
+  final String childNickname;
 
-                                          ],
-                                        ),
-                                        TextButton(
-                                          onPressed: () {
-                                            // 신고 버튼을 클릭할 때 수행할 동작을 여기에 추가
-                                          },
-                                          child: const Text(
-                                            "신고하기",
-                                            style: TextStyle(
-                                              fontFamily: "Mainfonts",
-                                              color: Colors.grey, // 회색으로 설정
-                                              fontSize: 12, // 원하는 글씨 크기 설정
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: getPadding(
-                                      top: 15,
-                                    ),
-                                    child: Divider(
-                                      height: getVerticalSize(
-                                        1,
-                                      ),
-                                      thickness: getVerticalSize(
-                                        1,
-                                      ),
-                                      // color: theme.colorScheme.onError,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+  const CustomRestaurantCategory(this.childId, this.restaurantId, this.content, this.childNickname, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: getPadding(
+        left: 33,
+        right: 15,
+      ),
+      child: Row(
+        mainAxisAlignment:
+        MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment:
+            CrossAxisAlignment.start,
+            mainAxisAlignment:
+            MainAxisAlignment.start,
+            children: [
+              Text(
+                content,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.left,
+                // style: theme.textTheme.titleLarge,
+              ),
+              Padding(
+                padding: getPadding(
+                  top: 1,
                 ),
-              ],
+                child: Text(
+                  childId,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.left,
+                  // style:
+                  // theme.textTheme.bodyLarge,
+                ),
+              ),
+            ],
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => ReportDetail(
+                          childId : childId
+                      )
+                  )
+              );
+            },
+            child: const Text(
+              "신고하기",
+              style: TextStyle(
+                fontFamily: "Mainfonts",
+                color: Colors.grey, // 회색으로 설정
+                fontSize: 12, // 원하는 글씨 크기 설정
+              ),
             ),
           ),
-        ),
+
+        ],
       ),
     );
   }

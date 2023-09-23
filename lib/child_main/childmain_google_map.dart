@@ -10,7 +10,7 @@ class CustomGoogleMap extends StatefulWidget {
   State<CustomGoogleMap> createState() => _CustomGoogleMapState();
 }
 
-final _foodies = [];
+List<Map<String, dynamic>> _foodies = [];
 
 final _markers = <Marker>{};
 

@@ -1,3 +1,4 @@
+import 'package:chipin/restaurant_appbar/RestaurantAppBar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -5,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:chipin/base_appbar.dart';
 import '../colors.dart';
 import '../core/utils/size_utils.dart';
+import '../restaurant_appbar/RestaurantDrawerMenu.dart';
 import 'RestaurantDiscount.dart';
 
 class RestaurantTotalPrice extends StatefulWidget {
@@ -102,7 +104,8 @@ class _RestaurantTotalPriceState extends State<RestaurantTotalPrice> {
     readdata();
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: const BaseAppBar(title: "할인 코드 직원 확인하기"),
+      appBar: const RestaurantAppBar(title: "할인 코드 직원 확인하기"),
+      endDrawer: RestaurantDrawerMenu(),
       body: SizedBox(
         width: mediaQueryData.size.width,
         height: mediaQueryData.size.height,
@@ -132,27 +135,27 @@ class _RestaurantTotalPriceState extends State<RestaurantTotalPrice> {
                           ),
                         ),
                       ),
-                      Padding(
-                        padding: EdgeInsets.only(top: 2),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.location_on_rounded,
-                              color: Colors.black,
-                              size: 19,
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(left: 4),
-                              child: Text(
-                                address1 +" "+address2,
-                                overflow: TextOverflow.ellipsis,
-                                textAlign: TextAlign.left,
-                                style: TextStyle(fontSize: 20),
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
+                      // Padding(
+                      //   padding: EdgeInsets.only(top: 2),
+                      //   child: Row(
+                      //     children: [
+                      //       Icon(
+                      //         Icons.location_on_rounded,
+                      //         color: Colors.black,
+                      //         size: 19,
+                      //       ),
+                      //       Padding(
+                      //         padding: EdgeInsets.only(left: 4),
+                      //         child: Text(
+                      //           address1 +" "+address2,
+                      //           overflow: TextOverflow.ellipsis,
+                      //           textAlign: TextAlign.left,
+                      //           style: TextStyle(fontSize: 20),
+                      //         ),
+                      //       ),
+                      //     ],
+                      //   ),
+                      // )
                     ],
                   )
                 ],

@@ -1,4 +1,3 @@
-
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -15,6 +14,9 @@ import 'package:chipin/restaurant_main/RestaurantMain.dart';
 import '../core/utils/size_utils.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+
+import '../restaurant_appbar/RestaurantAppBar.dart';
+import '../restaurant_appbar/RestaurantDrawerMenu.dart';
 
 class NewMenu {
   late String menuname;
@@ -338,7 +340,8 @@ class _RestaurantInfoCorrectionState extends State<RestaurantInfoCorrection> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: const BaseAppBar(title: '가게 정보 수정하기'),
+        appBar: const RestaurantAppBar(title: '가게 정보 수정하기'),
+        endDrawer: RestaurantDrawerMenu(),
         body: Container(
           color: MyColor.BACKGROUND,
           padding: const EdgeInsets.symmetric(
@@ -786,18 +789,25 @@ class _RestaurantMenuState extends State<RestaurantMenu> {
                   contentPadding:
                       EdgeInsets.symmetric(vertical: 0.0, horizontal: 0.0),
                   // visualDensity: VisualDensity(horizontal: 0, vertical: 0),
-                  title: Text(
-                    menuItems[index].menuname,
-                    style: TextStyle(color: Colors.black, fontSize: 18),
+                  title: Container(
+                    width:  (mediaQueryData.size.width-50) / 2,
+                    child: Text(
+                      menuItems[index].menuname,
+                      style: TextStyle(color: Colors.black, fontSize: 18),
+                    ),
                   ),
-                  subtitle: Text(menuItems[index].menuexplain,
-                      style: TextStyle(color: MyColor.GRAY, fontSize: 13)),
+                  subtitle: Container(
+                    width: (mediaQueryData.size.width-50)/2,
+                    child: Text(menuItems[index].menuexplain,
+                        style:TextStyle(color: MyColor.GRAY, fontSize: 13)),
+                  ),
                   trailing: Container(
-                    width: mediaQueryData.size.width / 3,
+                    width: 150,
                     child: Row(
                       // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Expanded(
+                        Container(
+                          width: 70,
                           child: Text(
                             menuItems[index].menuprice + "원",
                             style:

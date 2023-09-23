@@ -1,5 +1,3 @@
-import 'dart:ffi';
-import 'dart:math';
 import 'package:chipin/base_appbar.dart';
 import 'package:chipin/colors.dart';
 import 'package:chipin/core/utils/size_utils.dart';

@@ -1,15 +1,23 @@
+import 'dart:convert';
+
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:chipin/customer_main/client_text_btn.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
+import 'package:dio/dio.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../base_appbar.dart';
 import '../colors.dart';
 import 'client_calendar.dart';
 import 'client_receipt_auth.dart';
+import 'client_support.dart';
 import 'client_yellow_btn.dart';
 
 class ClientMain extends StatefulWidget {
@@ -24,22 +32,61 @@ class _ClientMainState extends State<ClientMain> {
   final ImagePicker picker = ImagePicker();  //  ImagePicker 변수
   Future getImage(ImageSource imageSource) async {
     final image = await picker.pickImage(source: imageSource);
+    if (image == null) return;
     setState(() {
-      _image = XFile(image!.path); // 가져온 이미지를 _image에 저장
+      _image = XFile(image.path); // 가져온 이미지를 _image에 저장
     });
   }
 
+  String? userid = FirebaseAuth.instance.currentUser!.email;
+
   // carousel slider 변수들
   int _current = 0;
-  CarouselController _controller = CarouselController();
-  final images = [
-    ["assets/images/originalhouse.png", "정통집", "김치가 존맛탱"],
-    ["assets/images/ohyang_restaurant.png", "오양 칼국수", "키스 갈기고 싶은 키.칼"],
-    ["assets/images/kongjjamppong.png", "콩짬뽕", "안에 콩이 들어갔을까요?"]
-  ];
+  final CarouselController _controller = CarouselController();
+  var point_format = NumberFormat('###,###,###P');
+
+  var result = [];
+  var point = "";
+  var number = "";
+  var percent_point = 0.0;
+  var percent_number = 0.0;
+  var tmp = 0.0;
+
+  getData() async {
+    final usercol=FirebaseFirestore.instance.collection("Client").doc(userid);
+    await usercol.get().then((value) => { //값을 읽으면서, 그 값을 변수로 넣는 부분
+      point = point_format.format(int.parse(value['point'])),
+      number = value['number']+"회",
+      tmp = int.parse(value['point'])/30000,
+      if(tmp >= 1.0) {
+        percent_point = 1.0
+      } else {
+        percent_point = double.parse(tmp.toStringAsFixed(2))
+      },
+
+      tmp = double.parse(value['point'])/10,
+      if(tmp > 1.0) {
+        percent_number = 1.0
+      } else {
+        percent_number = double.parse(tmp.toStringAsFixed(2))
+      },
+    });
+
+    await FirebaseFirestore.instance
+        .collection('Support')
+        .snapshots()
+        .listen((data) {
+          result.clear();
+
+      for (var element in data.docs) {
+        result.add([element["image"], element["title"], element["subtitle"], element["url"]]);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    getData();
     return Scaffold(
         backgroundColor: MyColor.BACKGROUND,
         appBar: BaseAppBar(title: "십시일반"),
@@ -51,7 +98,11 @@ class _ClientMainState extends State<ClientMain> {
                   Container(
                     margin: EdgeInsets.fromLTRB(30, 20, 100, 0),
                     child: TextButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) => const ClientSupport())
+                        );
+                      },
                       child: ClientTextBtn(
                         imgPath: "handhearticon.png",
                         title: "도움의 손길들",
@@ -105,8 +156,8 @@ class _ClientMainState extends State<ClientMain> {
                     animation: true,
                     animationDuration: 100,
                     lineHeight: 20.0,
-                    percent: 0.78, /////////////////////////////////////// 파베에서 가져올 데이터
-                    center: Text("23,500P"),
+                    percent: percent_point, /////////////////////////////////////// 파베에서 가져올 데이터
+                    center: Text(point),
                     progressColor: MyColor.DARK_YELLOW,
                     barRadius: Radius.circular(10),
                     backgroundColor: MyColor.LIGHT_GRAY,
@@ -152,8 +203,8 @@ class _ClientMainState extends State<ClientMain> {
                     animation: true,
                     animationDuration: 100,
                     lineHeight: 20.0,
-                    percent: 1.0, /////////////////////////////////////////////////
-                    center: Text("15회"),
+                    percent: percent_number, /////////////////////////////////////////////////
+                    center: Text(number),
                     progressColor: MyColor.GOLD_YELLOW,
                     barRadius: Radius.circular(10),
                     backgroundColor: MyColor.LIGHT_GRAY,
@@ -173,8 +224,23 @@ class _ClientMainState extends State<ClientMain> {
                   ),
 
                   TextButton(
-                      onPressed: () {
-                        getImage(ImageSource.camera);
+                      onPressed: () async {
+                        await getImage(ImageSource.camera);
+                        if (_image == null) return;
+
+                        List<int> imageByte = await _image!.readAsBytes();
+                        String encodedImage = base64Encode(imageByte);
+                        print(encodedImage);
+
+                        final dio = Dio();
+                        final result = await dio.post(
+                          "http://43.200.163.101:51854/",
+                          data: {
+                            'img': encodedImage,
+                          },
+                        );
+
+                        print(result);
                       },
                       child: ClientYellowBtn(
                         imgPath: "receipt.png",
@@ -199,18 +265,19 @@ class _ClientMainState extends State<ClientMain> {
 
   Widget sliderWidget() {
     return CarouselSlider(
-        items: List<List<String>>.from(images).map(
+        items: List<List>.from(result).map(
         (imgInfo) {
             return Builder(
                 builder: (context) {
                   return Container(
                     margin: EdgeInsets.fromLTRB(30, 5, 30, 0),
                     width: MediaQuery.of(context).size.width,
+                    height: 100,
                     child: Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10.0),
                         image: DecorationImage(
-                          image: Image.asset(imgInfo[0]).image,
+                          image: Image.network(imgInfo[0]).image,
                           fit: BoxFit.cover
                         )
                       ),
@@ -219,7 +286,7 @@ class _ClientMainState extends State<ClientMain> {
                           Container(
                             decoration: BoxDecoration(
                               color: Color.fromRGBO(0, 0, 0, 0.3),
-                              borderRadius: BorderRadius.circular(20.0),
+                              borderRadius: BorderRadius.circular(10.0),
                             ),
                           ),
                           Container(
@@ -227,27 +294,33 @@ class _ClientMainState extends State<ClientMain> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  imgInfo[1],
-                                  style: TextStyle(
-                                      fontFamily: "Pretendard",
-                                      fontSize: 20,
-                                      color: Colors.white,
-                                    fontWeight: FontWeight.bold
+                                Container(
+                                  margin: EdgeInsets.only(left: 8),
+                                  child: Text(
+                                    imgInfo[1],
+                                    style: TextStyle(
+                                        fontFamily: "Pretendard",
+                                        fontSize: 20,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold
+                                    ),
                                   ),
-                                  textAlign: TextAlign.left,
                                 ),
                                 Padding(padding: EdgeInsets.all(5)),
-                                Text(
-                                  imgInfo[2],
-                                  style: TextStyle(
+                                Container(
+                                  margin: EdgeInsets.only(left: 8),
+                                  child: Text(
+                                    imgInfo[2],
+                                    style: TextStyle(
                                       fontFamily: "Pretendard",
                                       fontSize: 15,
                                       color: Colors.white,),
-                                  textAlign: TextAlign.left,
+                                  ),
                                 ),
                                 TextButton(
-                                    onPressed: () {},  ///////////////////
+                                    onPressed: () {
+                                      launchUrl(Uri.parse(imgInfo[3]));
+                                    },
                                     child: Container(
                                         width: 70,
                                         height: 40,
@@ -297,7 +370,7 @@ class _ClientMainState extends State<ClientMain> {
       alignment: Alignment.bottomCenter,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: images.asMap().entries.map((e) {
+        children: result.asMap().entries.map((e) {
           return GestureDetector(
             onTap: () => _controller.animateToPage(e.key),
             child: Container(

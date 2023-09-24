@@ -1,5 +1,5 @@
-import 'dart:collection';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -25,23 +25,64 @@ class Event {
 
 class _ClientCalendarState extends State<ClientCalendar>{
   CalendarFormat _calendarFormat = CalendarFormat.month;
+  String? userid = FirebaseAuth.instance.currentUser!.email;
 
-  Map<DateTime, List> eventSource = {
-    DateTime.utc(2023, 9, 2) : [Event('정통집', '2023-09-02', '1800P'), Event('정통집', '2023-09-02', '200P')],
-    DateTime.utc(2023, 9, 3) : [Event('정통집', '2023-09-03', '1800P')],
-    DateTime.utc(2023, 9, 12) : [Event('정통집', '2023-09-03', '1800P')],
-    DateTime.utc(2023, 9, 20) : [Event('정통집', '2023-09-03', '1800P')],
-  };
+  // Map<DateTime, List> eventSource = {
+  //   DateTime.utc(2023, 09, 02) : [Event('정통집', '2023-09-02', '1800P'), Event('정통집', '2023-09-02', '200P')],
+  //   DateTime.utc(2023, 09, 03) : [Event('정통집', '2023-09-03', '1800P')],
+  //   DateTime.utc(2023, 09, 12) : [Event('정통집', '2023-09-03', '1800P')],
+  //   DateTime.utc(2023, 09, 20) : [Event('정통집', '2023-09-03', '1800P')],
+  // };
 
-  Map<String, List> history = {
-    '2023-09-02' : [Event('정통집', '2023.09.02 13:45', '1800P'), Event('별빛맥주', '2023.09.02 15:21', '200P'),
-            Event('헤이마오차이', '2023.09.02 18:21', '1200P')],
-    '2023-09-03' : [Event('정통집', '2023-09-03', '1800P')],
-    '2023-09-12' : [Event('아찌칼국수', '2023.09.12 13:45', '800P')],
-    '2023-09-20' : [Event('정통집', '2023-09-03', '1800P')],
-  };
+  Map<DateTime, List<Event>> eventSource = {};
+  Map<String, List<List>> history = {};
+  int sum = 0;
+  var point_format = NumberFormat("###,###P");
+
+  getData() async {
+    int i = 0;
+    final usercol=FirebaseFirestore.instance.collection("History").doc(userid);
+    final snapshot = await usercol.get();
+
+    if(snapshot.exists) {
+      final data = snapshot.data() as Map;
+      List field = [];
+      sum = 0;
+
+      // 년, 월, 일, 시, 분, 이름, 포인트
+      while(data[i.toString()] != null) {
+        field = data[i.toString()];
+        
+        String date = "${field[0]}-${field[1]}-${field[2]}";
+        String inner_date = "${field[0]}.${field[1]}.${field[2]} ${field[3]}:${field[4]}";
+        String point = point_format.format(int.parse(field[6]));
+        if(history.containsKey(date)) {
+          print(field[5]);
+          var tmp = history['tags']?.cast<List>();
+          tmp?.add([field[5], inner_date, point]);
+        } else {
+          print(field[5]);
+          history[date] = [[field[5], inner_date, point]];
+        }
+
+        sum += int.parse(field[6]);
+
+        var map_date = DateTime.utc(int.parse(field[0]), int.parse(field[1]), int.parse(field[2]));
+        if(!eventSource.containsKey(map_date)) {
+          eventSource[map_date] = [Event(field[5], date, point)];
+        } else {
+          List<Event>.from(eventSource[map_date]!).add(Event(field[5], date, point));
+        }
+
+        i++;
+      }
+      print(history);
+    }
+  }
+
 
   List _getEventsForDay(DateTime day) {
+    getData();
     return eventSource[day] ?? [];
   }
 
@@ -55,7 +96,7 @@ class _ClientCalendarState extends State<ClientCalendar>{
         backgroundColor: MyColor.BACKGROUND,
         appBar: BaseAppBar(title: "내 누적 포인트"),
         body: Container(
-          margin: EdgeInsets.fromLTRB(10, 10, 10, 0),
+          margin: EdgeInsets.fromLTRB(10, 10, 10, 20),
         child: SingleChildScrollView(
           child: Column(
             children: [
@@ -75,7 +116,7 @@ class _ClientCalendarState extends State<ClientCalendar>{
                   Container(
                     margin: EdgeInsets.fromLTRB(0, 10, 20, 0),
                     child: Text(
-                        '23,500P',  //////////////////////////////  파베에서 가져올 데이터
+                        point_format.format(sum),
                         style: TextStyle(
                             fontFamily: "Mainfonts",
                             fontSize: 25,
@@ -131,13 +172,6 @@ class _ClientCalendarState extends State<ClientCalendar>{
                       );
                     }
                   }),
-
-                  // calendarFormat: _calendarFormat,
-                  // onFormatChanged: (format) {
-                  //   setState(() {
-                  //     _calendarFormat = format;
-                  //   });
-                  // },
 
                   selectedDayPredicate: (day) {
                     //  selectedDay의 날짜 모양을 바꿔줌
@@ -250,9 +284,9 @@ class _ClientCalendarState extends State<ClientCalendar>{
       itemCount: history[selectedDateString]?.length,
         itemBuilder: (context, index) {
           return ClientHistoryUnit(
-              title: '${history[selectedDateString]![index].title}',
-              date: '${history[selectedDateString]![index].date}',
-              point: '${history[selectedDateString]![index].point}');
+              title: '${history[selectedDateString]![index][0]}',
+              date: '${history[selectedDateString]![index][1]}',
+              point: '${history[selectedDateString]![index][2]}');
         }
     );
   }

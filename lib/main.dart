@@ -1,11 +1,12 @@
 import 'package:chipin/child_code_generate/code_generate_screen.dart';
 import 'package:chipin/colors.dart';
-import 'package:chipin/custom_price/custom_price.dart';
+import 'package:chipin/restaurant_main/RestaurantMain.dart';
 import 'package:chipin/tab_container_screen/tab_container_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
+import 'child_custom_price/custom_price.dart';
 import 'child_main/ChildMain.dart';
 import 'customer_main/ClientMain.dart';
 import 'login/login.dart';
@@ -74,7 +75,7 @@ class MyApp extends StatelessWidget {
             title: 'CHIPIN',
             theme: ThemeData(
                 primarySwatch: ColorService.createMaterialColor(
-                    MyColor.PRICE)), //테마 컬러를 dark_yellow로 설정함
+                    MyColor.DARK_YELLOW)), //테마 컬러를 dark_yellow로 설정함
 
             // debugShowCheckedModeBanner : 오른쪽상단 빨간색 표시
             debugShowCheckedModeBanner: false,
@@ -85,9 +86,9 @@ class MyApp extends StatelessWidget {
               // '/splash': (context) => SplashScreen(),
               '/register': (context) => RegisterPage(),
               '/childmain': (context) => ChildMain(),
-              '/storemain': (context) => RestaurantInfoRegister(),
-              '/restaurantdetail' : (context) => TabContainerScreen(),
-              '/customprice' : (context) => CustomPricePage(),
+              '/storeregister' : (context) => RestaurantInfoRegister(),
+              '/storemain': (context) => RestaurantMain(),
+              // '/restaurantdetail' : (context) => TabContainerScreen(),
               '/clientmain' : (context) => ClientMain(),
               '/codegenerate' : (context) => CodeGenerateScreen()
             },

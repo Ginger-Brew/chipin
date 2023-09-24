@@ -1,13 +1,20 @@
+import 'package:chipin/restaurant_appbar/RestaurantAppBar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'package:chipin/base_appbar.dart';
 import 'package:flutter/services.dart';
 import '../colors.dart';
 import '../core/utils/size_utils.dart';
+import '../restaurant_appbar/RestaurantDrawerMenu.dart';
 import 'RestaurantPayment.dart';
 
 class RestaurantDiscount extends StatefulWidget {
+  final String enterednumber;
+
+  const RestaurantDiscount(this.enterednumber);
+
   @override
   _RestaurantDiscountState createState() => _RestaurantDiscountState();
 }
@@ -22,70 +29,149 @@ class _RestaurantDiscountState extends State<RestaurantDiscount> {
   //firestore에 저장할 때 사용할 컬렉션 이름과 도큐먼트 이름
   final String colName = "Restaurant";
   final String subColName = "RedeemList";
-  final String id = "jdh33114";
   String name = "";
-  String address1 = "-";
+  String address1 = "";
   String address2 = "";
 
 
-  bool get isCodeValid {
-    if (result.join().length == 4) {
-      return true;
-    } else {
-      return false;
+  User? getUser() {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      // Name, email address, and profile photo URL
+      final name = user.displayName;
+      final email = user.email;
+      final photoUrl = user.photoURL;
+
+      // Check if user's email is verified
+      final emailVerified = user.emailVerified;
+
+      // The user's ID, unique to the Firebase project. Do NOT use this value to
+      // authenticate with your backend server, if you have one. Use
+      // User.getIdToken() instead.
+      final uid = user.uid;
+    }
+    return user;
+  }
+
+//할인 코드가 유효한지 확인 - 아동 db에서 할인 코드와 동일한 이름의 도큐먼트가 있는지 확인
+  Future<int> isCodeValid() async {
+    final db = FirebaseFirestore.instance.collection("DiscountCode");
+
+    try {
+      final querySnapshot = await db.where('reservationCode', isEqualTo: result.join()).get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        for (var docSnapshot in querySnapshot.docs) {
+          print('${docSnapshot.id} => ${docSnapshot.data()}');
+          print(docSnapshot.data()['reservationPrice']);
+          if(docSnapshot.data()['isUsed'] == false && docSnapshot.data()['isValid']) {
+            return docSnapshot.data()['reservationPrice'];
+          } else {
+            return -1;
+          }
+        }
+      }
+    } catch (e) {
+      print("Error completing: $e");
+    }
+
+    return -1;
+  }
+
+
+  // 화면 상단에 식당 정보를 표기하기 위해 필요 - 식당 db에서 식당 정보 가져오기
+  void readRestaurantData() async {
+    User? currentUser = getUser();
+
+    if(currentUser != null) {
+      final db = FirebaseFirestore.instance.collection(colName).doc(currentUser.email);
+
+      await db.get().then((DocumentSnapshot ds) {
+        Map<String, dynamic> data = ds.data() as Map<String, dynamic>;
+
+          name = data['name'];
+          address1 = data['address1'];
+          address2 = data['address2'];
+        });
+
     }
   }
 
-  void readdata() async {
-    final readdb = FirebaseFirestore.instance.collection(colName).doc(id);
+// 식당 db에 차감 내역을 작성하기 위해 필요 - 이전 페이지에서 전달받은 값과 아동 db에서 가져온 예약 금액을 가져와서 비교 후 저장
+  void writeRedeemData(int redeemPoint, int payment, DateTime redeemDate, num totalPoint) async {
+    User? currentUser = getUser();
 
-    await readdb.get().then((DocumentSnapshot ds) {
-      Map<String, dynamic> data = ds.data() as Map<String, dynamic>;
+    if (currentUser != null) {
+      final db = FirebaseFirestore.instance
+          .collection("Restaurant")
+          .doc(currentUser.email)
+          .collection("RedeemList")
+          .doc(result.join());
 
-      setState(() {
-        name = data['name'];
-        address1 = data['address1'];
-        address2 = data['address2'];
+      // firestore에 저장
+      await db
+          .set({
+        'redeemPoint': redeemPoint,
+        'redeemDate': redeemDate,
+        'totalPoint': totalPoint - redeemPoint
+      })
+          .then((value) => print("document added")) // firestore에 저장이 잘 된 경우
+          .catchError((error) => print("Fail to add doc ${error}"));
 
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => RestaurantPayment(payment)));
+    }else {
 
-      });
-    });
+    }
   }
+// 식당 db에 차감 내역을 작성할 때 표기할 전체 포인트를 구하기 위해 필요 - earnlist의 값의 합에서 redeemlist의 값의 합을 뺌
+  Future<num> readtotalPoint() async {
 
+    num earnPoint = 0;
+    num redeemPoint = 0;
 
-  void writedata() async {
-    final db = FirebaseFirestore.instance;
+    User? currentUser = getUser();
 
-    db
-        .collection("Child")
-        .doc("tlqkftlqk@naver.com")
-        .collection("ReservationInfo")
-        .doc(result.join())
-        .get()
-        .then((DocumentSnapshot ds) {
-      Map<String, dynamic> data = ds.data() as Map<String, dynamic>;
+    if(currentUser != null) {
+      final db = FirebaseFirestore.instance.collection("Restaurant").doc(
+          currentUser.email);
 
-      int reservationprice = data['price'];
-    });
+      try {
+        final queryEarnSnapshot = await db.collection("EarnList").get();
 
-    // firestore에 저장
-    await db
-        .collection(colName)
-        .doc(id)
-        .collection(subColName)
-        .doc(subColName)
-        .set({'discountcode': "adf"})
-        .then((value) => print("document added")) // firestore에 저장이 잘 된 경우
-        .catchError((error) => print("Fail to add doc ${error}"));
+        if (queryEarnSnapshot.docs.isNotEmpty) {
+          for (var docSnapshot in queryEarnSnapshot.docs) {
+            print('${docSnapshot.id} => ${docSnapshot.data()}');
+            earnPoint += docSnapshot.data()['earnPoint'];
+          }
+        }
+      } catch (e) {
+        print("Error completing: $e");
+      }
 
-    Navigator.push(context, MaterialPageRoute(
-        builder: (context) =>  RestaurantPayment()));
-  }
+      try {
+        final queryEarnSnapshot = await db.collection("RedeemList").get();
 
+        if (queryEarnSnapshot.docs.isNotEmpty) {
+          for (var docSnapshot in queryEarnSnapshot.docs) {
+            print('${docSnapshot.id} => ${docSnapshot.data()}');
+            redeemPoint += docSnapshot.data()['redeemPoint'];
+          }
+        }
+      } catch (e) {
+        print("Error completing: $e");
+      }
+    }
+
+  return earnPoint-redeemPoint;
+      }
   @override
   void initState() {
     super.initState();
     // Add listeners to each controller
+    readRestaurantData();
     for (int i = 0; i < controllers.length; i++) {
       controllers[i].addListener(() {
         if (controllers[i].text.length == 1) {
@@ -115,7 +201,6 @@ class _RestaurantDiscountState extends State<RestaurantDiscount> {
 
   @override
   Widget build(BuildContext context) {
-
     List<Widget> textFields = controllers.asMap().entries.map((entry) {
       int index = entry.key;
       TextEditingController controller = entry.value;
@@ -151,10 +236,10 @@ class _RestaurantDiscountState extends State<RestaurantDiscount> {
         ),
       );
     }).toList();
-    readdata();
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: const BaseAppBar(title: "가게정보"),
+      appBar: const RestaurantAppBar(title: "가게정보"),
+      endDrawer: RestaurantDrawerMenu(),
       body: Container(
           width: mediaQueryData.size.width,
           child: SingleChildScrollView(
@@ -173,7 +258,7 @@ class _RestaurantDiscountState extends State<RestaurantDiscount> {
                         children: [
                           Padding(
                             padding: getPadding(left: 1),
-                            child:  Text(
+                            child: Text(
                               name,
                               overflow: TextOverflow.ellipsis,
                               textAlign: TextAlign.left,
@@ -184,27 +269,27 @@ class _RestaurantDiscountState extends State<RestaurantDiscount> {
                               ),
                             ),
                           ),
-                           Padding(
-                            padding: EdgeInsets.only(top: 2),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.location_on_rounded,
-                                  color: Colors.black,
-                                  size: 19,
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.only(left: 4),
-                                  child: Text(
-                                    address1+" "+address2,
-                                    overflow: TextOverflow.ellipsis,
-                                    textAlign: TextAlign.left,
-                                    style: TextStyle(fontSize: 20),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )
+                          // Padding(
+                          //   padding: EdgeInsets.fromLTRB(4, 2, 0, 0),
+                          //   child: Row(
+                          //     children: [
+                          //       Icon(
+                          //         Icons.location_on_rounded,
+                          //         color: Colors.black,
+                          //         size: 19,
+                          //       ),
+                          //       Flexible(
+                          //           child: Text(
+                          //             address1 + " " + address2,
+                          //             overflow: TextOverflow.ellipsis,
+                          //             maxLines:2,
+                          //             textAlign: TextAlign.left,
+                          //             style: TextStyle(fontSize: 20),
+                          //           ),
+                          //       ),
+                          //     ],
+                          //   ),
+                          // )
                         ],
                       )
                     ],
@@ -227,19 +312,27 @@ class _RestaurantDiscountState extends State<RestaurantDiscount> {
                 ),
                 SizedBox(height: 50),
                 ElevatedButton(
-                  // onPressed: isCodeValid ? () => Navigator.push(context, MaterialPageRoute(
-                  //     builder: (context) =>  RestaurantDiscount())) : null,
-                  onPressed: isCodeValid ? () => writedata() : null,
-                  // onPressed: () => writedata(),
+                  onPressed: () async {
+                    int reservationPrice = await isCodeValid();
+                    int redeemPoint = reservationPrice > int.parse(widget.enterednumber) ? int.parse(widget.enterednumber) : reservationPrice;
+                    int payment = reservationPrice > int.parse(widget.enterednumber) ? 0 : int.parse(widget.enterednumber) - reservationPrice;
+                    DateTime redeemDate = DateTime.now();
+                    num totalPoint = await readtotalPoint();
+                    // debugPrint("debug : ${reservationPrice}");
+                    // debugPrint("debug : ${redeemPoint}");
+                    // debugPrint("debug : ${payment}");
+                    // Call the async function and await the result
+                    if (reservationPrice != -1) {
+                      writeRedeemData(redeemPoint, payment, redeemDate, totalPoint);
+                    } else {
+                      ScaffoldMessenger.of(context)
+                          .showSnackBar(SnackBar(content: Text('유효하지 않은 할인 코드입니다')));
+                    }
+                  },
                   style: ButtonStyle(
                     foregroundColor: MaterialStateProperty.all(Colors.white),
                     backgroundColor:
-                        MaterialStateProperty.resolveWith<Color>((states) {
-                      if (!isCodeValid) {
-                        return Colors.grey; // 비활성화 상태일 때 회색 배경색
-                      }
-                      return MyColor.DARK_YELLOW; // 활성화 상태일 때 파란 배경색
-                    }),
+                        MaterialStateProperty.all(MyColor.DARK_YELLOW),
                     shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                         RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(18.0),
@@ -250,7 +343,6 @@ class _RestaurantDiscountState extends State<RestaurantDiscount> {
                           48), // 가로 길이를 화면 가로 길이 - 32로 설정
                     ),
                   ),
-
                   child: const Text(
                     "확인",
                     style: TextStyle(

@@ -1,13 +1,20 @@
+import 'package:chipin/restaurant_appbar/RestaurantAppBar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'package:chipin/base_appbar.dart';
 import 'package:flutter/services.dart';
 import '../colors.dart';
 import '../core/utils/size_utils.dart';
+import '../restaurant_appbar/RestaurantDrawerMenu.dart';
 import '../restaurant_main/RestaurantMain.dart';
 
 class RestaurantPayment extends StatefulWidget {
+  final int payment;
+
+  const RestaurantPayment(this.payment);
+
   @override
   _RestaurantPaymentState createState() => _RestaurantPaymentState();
 }
@@ -22,9 +29,8 @@ class _RestaurantPaymentState extends State<RestaurantPayment> {
   //firestore에 저장할 때 사용할 컬렉션 이름과 도큐먼트 이름
   final String colName = "Restaurant";
   final String subColName = "RedeemList";
-  final String id = "jdh33114";
   String name = "";
-  String address1 = "-";
+  String address1 = "";
   String address2 = "";
 
 
@@ -36,20 +42,44 @@ class _RestaurantPaymentState extends State<RestaurantPayment> {
     }
   }
 
+
+  User? getUser() {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      // Name, email address, and profile photo URL
+      final name = user.displayName;
+      final email = user.email;
+      final photoUrl = user.photoURL;
+
+      // Check if user's email is verified
+      final emailVerified = user.emailVerified;
+
+      // The user's ID, unique to the Firebase project. Do NOT use this value to
+      // authenticate with your backend server, if you have one. Use
+      // User.getIdToken() instead.
+      final uid = user.uid;
+    }
+    return user;
+  }
+
   void readdata() async {
-    final readdb = FirebaseFirestore.instance.collection(colName).doc(id);
+    User? currentUser = getUser();
 
-    await readdb.get().then((DocumentSnapshot ds) {
-      Map<String, dynamic> data = ds.data() as Map<String, dynamic>;
+    if(currentUser != null) {
+      final readdb = FirebaseFirestore.instance.collection(colName).doc(currentUser.email);
 
-      setState(() {
-        name = data['name'];
-        address1 = data['address1'];
-        address2 = data['address2'];
+      await readdb.get().then((DocumentSnapshot ds) {
+        Map<String, dynamic> data = ds.data() as Map<String, dynamic>;
 
-
+        setState(() {
+          name = data['name'];
+          address1 = data['address1'];
+          address2 = data['address2'];
+        });
       });
-    });
+    } else {
+
+    }
   }
 
 
@@ -91,7 +121,8 @@ class _RestaurantPaymentState extends State<RestaurantPayment> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: const BaseAppBar(title: "할인 코드 직원 확인"),
+      appBar: const RestaurantAppBar(title: "할인 코드 직원 확인"),
+      endDrawer: RestaurantDrawerMenu(),
       body: Container(
           width: mediaQueryData.size.width,
           child: SingleChildScrollView(
@@ -121,27 +152,27 @@ class _RestaurantPaymentState extends State<RestaurantPayment> {
                               ),
                             ),
                           ),
-                          Padding(
-                            padding: EdgeInsets.only(top: 2),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.location_on_rounded,
-                                  color: Colors.black,
-                                  size: 19,
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.only(left: 4),
-                                  child: Text(
-                                    address1+" "+address2,
-                                    overflow: TextOverflow.ellipsis,
-                                    textAlign: TextAlign.left,
-                                    style: TextStyle(fontSize: 20),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )
+                          // Padding(
+                          //   padding: EdgeInsets.only(top: 2),
+                          //   child: Row(
+                          //     children: [
+                          //       Icon(
+                          //         Icons.location_on_rounded,
+                          //         color: Colors.black,
+                          //         size: 19,
+                          //       ),
+                          //       Padding(
+                          //         padding: EdgeInsets.only(left: 4),
+                          //         child: Text(
+                          //           address1+" "+address2,
+                          //           overflow: TextOverflow.ellipsis,
+                          //           textAlign: TextAlign.left,
+                          //           style: TextStyle(fontSize: 20),
+                          //         ),
+                          //       ),
+                          //     ],
+                          //   ),
+                          // )
                         ],
                       )
                     ],
@@ -159,7 +190,7 @@ class _RestaurantPaymentState extends State<RestaurantPayment> {
                 ),
                 const SizedBox(height: 30),
                 Text(
-                  '2300원',
+                  widget.payment.toString(),
                   style: TextStyle(
                       fontFamily: "Pretendard",
                       color: Colors.grey,

@@ -1,3 +1,6 @@
+// 휴대폰 본인인증
+// https://be-beee.tistory.com/23
+
 import 'package:chipin/login/registerdetail_over.dart';
 import 'package:chipin/login/registerdetail_under.dart';
 import 'package:flutter/material.dart';

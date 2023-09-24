@@ -1,5 +1,8 @@
+import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import '../tab_container_screen/tab_container_screen.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 /// Content of the DraggableBottomSheet's child SingleChildScrollView
 class CustomScrollViewContent extends StatelessWidget {
@@ -28,8 +31,6 @@ class CustomInnerContent extends StatelessWidget {
         SizedBox(height: 12),
         CustomDraggingHandle(),
         SizedBox(height: 16),
-        ResultText(),
-        SizedBox(height: 16),
         ScrollingRestaurants(),
       ],
     );
@@ -49,38 +50,77 @@ class CustomDraggingHandle extends StatelessWidget {
 }
 
 class ScrollingRestaurants extends StatelessWidget {
+  StreamController<String> streamController = StreamController<String>();
+
+// 이미지 다운로드 함수
+  Future<String> downloadImage(String imagePath) async {
+    Reference reference = FirebaseStorage.instance.ref(imagePath);
+    String downloadURL = await reference.getDownloadURL();
+    return downloadURL;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            CustomRestaurantCategory("오양칼국수", "충청남도 보령시 오천면",
-                "오후 8:00시까지 영업", "assets/images/ohyang_restaurant.png"),
-            DivideLine(),
-            SizedBox(height: 20),
-            CustomRestaurantCategory("권영철 콩짬뽕", "충청남도 보령시 오천면",
-                "오후 6:30시까지 영업", "assets/images/kongjjamppong.png"),
-            DivideLine(),
-            SizedBox(height: 20),
-            CustomRestaurantCategory("정통집", "대전광역시 유성구 온천1동",
-                "오후 10:00시까지 영업", "assets/images/originalhouse.png"),
-            DivideLine(),
-            SizedBox(height: 20),
-            CustomRestaurantCategory("훈불", "대전광역시 유성구 궁동", "오후 8:00시까지 영업",
-                "assets/images/handsomefire.png"),
-            DivideLine(),
-            SizedBox(height: 20),
-            CustomRestaurantCategory("팔각도 대전괴정롯데점", "대전광역시 서구 괴정동",
-                "오후 8:00시까지 영업", "assets/images/eightangle.png"),
-           
-          ],
-        ),
-      ),
-    );
+        padding: const EdgeInsets.only(bottom: 16),
+        // child: SingleChildScrollView(
+        //   scrollDirection: Axis.horizontal,
+        child: StreamBuilder(
+          stream:
+              FirebaseFirestore.instance.collection('Restaurant').snapshots(),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              final docs = snapshot.data!.docs;
+              return Column(children: [
+                ResultText(docs.length),
+                SizedBox(height: 16),
+                Center(
+                    child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: docs.length,
+                  itemBuilder: (context, index) {
+                    final restaurantData = docs[index].data();
+                    final ownerId = docs[index].id;
+                    print("_------------------------------------------------------------------------------------------------");
+                    print(ownerId);
+                    return RestaurantCard(
+                        docs[index].get('name'),
+                        docs[index].get('address1'),
+                        docs[index].get('closeH'),
+                        docs[index].get('closeM'),
+                        docs[index].get('banner'),
+                        ownerId,
+                        //collection이름?
+                    );
+                  },
+                ))
+              ]);
+            } else {
+              return CircularProgressIndicator();
+            }
+          },
+        ));
+  }
+}
+
+class RestaurantCard extends StatelessWidget {
+  String name;
+  String address;
+  String closeH;
+  String closeM;
+  String image;
+  String ownerId; // Firestore collection 이름을 저장할 변수
+
+  RestaurantCard(this.name, this.address, this.closeH, this.closeM, this.image, this.ownerId);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+      CustomRestaurantCategory(
+          name, address, closeH + " : " + closeM + "까지 영업", image,ownerId),
+      DivideLine(),
+      SizedBox(height: 20),
+    ]);
   }
 }
 
@@ -94,6 +134,10 @@ class DivideLine extends StatelessWidget {
 }
 
 class ResultText extends StatelessWidget {
+  int length;
+
+  ResultText(this.length);
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -101,7 +145,7 @@ class ResultText extends StatelessWidget {
       //only to left align the text
       child: Row(
         children: <Widget>[
-          Text("13개 결과",
+          Text("${length}개 결과",
               style: TextStyle(fontFamily: "Mainfonts", fontSize: 14))
         ],
       ),
@@ -114,75 +158,118 @@ class CustomRestaurantCategory extends StatelessWidget {
   final String location;
   final String time;
   final String image;
+  final String collectionName; // Firestore collection 이름을 저장할 변수
+  String imageURL = "";
 
-  const CustomRestaurantCategory(
-      this.title, this.location, this.time, this.image);
+  CustomRestaurantCategory(
+      this.title, this.location, this.time, this.image, this.collectionName, {super.key}) {
+    imageURL = image; // 이미지 URL을 초기화
+  }
 
+// 이미지 다운로드 함수
+  Future<String> downloadImage(String imagePath) async {
+    Reference reference = FirebaseStorage.instance.ref(imagePath);
+    String downloadURL = await reference.getDownloadURL();
+    return downloadURL;
+  }
   @override
   Widget build(BuildContext context) {
     return Padding(
         padding: const EdgeInsets.only(bottom: 20),
         child: Container(
-          width : 340,
+            width: 340,
             child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                GestureDetector(
-                    /// 수정 필요
-                    // 각각 해당하는 가게 정보로 넘어가야함.
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => TabContainerScreen()));
-                    },
-                    child: Container(
-                        height: 90,
-                        width: 90,
-                        child: Image(
-                          image: AssetImage(image),
-                          fit: BoxFit.fill,
-                        ))),
-                SizedBox(width: 8),
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(title,
-                      style: TextStyle(
-                          fontFamily: "Mainfonts",
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20)),
-                  Row(
-                    children: <Widget>[
-                      Icon(Icons.location_on, size: 20),
-                      SizedBox(width: 8),
-                      Text(location,
-                          style:
-                              TextStyle(fontFamily: "Pretendard", fontSize: 15))
-                    ],
-                  ),
-                  Row(
-                    children: <Widget>[
-                      Icon(Icons.access_time_filled, size: 20),
-                      SizedBox(width: 8),
-                      Text(time,
-                          style:
-                              TextStyle(fontFamily: "Pretendard", fontSize: 15))
-                    ],
-                  ),
-                ]),
+                Row(
+                  children: [
+                    GestureDetector(
+
+                        /// 수정 필요
+                        // 각각 해당하는 가게 정보로 넘어가야함.
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => TabContainerScreen(
+                                    // restaurantName: "오양칼국수",
+                                    // restaurantAddress: "충남 보령시 보령남로 125-7",
+                                    // openingHours: "매일 09:00 ~ 19:00",
+                                    // bannerImageUrl: "assets/images/ohyang_restaurant.png",
+                                        title: title,
+                                        location: location,
+                                        time: time,
+                                        banner: imageURL,
+                                        ownerId: collectionName,
+                                      )
+                              )
+                          );
+                        },
+                        child: Container(
+                            height: 90,
+                            width: 90,
+                          child: Image.network(imageURL,
+                            fit: BoxFit.cover,) // 이미지를 정사각형 비율로 크롭), // imageURL을 사용
+                            // child: Image.network(
+                            //     downloadImage(image) as String)
+                          // child: Image.file(
+                          //   File(image),
+                          //   fit: BoxFit.fill,
+                          // ),
+                        )
+                    ),
+                    SizedBox(width: 8),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: TextStyle(
+                            fontFamily: "Mainfonts",
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                          ),
+                        ),
+                        Row(
+                          children: <Widget>[
+                            Icon(Icons.location_on, size: 20),
+                            SizedBox(width: 8),
+                            Container(
+                              width: MediaQuery.of(context).size.width - 250, // 48은 아이콘과 간격 등을 고려한 값입니다. 필요에 따라 조정하세요.
+                              child: Text(
+                                location,
+                                maxLines: 3,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontFamily: "Pretendard",
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: <Widget>[
+                            Icon(Icons.access_time_filled, size: 20),
+                            SizedBox(width: 8),
+                            Text(time, style: TextStyle(fontFamily: "Pretendard", fontSize: 15)),
+                          ],
+                        ),
+                      ],
+                    ),
+
+                  ],
+                ),
+                Container(
+                  height: 40,
+                  width: 40,
+                  child: Icon(Icons.favorite, size: 12, color: Colors.black54),
+                  decoration: BoxDecoration(
+                      color: Colors.grey[200],
+                      borderRadius: BorderRadius.circular(100)),
+                ),
               ],
-            ),
-            Container(
-              height: 40,
-              width: 40,
-              child: Icon(Icons.favorite, size: 12, color: Colors.black54),
-              decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(100)),
-            ),
-          ],
-        )));
+            )));
   }
 }
 

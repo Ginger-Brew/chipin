@@ -1,9 +1,12 @@
+import 'package:chipin/restaurant_appbar/RestaurantAppBar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'package:chipin/base_appbar.dart';
 import '../colors.dart';
 import '../core/utils/size_utils.dart';
+import '../restaurant_appbar/RestaurantDrawerMenu.dart';
 import 'RestaurantDiscount.dart';
 
 class RestaurantTotalPrice extends StatefulWidget {
@@ -14,25 +17,49 @@ class RestaurantTotalPrice extends StatefulWidget {
 class _RestaurantTotalPriceState extends State<RestaurantTotalPrice> {
   String enteredNumber = '';
   final String colName = "Restaurant";
-  final String id = "jdh33114";
   String name = "";
   String address1 = "-";
   String address2 = "";
 
+
+  User? getUser() {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      // Name, email address, and profile photo URL
+      final name = user.displayName;
+      final email = user.email;
+      final photoUrl = user.photoURL;
+
+      // Check if user's email is verified
+      final emailVerified = user.emailVerified;
+
+      // The user's ID, unique to the Firebase project. Do NOT use this value to
+      // authenticate with your backend server, if you have one. Use
+      // User.getIdToken() instead.
+      final uid = user.uid;
+    }
+    return user;
+  }
+
   void readdata() async {
-    final readdb = FirebaseFirestore.instance.collection(colName).doc(id);
 
-    await readdb.get().then((DocumentSnapshot ds) {
-      Map<String, dynamic> data = ds.data() as Map<String, dynamic>;
+    User? currentUser = getUser();
 
-      setState(() {
-        name = data['name'];
-        address1 = data['address1'];
-        address2 = data['address2'];
+    if(currentUser != null) {
+      final readdb = FirebaseFirestore.instance.collection(colName).doc(currentUser.email);
 
+      await readdb.get().then((DocumentSnapshot ds) {
+        Map<String, dynamic> data = ds.data() as Map<String, dynamic>;
 
+        setState(() {
+          name = data['name'];
+          address1 = data['address1'];
+          address2 = data['address2'];
+        });
       });
-    });
+    } else {
+
+    }
   }
 
   void _onKeyPressed(String key) {
@@ -77,7 +104,8 @@ class _RestaurantTotalPriceState extends State<RestaurantTotalPrice> {
     readdata();
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: const BaseAppBar(title: "할인 코드 직원 확인하기"),
+      appBar: const RestaurantAppBar(title: "할인 코드 직원 확인하기"),
+      endDrawer: RestaurantDrawerMenu(),
       body: SizedBox(
         width: mediaQueryData.size.width,
         height: mediaQueryData.size.height,
@@ -107,27 +135,27 @@ class _RestaurantTotalPriceState extends State<RestaurantTotalPrice> {
                           ),
                         ),
                       ),
-                      Padding(
-                        padding: EdgeInsets.only(top: 2),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.location_on_rounded,
-                              color: Colors.black,
-                              size: 19,
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(left: 4),
-                              child: Text(
-                                address1 +" "+address2,
-                                overflow: TextOverflow.ellipsis,
-                                textAlign: TextAlign.left,
-                                style: TextStyle(fontSize: 20),
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
+                      // Padding(
+                      //   padding: EdgeInsets.only(top: 2),
+                      //   child: Row(
+                      //     children: [
+                      //       Icon(
+                      //         Icons.location_on_rounded,
+                      //         color: Colors.black,
+                      //         size: 19,
+                      //       ),
+                      //       Padding(
+                      //         padding: EdgeInsets.only(left: 4),
+                      //         child: Text(
+                      //           address1 +" "+address2,
+                      //           overflow: TextOverflow.ellipsis,
+                      //           textAlign: TextAlign.left,
+                      //           style: TextStyle(fontSize: 20),
+                      //         ),
+                      //       ),
+                      //     ],
+                      //   ),
+                      // )
                     ],
                   )
                 ],
@@ -148,8 +176,7 @@ class _RestaurantTotalPriceState extends State<RestaurantTotalPrice> {
             const SizedBox(height: 100),
             ElevatedButton(
               onPressed: isAmountValid ? () => Navigator.push(context, MaterialPageRoute(
-                  builder: (context) =>  RestaurantDiscount())) : null,
-              // onPressed: () => _showConfirmationDialog(),
+                  builder: (context) =>  RestaurantDiscount(enteredNumber))) : null,
               style: ButtonStyle(
                 foregroundColor: MaterialStateProperty.all(Colors.white),
                 backgroundColor:

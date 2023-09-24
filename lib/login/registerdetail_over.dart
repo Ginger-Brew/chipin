@@ -32,11 +32,13 @@ class _RegisterDetailOverPageState extends State<RegisterDetailOverPage> {
           appBar: AppBar(
             elevation: 1,
           ),
-          body: Column(
-            children: [
-              Expanded(
-                  flex: 2,
-                  child: Align(
+          body: SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child:
+            Expanded(
+              child: Column(
+                children: [
+                  Align(
                       alignment: Alignment.centerLeft,
                       child:Container(
                         margin:EdgeInsets.only(left: 50),
@@ -62,15 +64,16 @@ class _RegisterDetailOverPageState extends State<RegisterDetailOverPage> {
                               )
                             ]),
                       )
-                  )
+                  ),
+                  IDInput(),
+                  PasswordInput(),
+                  PasswordConfirmInput(),
+                  NameInput(),
+                  EmailInput(),
+                  RegistButton()
+                ],
               ),
-              IDInput(),
-              PasswordInput(),
-              PasswordConfirmInput(),
-              NameInput(),
-              EmailInput(),
-              RegistButton()
-            ],
+            ),
           ),
         ));
   }

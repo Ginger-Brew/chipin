@@ -1,3 +1,4 @@
+import 'package:chipin/core/utils/size_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:chipin/colors.dart';
 import 'package:chipin/base_shadow.dart';
@@ -9,7 +10,7 @@ class InfoCorrectionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 100,
+      height: 110,
       margin: EdgeInsets.fromLTRB(5, 0, 20, 0),
       decoration: BoxDecoration(
           boxShadow: [

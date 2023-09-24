@@ -54,6 +54,10 @@ dependencies:
   geolocator: ^10.0.0
   percent_indicator: ^4.2.3
   dio: ^5.3.3
+  logger: ^2.0.2
+  permission_handler: ^8.3.0
+  firebase_storage: ^11.2.7
+  file_picker: ^5.5.0
 
 dev_dependencies:
   flutter_test:

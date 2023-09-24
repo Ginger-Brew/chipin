@@ -1,9 +1,14 @@
+import 'dart:html';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../child_code_generate/code_generate_screen.dart';
+import '../child_profile/profile_screen.dart';
 import '../colors.dart';
 
-/// Search text field plus the horizontally scrolling categories below the text field
+
 class ChildMainSearch extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -17,25 +22,43 @@ class ChildMainSearch extends StatelessWidget {
 }
 
 class CustomSearchContainer extends StatelessWidget {
+  late bool isCardOK;
+  String? userid = FirebaseAuth.instance.currentUser!.email;
+  getUserInfo() async {
+    var documentSnapshot = await FirebaseFirestore.instance.collection("Child").doc(userid).get();
+    bool isCardOK = documentSnapshot["cardinfo"]["isCardAuthenticated"];
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 40, 16, 8),
-      //adjust "40" according to the status bar size
-      child: Container(
-        height: 50,
-        decoration: BoxDecoration(
-            color: Colors.white, borderRadius: BorderRadius.circular(6)),
-        child: Row(
-          children: <Widget>[
-            SizedBox(width: 16),
-            Icon(Icons.search),
-            CustomTextField(),
-            Icon(Icons.mic),
-            SizedBox(width: 16),
-          ],
-        ),
-      ),
+    return Scaffold(
+        body: FutureBuilder(
+            future: getUserInfo(),
+            builder: (context, snapshot) {
+              return Padding(
+                padding: const EdgeInsets.fromLTRB(16, 40, 16, 8),
+                //adjust "40" according to the status bar size
+                child: Container(
+                  height: 50,
+                  decoration: BoxDecoration(
+                      color: Colors.white, borderRadius: BorderRadius.circular(6)),
+                  child: Row(
+                    children: <Widget>[
+                      SizedBox(width: 16),
+                      Icon(Icons.search),
+                      CustomTextField(),
+                      IconButton(
+                          onPressed: () {
+                            Navigator.push(context,
+                                MaterialPageRoute(builder: (context) => ProfileScreen(isCardVerified: isCardOK))); }
+                          , icon: Icon(Icons.person)),
+                      SizedBox(width: 16),
+                    ],
+                  ),
+                ),
+              );
+            }
+        )
     );
   }
 }

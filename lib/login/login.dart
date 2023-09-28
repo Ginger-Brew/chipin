@@ -6,8 +6,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'choice_role.dart';
-import 'model_auth.dart';
-import 'model_login.dart';
+import '../model/model_auth.dart';
+import '../model/model_login.dart';
 
 final TextEditingController _idController =
     TextEditingController(); //입력되는 값을 제어

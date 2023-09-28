@@ -1,5 +1,3 @@
-import 'dart:html';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -23,42 +21,39 @@ class ChildMainSearch extends StatelessWidget {
 
 class CustomSearchContainer extends StatelessWidget {
   late bool isCardOK;
-  String? userid = FirebaseAuth.instance.currentUser!.email;
-  getUserInfo() async {
-    var documentSnapshot = await FirebaseFirestore.instance.collection("Child").doc(userid).get();
-    bool isCardOK = documentSnapshot["cardinfo"]["isCardAuthenticated"];
-  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        body: FutureBuilder(
-            future: getUserInfo(),
-            builder: (context, snapshot) {
-              return Padding(
-                padding: const EdgeInsets.fromLTRB(16, 40, 16, 8),
-                //adjust "40" according to the status bar size
-                child: Container(
-                  height: 50,
-                  decoration: BoxDecoration(
-                      color: Colors.white, borderRadius: BorderRadius.circular(6)),
-                  child: Row(
-                    children: <Widget>[
-                      SizedBox(width: 16),
-                      Icon(Icons.search),
-                      CustomTextField(),
-                      IconButton(
-                          onPressed: () {
-                            Navigator.push(context,
-                                MaterialPageRoute(builder: (context) => ProfileScreen(isCardVerified: isCardOK))); }
-                          , icon: Icon(Icons.person)),
-                      SizedBox(width: 16),
-                    ],
-                  ),
-                ),
-              );
-            }
-        )
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 40, 16, 8),
+      //adjust "40" according to the status bar size
+      child: Container(
+        height: 50,
+        decoration: BoxDecoration(
+            color: Colors.white, borderRadius: BorderRadius.circular(6)),
+        child: Row(
+          children: <Widget>[
+            SizedBox(width: 16),
+            Icon(Icons.search),
+            CustomTextField(),
+            IconButton(
+                onPressed: () {
+
+                  String? userid = FirebaseAuth.instance.currentUser!.email;
+                  var documentSnapshot = FirebaseFirestore.instance.collection("Child").doc(userid);
+                  documentSnapshot.get().then((value) => {
+                    isCardOK = value["cardinfo"]["isCardAuthenticated"]
+                  });
+                  print("_------------------------------------------------------------------------------------------------");
+                  print("isCardOK: {$isCardOK}");
+
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => ProfileScreen(isCardVerified: isCardOK))); }
+                , icon: Icon(Icons.person)),
+            SizedBox(width: 16),
+          ],
+        ),
+      ),
     );
   }
 }

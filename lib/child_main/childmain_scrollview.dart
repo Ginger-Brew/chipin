@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import '../model/model_child.dart';
 import '../tab_container_screen/tab_container_screen.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 

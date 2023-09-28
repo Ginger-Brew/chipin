@@ -1,10 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../child_code_generate/code_generate_screen.dart';
 import '../child_profile/profile_screen.dart';
 import '../colors.dart';
+import '../model/model_child.dart';
 
 
 class ChildMainSearch extends StatelessWidget {
@@ -20,7 +19,6 @@ class ChildMainSearch extends StatelessWidget {
 }
 
 class CustomSearchContainer extends StatelessWidget {
-  late bool isCardOK;
 
   @override
   Widget build(BuildContext context) {
@@ -38,14 +36,8 @@ class CustomSearchContainer extends StatelessWidget {
             CustomTextField(),
             IconButton(
                 onPressed: () {
-
-                  String? userid = FirebaseAuth.instance.currentUser!.email;
-                  var documentSnapshot = FirebaseFirestore.instance.collection("Child").doc(userid);
-                  documentSnapshot.get().then((value) => {
-                    isCardOK = value["cardinfo"]["isCardAuthenticated"]
-                  });
-                  print("_------------------------------------------------------------------------------------------------");
-                  print("isCardOK: {$isCardOK}");
+                  Child child = Child();
+                  bool isCardOK = child.getIsCardAuthenticated();
 
                   Navigator.push(context,
                       MaterialPageRoute(builder: (context) => ProfileScreen(isCardVerified: isCardOK))); }

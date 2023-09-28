@@ -1,4 +1,3 @@
-import 'dart:html';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -34,7 +33,7 @@ class Child extends ChangeNotifier {
     this.reservationCount = 0;
   }
 
-  plusCancellationCount() {
+  plusCancellatthionCount() {
     this.cancellationCount = (this.cancellationCount! + 1);
 
     String? userid = FirebaseAuth.instance.currentUser!.email;
@@ -44,6 +43,8 @@ class Child extends ChangeNotifier {
         .doc(userid)
         .update({'cancellationCount': this.cancellationCount});
   }
+
+  getIsCardAuthenticated() => this.isCardAuthenticated;
 
   toJson() {
     return {

@@ -1,7 +1,8 @@
+import 'package:chipin/login/login.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
+import 'package:chipin/colors.dart';
 import 'model/model_auth.dart';
 import 'model/model_register.dart';
 
@@ -14,67 +15,118 @@ final userinfo = <String, dynamic>{
   },
   "name": "",
   "email": "",
-  "id" : ""
+  "id": ""
 };
 
-class RegisterDetailOverPage extends StatefulWidget {
+class RegisterPage extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() => _RegisterDetailOverPageState();
+  State<StatefulWidget> createState() => _RegisterPageState();
 }
 
-class _RegisterDetailOverPageState extends State<RegisterDetailOverPage> {
+class _RegisterPageState extends State<RegisterPage> {
+  // var checkOver = false;
+  // var checkAgree = false;
+
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
         create: (_) => RegisterModel(),
         child: Scaffold(
           appBar: AppBar(
-            elevation: 1,
+            backgroundColor: MyColor.DARK_YELLOW,
+            title: Text("회원가입",
+                style: const TextStyle(
+                    fontSize: 24,
+                    fontFamily: "Mainfonts",
+                    color: Colors.black)),
+            centerTitle: true,
           ),
           body: SingleChildScrollView(
             scrollDirection: Axis.vertical,
-            child:
-            Expanded(
+            child: Expanded(
               child: Column(
                 children: [
-                  Align(
-                      alignment: Alignment.centerLeft,
-                      child:Container(
-                        margin:EdgeInsets.only(left: 50),
-                        child:const Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                "회원가입",
-                                style: TextStyle(
-                                    fontSize: 30,
-                                    fontFamily: "Pretendard",
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.black),
-                              ),
-                              Text(
-                                "만 14세 이상입니다.",
-                                style: TextStyle(
-                                    fontSize: 18,
-                                    fontFamily: "Pretendard",
-                                    fontWeight: FontWeight.w400,
-                                    color: Colors.black54),
-                              )
-                            ]),
-                      )
+                  SizedBox(
+                    height: 40,
                   ),
-                  IDInput(),
-                  PasswordInput(),
-                  PasswordConfirmInput(),
                   NameInput(),
                   EmailInput(),
-                  RegistButton()
+                  PasswordInput(),
+                  PasswordConfirmInput(),
+                  IDInput(),
+                  CheckOver(),
+                  CheckAgree(),
+                  SizedBox(
+                    height: 50,
+                  ),
+                  RegistButton(),
                 ],
               ),
             ),
           ),
         ));
+  }
+}
+
+class CheckOver extends StatefulWidget {
+  const CheckOver({Key? key}) : super(key: key);
+
+  @override
+  State<CheckOver> createState() => _CheckOverState();
+}
+
+class _CheckOverState extends State<CheckOver> {
+  var checkOver = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final register = Provider.of<RegisterModel>(context, listen: false);
+    return Row(children: [
+      Checkbox(
+        value: checkOver,
+        onChanged: (value) {
+          setState(() {
+            checkOver = value!;
+            register.setCheckOver(value!);
+          });
+        },
+      ),
+      Text(
+        '만 14세 이상입니다',
+        style: TextStyle(fontSize: 13),
+      )
+    ]);
+  }
+}
+
+class CheckAgree extends StatefulWidget {
+  const CheckAgree({Key? key}) : super(key: key);
+
+  @override
+  State<CheckAgree> createState() => _CheckAgreeState();
+}
+
+class _CheckAgreeState extends State<CheckAgree> {
+  var checkAgree = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final register = Provider.of<RegisterModel>(context, listen: false);
+    return Row(children: [
+      Checkbox(
+        value: checkAgree,
+        onChanged: (value) {
+          setState(() {
+            checkAgree = value!;
+            register.setCheckAgree(value!);
+          });
+        },
+      ),
+      Text(
+        '이용 약관 및 개인 정보 취급 방침에 동의합니다',
+        style: TextStyle(fontSize: 13),
+      )
+    ]);
   }
 }
 
@@ -84,16 +136,20 @@ class IDInput extends StatelessWidget {
     final register = Provider.of<RegisterModel>(context, listen: false);
     return Container(
       padding: EdgeInsets.all(15),
-      child: TextField(
-        onChanged: (id) {
-          register.setId(id);
-          userinfo["id"] = register.id;
-        },
-        decoration: InputDecoration(
-          labelText: 'id',
-          helperText: '',
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text('아이디', style: TextStyle(fontFamily: "Mainfonts", fontSize: 16)),
+        SizedBox(
+          height: 10,
         ),
-      ),
+        TextField(
+          onChanged: (id) {
+            register.setId(id);
+            userinfo["id"] = register.id;
+          },
+          decoration:
+              InputDecoration(border: OutlineInputBorder(), isDense: true),
+        ),
+      ]),
     );
   }
 }
@@ -103,19 +159,22 @@ class EmailInput extends StatelessWidget {
   Widget build(BuildContext context) {
     final register = Provider.of<RegisterModel>(context, listen: false);
     return Container(
-      padding: EdgeInsets.all(15),
-      child: TextField(
-        onChanged: (email) {
-          register.setEmail(email);
-          userinfo["email"] = register.email;
-        },
-        keyboardType: TextInputType.emailAddress,
-        decoration: InputDecoration(
-          labelText: 'email',
-          helperText: '',
-        ),
-      ),
-    );
+        padding: EdgeInsets.all(15),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text('이메일', style: TextStyle(fontFamily: "Mainfonts", fontSize: 16)),
+          SizedBox(
+            height: 10,
+          ),
+          TextField(
+            onChanged: (email) {
+              register.setEmail(email);
+              userinfo["email"] = register.email;
+            },
+            keyboardType: TextInputType.emailAddress,
+            decoration:
+                InputDecoration(border: OutlineInputBorder(), isDense: true),
+          ),
+        ]));
   }
 }
 
@@ -124,21 +183,26 @@ class PasswordInput extends StatelessWidget {
   Widget build(BuildContext context) {
     final register = Provider.of<RegisterModel>(context);
     return Container(
-      padding: EdgeInsets.all(15),
-      child: TextField(
-        onChanged: (password) {
-          register.setPassword(password);
-        },
-        obscureText: true,
-        decoration: InputDecoration(
-          labelText: 'password',
-          helperText: '',
-          errorText: register.password != register.passwordConfirm
-              ? 'Password incorrect'
-              : null,
-        ),
-      ),
-    );
+        padding: EdgeInsets.all(15),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text('비밀번호', style: TextStyle(fontFamily: "Mainfonts", fontSize: 16)),
+          SizedBox(
+            height: 10,
+          ),
+          TextField(
+            onChanged: (password) {
+              register.setPassword(password);
+            },
+            obscureText: true,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(),
+              isDense: true,
+              errorText: register.password != register.passwordConfirm
+                  ? '비밀번호가 일치하지 않습니다'
+                  : null,
+            ),
+          ),
+        ]));
   }
 }
 
@@ -147,18 +211,18 @@ class PasswordConfirmInput extends StatelessWidget {
   Widget build(BuildContext context) {
     final register = Provider.of<RegisterModel>(context, listen: false);
     return Container(
-      padding: EdgeInsets.all(15),
-      child: TextField(
-        onChanged: (password) {
-          register.setPasswordConfirm(password);
-        },
-        obscureText: true,
-        decoration: InputDecoration(
-          labelText: 'password confirm',
-          helperText: '',
-        ),
-      ),
-    );
+        padding: EdgeInsets.all(15),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          TextField(
+              onChanged: (password) {
+                register.setPasswordConfirm(password);
+              },
+              obscureText: true,
+              decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  isDense: true,
+                  hintText: '비밀번호 확인'))
+        ]));
   }
 }
 
@@ -167,18 +231,20 @@ class NameInput extends StatelessWidget {
   Widget build(BuildContext context) {
     final register = Provider.of<RegisterModel>(context, listen: false);
     return Container(
-      padding: EdgeInsets.all(15),
-      child: TextField(
-        onChanged: (name) {
-          register.setName(name);
-          userinfo["name"] = register.name;
-        },
-        decoration: InputDecoration(
-          labelText: 'name',
-          helperText: '',
-        ),
-      ),
-    );
+        padding: EdgeInsets.all(15),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text('이름', style: TextStyle(fontFamily: "Mainfonts", fontSize: 16)),
+          SizedBox(
+            height: 10,
+          ),
+          TextField(
+              onChanged: (name) {
+                register.setName(name);
+                userinfo["name"] = register.name;
+              },
+              decoration:
+                  InputDecoration(border: OutlineInputBorder(), isDense: true)),
+        ]));
   }
 }
 
@@ -208,47 +274,56 @@ class RegistButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authClient =
-    Provider.of<FirebaseAuthProvider>(context, listen: false);
+        Provider.of<FirebaseAuthProvider>(context, listen: false);
     final register = Provider.of<RegisterModel>(context);
 
     return Container(
-      width: MediaQuery.of(context).size.width * 0.7,
-      height: MediaQuery.of(context).size.height * 0.05,
+      width: MediaQuery.of(context).size.width * 0.95,
+      height: MediaQuery.of(context).size.height * 0.07,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.black87,
+          backgroundColor: MyColor.DARK_YELLOW,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30.0),
+            borderRadius: BorderRadius.circular(10.0),
           ),
         ),
-        onPressed: (register.password != register.passwordConfirm)
+        onPressed: ((register.checkOver && register.checkAgree) &&
+                register.password != register.passwordConfirm)
             ? null
             : () async {
-          await authClient
-              .registerWithEmail(register.email, register.password)
-              .then((registerStatus) async {
-            if (registerStatus == AuthStatus.registerSuccess) {
-              ScaffoldMessenger.of(context)
-                ..hideCurrentSnackBar()
-                ..showSnackBar(
-                  SnackBar(content: Text('Regist Success')),
-                );
-              final usercollection =
-              FirebaseFirestore.instance.collection("Users").doc(register.email).collection("userinfo");
-              usercollection.doc("userinfo").set(userinfo);
-              usercollection.doc("nowrole").set({'nowrole' : ""});
+                await authClient
+                    .registerWithEmail(register.email, register.password)
+                    .then((registerStatus) async {
+                  if (registerStatus == AuthStatus.registerSuccess) {
+                    ScaffoldMessenger.of(context)
+                      ..hideCurrentSnackBar()
+                      ..showSnackBar(
+                        SnackBar(content: Text('회원가입 성공')),
+                      );
 
-              Navigator.of(context).pushNamed('/login');
-            } else {
-              ScaffoldMessenger.of(context)
-                ..hideCurrentSnackBar()
-                ..showSnackBar(
-                  SnackBar(content: Text('Regist Fail')),
-                );
-            }
-          });
-        },
-        child: Text('Regist'),
+                    debugPrint('${register.checkOver && register.checkAgree}');
+                    final usercollection = FirebaseFirestore.instance
+                        .collection("Users")
+                        .doc(register.email)
+                        .collection("userinfo");
+                    usercollection.doc("userinfo").set(userinfo);
+                    usercollection.doc("nowrole").set({'nowrole': ""});
+
+                    Navigator.of(context).pushNamed('/login');
+                  } else {
+                    ScaffoldMessenger.of(context)
+                      ..hideCurrentSnackBar()
+                      ..showSnackBar(
+                        SnackBar(content: Text('회원가입 실패')),
+                      );
+                  }
+                });
+              },
+        child: Text('가입하기',
+            style: TextStyle(
+                fontSize: 16,
+                fontFamily: "Pretendard",
+                fontWeight: FontWeight.bold)),
       ),
     );
   }

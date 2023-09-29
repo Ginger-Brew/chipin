@@ -2,9 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../base_appbar.dart';
-import 'model_auth.dart';
-import 'model_register.dart';
+import 'model/model_auth.dart';
+import 'model/model_register.dart';
 
 const String role = "";
 final userinfo = <String, dynamic>{

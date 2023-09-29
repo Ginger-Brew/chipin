@@ -1,23 +1,20 @@
-import 'package:chipin/child_code_generate/code_generate_screen.dart';
 import 'package:chipin/colors.dart';
 import 'package:chipin/restaurant_main/RestaurantMain.dart';
-import 'package:chipin/tab_container_screen/tab_container_screen.dart';
-import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
-import 'child_custom_price/custom_price.dart';
-import 'child_main/ChildMain.dart';
+import 'child/model/model_menu_provider.dart';
+import 'child/screen/child_code_generate/code_generate_screen.dart';
+import 'child/screen/child_main/ChildMain.dart';
 import 'customer_main/ClientMain.dart';
-import 'login/login.dart';
-import 'login/model_auth.dart';
-import 'login/model_login.dart';
-import 'login/register.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
-import 'model/model_menu_provider.dart';
-import 'model/model_restaurant_provider.dart';
+import 'login/login.dart';
+import 'login/model/model_auth.dart';
+import 'login/model/model_login.dart';
+import 'login/register.dart';
+import 'child/model/model_restaurant_provider.dart';
 import 'restaurant_register/RestaurantInfoRegister.dart';
 
 

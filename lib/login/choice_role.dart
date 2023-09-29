@@ -1,8 +1,9 @@
+import 'package:chipin/base_appbar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:chipin/base_appbar.dart';
+
+import '../child/model/model_child.dart';
 
 class ChoiceRole extends StatefulWidget {
   const ChoiceRole({super.key});
@@ -188,7 +189,11 @@ class _ChoiceRoleState extends State<ChoiceRole> {
                     if (role == "/childmain") {
                       updaterole["child"] = true;
                       nowrole = "child";
-                      await FirebaseFirestore.instance.collection("Child").doc(userid).set({});
+
+                      /// Child 데이터 초기화
+                      Child childuser = Child();
+
+                      await FirebaseFirestore.instance.collection("Child").doc(userid).set(childuser.toJson());
                     } else if (role == "/storemain") {
                       updaterole["restaurant"] = true;
                       nowrole = "restaurant";

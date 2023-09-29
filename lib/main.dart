@@ -2,6 +2,7 @@ import 'package:chipin/child_code_generate/code_generate_screen.dart';
 import 'package:chipin/colors.dart';
 import 'package:chipin/restaurant_main/RestaurantMain.dart';
 import 'package:chipin/tab_container_screen/tab_container_screen.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -18,6 +19,7 @@ import 'firebase_options.dart';
 import 'model/model_menu_provider.dart';
 import 'model/model_restaurant_provider.dart';
 import 'restaurant_register/RestaurantInfoRegister.dart';
+
 
 class ColorService { //테마 컬러를 지정할 때 사용하는 classs
   static MaterialColor createMaterialColor(Color color) {
@@ -40,6 +42,7 @@ class ColorService { //테마 컬러를 지정할 때 사용하는 classs
     return MaterialColor(color.value, swatch);
   }
 }
+
 
 void main() async {
   // WidgetsFlutterBinding.ensureInitialized()는 runApp으로 앱이 실행되기 전에 비동기로 지연이 되더라도 오류가 발생하지 않도록 하는 역할.

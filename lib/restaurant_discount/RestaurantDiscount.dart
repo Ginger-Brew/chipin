@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import 'package:chipin/base_appbar.dart';
 import 'package:flutter/services.dart';
 import '../colors.dart';
 import '../core/utils/size_utils.dart';
@@ -33,7 +32,6 @@ class _RestaurantDiscountState extends State<RestaurantDiscount> {
   String address1 = "";
   String address2 = "";
 
-
   User? getUser() {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
@@ -53,90 +51,124 @@ class _RestaurantDiscountState extends State<RestaurantDiscount> {
     return user;
   }
 
-//할인 코드가 유효한지 확인 - 아동 db에서 할인 코드와 동일한 이름의 도큐먼트가 있는지 확인
-  Future<int> isCodeValid() async {
+  Future<void> updateCodeUsed() async {
+    final db = FirebaseFirestore.instance
+        .collection("DiscountCode")
+        .doc(result.join());
+
+    await db
+        .update({
+          'isUsed': true,
+        })
+        .then((value) => print("document added")) // firestore에 저장이 잘 된 경우
+        .catchError((error) => print("Fail to add doc ${error}"));
+  }
+
+  Future<String> getChildId() async {
     final db = FirebaseFirestore.instance.collection("DiscountCode");
 
     try {
-      final querySnapshot = await db.where('reservationCode', isEqualTo: result.join()).get();
+      DocumentSnapshot doc = await db.doc(result.join()).get();
 
-      if (querySnapshot.docs.isNotEmpty) {
-        for (var docSnapshot in querySnapshot.docs) {
-          print('${docSnapshot.id} => ${docSnapshot.data()}');
-          print(docSnapshot.data()['reservationPrice']);
-          if(docSnapshot.data()['isUsed'] == false && docSnapshot.data()['isValid']) {
-            return docSnapshot.data()['reservationPrice'];
-          } else {
-            return -1;
-          }
-        }
+      if (doc.exists) {
+        return doc['childId'];
       }
     } catch (e) {
       print("Error completing: $e");
     }
-
-    return -1;
+    return "fail";
   }
 
+// 할인 코드가 유효한지 확인
+  Future<int> isCodeValid() async {
+    User? currentUser = getUser();
+    final db = FirebaseFirestore.instance.collection("DiscountCode");
+
+    if (currentUser != null) {
+      try {
+        DocumentSnapshot doc = await db.doc(result.join()).get();
+        debugPrint("debug 있어없어 씨발${doc.exists}");
+        if (doc.exists) {
+          if (doc['restaurantId'] == currentUser.email &&
+              doc['isUsed'] == false &&
+              DateTime.now().isBefore(doc['expirationDate'].toDate())) {
+            debugPrint('debug is used ${doc['isUsed']}');
+            debugPrint(
+                'debug is expirated ${DateTime.now().isBefore(doc['expirationDate'].toDate())}');
+
+            await updateCodeUsed();
+            return doc['reservationPrice'];
+          } else {
+            debugPrint('debug is used ${doc['isUsed']}');
+            debugPrint(
+                'debug is expirated ${DateTime.now().isBefore(doc['expirationDate'].toDate())}');
+            return -1;
+          }
+        }
+        debugPrint("씨발없어");
+      } catch (e) {
+        print("Error completing: $e");
+      }
+    }
+    return -1;
+  }
 
   // 화면 상단에 식당 정보를 표기하기 위해 필요 - 식당 db에서 식당 정보 가져오기
   void readRestaurantData() async {
     User? currentUser = getUser();
 
-    if(currentUser != null) {
-      final db = FirebaseFirestore.instance.collection(colName).doc(currentUser.email);
+    if (currentUser != null) {
+      final db =
+          FirebaseFirestore.instance.collection(colName).doc(currentUser.email);
 
       await db.get().then((DocumentSnapshot ds) {
         Map<String, dynamic> data = ds.data() as Map<String, dynamic>;
 
-          name = data['name'];
-          address1 = data['address1'];
-          address2 = data['address2'];
-        });
-
+        name = data['name'];
+        address1 = data['address1'];
+        address2 = data['address2'];
+      });
     }
   }
 
 // 식당 db에 차감 내역을 작성하기 위해 필요 - 이전 페이지에서 전달받은 값과 아동 db에서 가져온 예약 금액을 가져와서 비교 후 저장
-  void writeRedeemData(int redeemPoint, int payment, DateTime redeemDate, num totalPoint) async {
+  void writeRestaurantEarnData(
+      int earnPoint, DateTime redeemDate, num totalPoint) async {
     User? currentUser = getUser();
 
     if (currentUser != null) {
       final db = FirebaseFirestore.instance
           .collection("Restaurant")
           .doc(currentUser.email)
-          .collection("RedeemList")
+          .collection("EarnList")
           .doc(result.join());
 
       // firestore에 저장
       await db
           .set({
-        'redeemPoint': redeemPoint,
-        'redeemDate': redeemDate,
-        'totalPoint': totalPoint - redeemPoint
-      })
+            'earnPoint': earnPoint,
+            'earnDate': redeemDate,
+            'totalPoint': totalPoint + earnPoint
+          })
           .then((value) => print("document added")) // firestore에 저장이 잘 된 경우
           .catchError((error) => print("Fail to add doc ${error}"));
 
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => RestaurantPayment(payment)));
-    }else {
-
-    }
+      // Navigator.push(context,
+      //     MaterialPageRoute(builder: (context) => RestaurantPayment(payment)));
+    } else {}
   }
+
 // 식당 db에 차감 내역을 작성할 때 표기할 전체 포인트를 구하기 위해 필요 - earnlist의 값의 합에서 redeemlist의 값의 합을 뺌
   Future<num> readtotalPoint() async {
-
     num earnPoint = 0;
     num redeemPoint = 0;
 
     User? currentUser = getUser();
 
-    if(currentUser != null) {
-      final db = FirebaseFirestore.instance.collection("Restaurant").doc(
-          currentUser.email);
+    if (currentUser != null) {
+      final db = FirebaseFirestore.instance
+          .collection("Restaurant")
+          .doc(currentUser.email);
 
       try {
         final queryEarnSnapshot = await db.collection("EarnList").get();
@@ -165,8 +197,9 @@ class _RestaurantDiscountState extends State<RestaurantDiscount> {
       }
     }
 
-  return earnPoint-redeemPoint;
-      }
+    return earnPoint - redeemPoint;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -314,19 +347,33 @@ class _RestaurantDiscountState extends State<RestaurantDiscount> {
                 ElevatedButton(
                   onPressed: () async {
                     int reservationPrice = await isCodeValid();
-                    int redeemPoint = reservationPrice > int.parse(widget.enterednumber) ? int.parse(widget.enterednumber) : reservationPrice;
-                    int payment = reservationPrice > int.parse(widget.enterednumber) ? 0 : int.parse(widget.enterednumber) - reservationPrice;
-                    DateTime redeemDate = DateTime.now();
+                    int earnPoint =
+                        reservationPrice > int.parse(widget.enterednumber)
+                            ? reservationPrice - int.parse(widget.enterednumber)
+                            : 0;
+                    int payment = reservationPrice >
+                            int.parse(widget.enterednumber)
+                        ? 0
+                        : int.parse(widget.enterednumber) - reservationPrice;
+                    DateTime earnDate = DateTime.now();
                     num totalPoint = await readtotalPoint();
-                    // debugPrint("debug : ${reservationPrice}");
-                    // debugPrint("debug : ${redeemPoint}");
-                    // debugPrint("debug : ${payment}");
-                    // Call the async function and await the result
-                    if (reservationPrice != -1) {
-                      writeRedeemData(redeemPoint, payment, redeemDate, totalPoint);
+                    // String childId = await getChildId();
+                    if (reservationPrice != -1 && earnPoint > 0) {
+                      writeRestaurantEarnData(earnPoint, earnDate, totalPoint);
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  RestaurantPayment(payment)));
+                    } else if (reservationPrice != -1 && earnPoint == 0) {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  RestaurantPayment(payment)));
                     } else {
-                      ScaffoldMessenger.of(context)
-                          .showSnackBar(SnackBar(content: Text('유효하지 않은 할인 코드입니다')));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('유효하지 않은 할인 코드입니다')));
                     }
                   },
                   style: ButtonStyle(

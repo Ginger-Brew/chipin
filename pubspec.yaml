@@ -56,6 +56,10 @@ dependencies:
   permission_handler: ^8.3.0
   firebase_storage: ^11.2.7
   file_picker: ^5.5.0
+  firebase_database: ^10.2.6
+  workmanager: ^0.5.1
+
+
 
 dev_dependencies:
   flutter_test:

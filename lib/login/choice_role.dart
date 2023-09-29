@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import '../model/model_child.dart';
+import '../child/model/model_child.dart';
 
 class ChoiceRole extends StatefulWidget {
   const ChoiceRole({super.key});

@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-import '../core/utils/size_utils.dart';
+import '../../../core/utils/size_utils.dart';
 
 class MenuPage extends StatefulWidget {
   final String restaurantId;

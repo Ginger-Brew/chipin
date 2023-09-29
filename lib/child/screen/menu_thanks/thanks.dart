@@ -1,10 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-import '../core/utils/size_utils.dart';
-import '../model/model_report.dart';
+import '../../../core/utils/size_utils.dart';
+import '../../model/model_report.dart';
+import '../../service/review_service.dart';
 import '../report/report_detail.dart';
-import '../service/review_service.dart';
 
 // ignore_for_file: must_be_immutable
 class thanks extends StatefulWidget {

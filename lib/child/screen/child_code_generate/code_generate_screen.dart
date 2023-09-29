@@ -1,12 +1,13 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../../base_appbar.dart';
-import '../../colors.dart';
-import '../../core/utils/size_utils.dart';
+
+import '../../../base_appbar.dart';
+import '../../../core/utils/size_utils.dart';
+
 
 class CodeGenerateScreen extends StatefulWidget {
   const CodeGenerateScreen({super.key});

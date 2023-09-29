@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../../colors.dart';
+import '../../model/model_child.dart';
 import '../child_code_generate/code_generate_screen.dart';
 import '../child_profile/profile_screen.dart';
-import '../colors.dart';
-import '../model/model_child.dart';
 
 
 class ChildMainSearch extends StatelessWidget {

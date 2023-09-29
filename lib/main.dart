@@ -1,4 +1,3 @@
-import 'package:chipin/child_code_generate/code_generate_screen.dart';
 import 'package:chipin/colors.dart';
 import 'package:chipin/restaurant_main/RestaurantMain.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -7,15 +6,16 @@ import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 
-import 'child_main/ChildMain.dart';
+import 'child/model/model_menu_provider.dart';
+import 'child/screen/child_code_generate/code_generate_screen.dart';
+import 'child/screen/child_main/ChildMain.dart';
 import 'customer_main/ClientMain.dart';
 import 'firebase_options.dart';
 import 'login/login.dart';
+import 'login/model/model_auth.dart';
+import 'login/model/model_login.dart';
 import 'login/register.dart';
-import 'model/model_auth.dart';
-import 'model/model_login.dart';
-import 'model/model_menu_provider.dart';
-import 'model/model_restaurant_provider.dart';
+import 'child/model/model_restaurant_provider.dart';
 import 'restaurant_register/RestaurantInfoRegister.dart';
 
 class ColorService { //테마 컬러를 지정할 때 사용하는 classs

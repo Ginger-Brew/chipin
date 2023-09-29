@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../base_appbar.dart';
-import '../../colors.dart';
-import '../core/utils/size_utils.dart';
+import '../../../base_appbar.dart';
+import '../../../colors.dart';
+import '../../../core/utils/size_utils.dart';
 
 class ProfileScreen extends StatelessWidget {
   // const ProfileScreen({Key? key})

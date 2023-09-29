@@ -1,12 +1,12 @@
 import 'dart:math';
 
-import 'package:chipin/child_main/ChildMain.dart';
-import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:chipin/base_appbar.dart';
-import '../colors.dart';
-import '../core/utils/size_utils.dart';
+import 'package:chipin/base_appbar.dart';import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+
+import '../../../colors.dart';
+import '../../../core/utils/size_utils.dart';
+
 class CustomPricePage extends StatefulWidget {
   final String ownerId;
   CustomPricePage({

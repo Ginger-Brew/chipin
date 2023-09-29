@@ -433,7 +433,7 @@ class TabContainerScreenState extends State<TabContainerScreen>
                   "예약하기",
                   style: TextStyle(fontFamily: "Mainfonts", color: Colors.white),
                 ),
-                icon: Icon(Icons.check),
+                icon: Icon(Icons.check, color: Colors.white),
                 backgroundColor: MyColor.DARK_YELLOW,
               );
             } else if (snapshot.hasError || totalPoint < 10000) {

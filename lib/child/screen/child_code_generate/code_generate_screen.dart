@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -18,44 +19,88 @@ class CodeGenerateScreen extends StatefulWidget {
 
 class _CodeGenerateScreenState extends State<CodeGenerateScreen> {
   final String colName = "Child";
-  final String email = "child@test.com";
+  User? user = FirebaseAuth.instance.currentUser;
   final String reservation = "ReservationInfo";
-  final String RestaurantID = "aaaa";
+  final String restaurantID = "a";
   String reservationCode = "0000";
   String reservationDate = "";
+  String expirationDate = "";
   int reservationPrice = 0;
-  String cancellationDate = "1";
 
-  String restaurantID = "ohyang";
+  String restaurantEmail = "";
   String reservationDeadline = " ";
-
-
+  String address1 = "";
+  String banner = "";
+  String restaurantName = "";
+  User? getUser() {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final name = user.displayName;
+      final email = user.email;
+      final photoUrl = user.photoURL;
+      final emailVerified = user.emailVerified;
+      final uid = user.uid;
+    }
+    return user;
+  }
   void readData() async {
     final db = FirebaseFirestore.instance
         .collection(colName)
-        .doc(email)
-        .collection(reservation)
-        .doc(RestaurantID);
-    db.get().then((DocumentSnapshot ds) {
+        .doc(user?.email)
+        .collection(reservation);
+    Timestamp currentTimestamp = Timestamp.now();
+    
+    QuerySnapshot querySnapshot = await db.where('expirationDate', isGreaterThan: currentTimestamp).get();
+    if (querySnapshot.docs.isNotEmpty) {
+      DocumentSnapshot ds = querySnapshot.docs.first;
       Map<String, dynamic> data = ds.data() as Map<String, dynamic>;
       setState(() {
-        // cancellationDate = data[cancellationDate];
         reservationCode = data["reservationCode"];
-        // reservationDate = DateFormat('yy/MM/dd').format(data["reservationDate"]);
-        // reservationDate = DateFormat('yy/MM/dd').format(DateTime.now());
         Timestamp t = data["reservationDate"];
         DateTime date = t.toDate();
         reservationDate = DateFormat('yy/MM/dd HH:mm:ss').format(date);
+        Timestamp e_t = data["expirationDate"];
+        DateTime e_date = e_t.toDate();
+        expirationDate =DateFormat('yy/MM/dd HH:mm:ss').format(e_date);
 
-        reservationDeadline = DateFormat('yy/MM/dd HH:mm:ss').format(date.add(const Duration(hours: 1)));
         reservationPrice = data["reservationPrice"];
+        restaurantEmail = data["restaurantId"];
+        fetchRestaurantData();
       });
-    });
+    }
+  }
+  void fetchRestaurantData() async {
+    try {
+      final restaurantCollection = FirebaseFirestore.instance.collection("Restaurant");
+
+      QuerySnapshot restaurantQuery = await restaurantCollection.get();
+
+      if (restaurantQuery.docs.isNotEmpty) {
+        // Assuming there's only one matching document (or you can iterate through multiple if needed)
+        DocumentSnapshot restaurantDoc = restaurantQuery.docs.first;
+        Map<String, dynamic> restaurantData = restaurantDoc.data() as Map<String, dynamic>;
+
+        // Extract the address1 and banner fields
+        address1 = restaurantData["address1"];
+        banner = restaurantData["banner"];
+        restaurantName = restaurantData["name"];
+        setState(() {
+          // Set the values in the state
+          // address1State = address1;
+          // bannerState = banner;
+        });
+      } else {
+        print("No matching restaurant found.");
+      }
+    } catch (e) {
+      print("Error fetching restaurant data: $e");
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     readData();
+
     mediaQueryData = MediaQuery.of(context);
     return SafeArea(
       child: Scaffold(
@@ -84,21 +129,14 @@ class _CodeGenerateScreenState extends State<CodeGenerateScreen> {
                         Container(
                           width: 122,
                           height: 122,
-                          decoration: const BoxDecoration(
-                            image: DecorationImage(
-                              image: AssetImage(
-                                  'assets/images/ohyang_restaurant.png'),
-                              fit: BoxFit.cover,
-                            ),
-                            // borderRadius: BorderRadius.circular(61),
-                          ),
                           margin: const EdgeInsets.only(left: 21),
+                        child: Image.network(banner,
+                          fit: BoxFit.cover,),
                         ),
                         Padding(
                           padding: getPadding(
-                            left: 15,
-                            top: 24,
-                            bottom: 25,
+                            left: 26,
+                            top: 8,
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -119,24 +157,24 @@ class _CodeGenerateScreenState extends State<CodeGenerateScreen> {
                                 padding: getPadding(
                                   top: 6,
                                 ),
-                                child: const Text(
-                                  "오양칼국수",
+                                child: Text(
+                                  restaurantName,
                                   overflow: TextOverflow.ellipsis,
                                   textAlign: TextAlign.left,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontSize: 20,
                                     fontFamily: "Mainfonts",
                                     color: Colors.black,
                                   ),
                                 ),
                               ),
-                              const SizedBox(
+                              SizedBox(
                                 width: 200, // 원하는 너비 설정
                                 child: Text(
-                                  "충청남도 보령시 오천면 소성리 691-52",
+                                  address1,
                                   overflow: TextOverflow.ellipsis,
                                   textAlign: TextAlign.left,
-                                  style: TextStyle(fontSize: 14),
+                                  style: const TextStyle(fontSize: 14),
                                   maxLines: 3, // 한 줄에 표시하고 자동으로 줄바꿈
                                 ),
                               )
@@ -260,7 +298,7 @@ class _CodeGenerateScreenState extends State<CodeGenerateScreen> {
                                       top: 1,
                                     ),
                                     child: Text(
-                                      "예약 마감 시간 : $reservationDeadline",
+                                      "예약 마감 시간 : $expirationDate",
                                       overflow: TextOverflow.ellipsis,
                                       textAlign: TextAlign.left,
                                       // style: theme.textTheme.titleSmall,

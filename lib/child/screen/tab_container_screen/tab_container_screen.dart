@@ -41,7 +41,7 @@ User? getUser() {
     final email = user.email;
     final photoUrl = user.photoURL;
 
-    final amailVerified = user.emailVerified;
+    final emailVerified = user.emailVerified;
     final uid = user.uid;
   }
   return user;

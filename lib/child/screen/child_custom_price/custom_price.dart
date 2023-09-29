@@ -28,6 +28,7 @@ class _CustomPricePageState extends State<CustomPricePage> {
   bool codeGenerated = false;
   bool isLoading = false;
   late String _ownerId = "";
+  bool isButtonPressed = false;
 
 
   _CustomPricePageState({
@@ -229,42 +230,45 @@ class _CustomPricePageState extends State<CustomPricePage> {
 
             const SizedBox(height: 55),
 
-            ElevatedButton(
-              onPressed: isAmountValid ? _showConfirmationDialog : null,
-              // onPressed: () => _showConfirmationDialog(),
-              style: ButtonStyle(
+            IgnorePointer(
+              ignoring: isButtonPressed,
+              child: ElevatedButton(
+                onPressed: isAmountValid && !isButtonPressed ? _showConfirmationDialog : null,
+                // onPressed: () => _showConfirmationDialog(),
+                style: ButtonStyle(
 
-                foregroundColor: MaterialStateProperty.all(Colors.white),
-                backgroundColor: MaterialStateProperty.resolveWith<Color>((
-                    states) {
-                  if (states.contains(MaterialState.disabled)) {
-                    return Colors.grey; // 비활성화 상태일 때 회색 배경색
-                  }
-                  return MyColor.DARK_YELLOW; // 활성화 상태일 때 파란 배경색
-                }),
-                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(18.0),
-                      // side: BorderSide(color: Colors.red)
-                    )
+                  foregroundColor: MaterialStateProperty.all(Colors.white),
+                  backgroundColor: MaterialStateProperty.resolveWith<Color>((
+                      states) {
+                    if (states.contains(MaterialState.disabled)) {
+                      return Colors.grey; // 비활성화 상태일 때 회색 배경색
+                    }
+                    return MyColor.DARK_YELLOW; // 활성화 상태일 때 파란 배경색
+                  }),
+                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(18.0),
+                        // side: BorderSide(color: Colors.red)
+                      )
 
+                  ),
+
+                  fixedSize: MaterialStateProperty.all<Size>(
+                    Size(MediaQuery
+                        .of(context)
+                        .size
+                        .width - 32, 48), // 가로 길이를 화면 가로 길이 - 32로 설정
+                  ),
                 ),
 
-                fixedSize: MaterialStateProperty.all<Size>(
-                  Size(MediaQuery
-                      .of(context)
-                      .size
-                      .width - 32, 48), // 가로 길이를 화면 가로 길이 - 32로 설정
-                ),
+                child: const Text("예약 확정하기",
+                  style: TextStyle(fontFamily: "Pretendard",
+                      color: Colors.black,
+                      fontSize: 17),
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,),
+
               ),
-
-              child: const Text("예약 확정하기",
-                style: TextStyle(fontFamily: "Pretendard",
-                    color: Colors.black,
-                    fontSize: 17),
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,),
-
             ),
 
 
@@ -346,6 +350,7 @@ class _CustomPricePageState extends State<CustomPricePage> {
   Future<void> _showConfirmationDialog() async {
     if (isLoading) return;
     setState(() {
+      isButtonPressed = true;
       isLoading = true;
     });
     bool confirm = await showDialog(
@@ -392,6 +397,7 @@ class _CustomPricePageState extends State<CustomPricePage> {
                     await saveReservationData();
 
                     Navigator.of(context).pop(true);
+
                   },
                   style: TextButton.styleFrom(
                     backgroundColor: MyColor.DARK_YELLOW, // 배경색 노란색으로 설정
@@ -422,7 +428,7 @@ class _CustomPricePageState extends State<CustomPricePage> {
       Navigator.of(context).pop();
 
       // 예약 완료 팝업이 닫힌 후 메인 화면으로 이동
-      await Future.delayed(Duration(seconds: 2));
+      await Future.delayed(Duration(seconds: 1));
       Navigator.of(context).popUntil((route) => route.isFirst);
 
     } else {
@@ -541,7 +547,7 @@ class _CustomPricePageState extends State<CustomPricePage> {
         'restaurantId': _ownerId,
         'isUsed': false,
         'reservationPrice': int.parse(enteredNumber),
-        'ReservationCode': newCode, // 새로 생성한 코드 사용
+        'reservationCode': newCode, // 새로 생성한 코드 사용
         'reservationDate': FieldValue.serverTimestamp(),
         'expirationDate': expirationDate,
       });

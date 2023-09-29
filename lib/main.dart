@@ -13,7 +13,7 @@ import 'firebase_options.dart';
 import 'login/login.dart';
 import 'login/model/model_auth.dart';
 import 'login/model/model_login.dart';
-import 'login/register.dart';
+import 'login/registerdetail_over.dart';
 import 'child/model/model_restaurant_provider.dart';
 import 'restaurant_register/RestaurantInfoRegister.dart';
 

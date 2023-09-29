@@ -91,17 +91,20 @@ User? getUser() {
   }
   return user;
 }
-Future<bool> getIdInReservation(String email) async {
-  final documentSnapshot = await FirebaseFirestore.instance.collection("Child").doc(email).get();
-
-  if (documentSnapshot.exists) {
-    final data = documentSnapshot.data() as Map<String, dynamic>?;
-    if (data != null && data.containsKey('idInReservation')) {
-      return data['idInReservation'] == true;
+Stream<bool> getIdInReservationStream(String email) {
+  return FirebaseFirestore.instance
+      .collection("Child")
+      .doc(email)
+      .snapshots()
+      .map((snapshot) {
+    if (snapshot.exists) {
+      final data = snapshot.data() as Map<String, dynamic>?;
+      if (data != null && data.containsKey('idInReservation')) {
+        return data['idInReservation'] == true;
+      }
     }
-  }
-
-  return false; // 기본적으로 false로 설정 또는 사용자 데이터를 찾을 수 없는 경우 false로 설정
+    return false;
+  });
 }
 Widget buildReservationButton() {
   User? currentChild = getUser();
@@ -109,17 +112,17 @@ Widget buildReservationButton() {
   if (currentChild != null) {
     String? email = currentChild.email;
 
-    return FutureBuilder<bool>(
-      future: getIdInReservation(email!),
+    return StreamBuilder<bool>(
+      stream: getIdInReservationStream(email!),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           // 데이터를 아직 가져오는 중인 경우 로딩 표시나 기본값 반환 가능
-          return CircularProgressIndicator(); // 예시로 로딩 인디케이터를 반환합니다.
+          return CircularProgressIndicator();
         }
 
         if (snapshot.hasError || !snapshot.data!) {
           // 데이터를 가져오지 못하거나 idInReservation이 false인 경우
-          return Container(); // 버튼을 숨기거나 다른 로직을 수행할 수 있습니다.
+          return Container();
         }
 
         // idInReservation이 true인 경우 버튼을 반환
@@ -151,7 +154,7 @@ class CustomCategoryChip extends StatelessWidget {
                 child: Container(
                     width: 450,
                     height: 50,
-                    child: Center(
+                    child: const Center(
                         child: Text("예약현황보기",
                             style: TextStyle(
                                 fontFamily: "Mainfonts", fontSize: 15),

@@ -19,7 +19,7 @@ class CustomPricePage extends StatefulWidget {
   @override
   _CustomPricePageState createState() => _CustomPricePageState(ownerId: ownerId);
 }
-
+String newCode="";
 class _CustomPricePageState extends State<CustomPricePage> {
   final String colName = "Child";
   String enteredNumber = '';
@@ -418,9 +418,7 @@ class _CustomPricePageState extends State<CustomPricePage> {
       // 예약 확정 처리 완료 후 팝업 표시
       _showReservationCompletePopup();
 
-      num totalPoints = await readtotalPoint();
-      num updatedTotalPoints = totalPoints - int.parse(enteredNumber);
-      await writeRestaurantRedeemData(int.parse(enteredNumber), DateTime.now(),updatedTotalPoints);
+
       setState(() {
         isLoading = false;
       });
@@ -454,7 +452,7 @@ class _CustomPricePageState extends State<CustomPricePage> {
       },
     );
   }
-  Future<void> writeRestaurantRedeemData(int redeemPoint, DateTime redeemDate, num totalPoint) async {
+  Future<void> writeRestaurantRedeemData(int redeemPoint, DateTime redeemDate, num totalPoint, String newCode) async {
     User? currentUser = getUser();
 
     if (currentUser != null) {
@@ -472,7 +470,7 @@ class _CustomPricePageState extends State<CustomPricePage> {
 
       try {
         // Add the data to the subcollection
-        await newDocumentRef.set(data);
+        await db.doc(newCode).set(data);
 
         // Update the total points in the Restaurant collection
         await FirebaseFirestore.instance.collection("Restaurant").doc(widget.ownerId).update({
@@ -532,7 +530,7 @@ class _CustomPricePageState extends State<CustomPricePage> {
       FieldValue.serverTimestamp();
       User? currentUser = getUser();
 
-      String newCode="";
+
       bool codeExists = true;
 
       // 중복되지 않는 코드 생성 및 확인
@@ -559,6 +557,9 @@ class _CustomPricePageState extends State<CustomPricePage> {
         'reservationPrice': int.parse(enteredNumber),
         'restaurantId': widget.ownerId,
       });
+      num totalPoints = await readtotalPoint();
+      num updatedTotalPoints = totalPoints - int.parse(enteredNumber);
+      await writeRestaurantRedeemData(int.parse(enteredNumber), DateTime.now(),updatedTotalPoints,newCode);
 
       // idInReservation 설정
       await db.collection(colName).doc(currentUser?.email).update({'idInReservation': true});

@@ -70,7 +70,46 @@ class TabContainerScreenState extends State<TabContainerScreen>
     super.initState();
     tabviewController = TabController(length: 2, vsync: this);
   }
+  // 식당 db에 차감 내역을 작성할 때 표기할 전체 포인트를 구하기 위해 필요 - earnlist의 값의 합에서 redeemlist의 값의 합을 뺌
+  Future<num> readtotalPoint() async {
+    num earnPoint = 0;
+    num redeemPoint = 0;
 
+
+    if (_ownerId != null) {
+      final db = FirebaseFirestore.instance
+          .collection("Restaurant")
+          .doc(_ownerId);
+
+      try {
+        final queryEarnSnapshot = await db.collection("EarnList").get();
+
+        if (queryEarnSnapshot.docs.isNotEmpty) {
+          for (var docSnapshot in queryEarnSnapshot.docs) {
+            print('${docSnapshot.id} => ${docSnapshot.data()}');
+            earnPoint += docSnapshot.data()['earnPoint'];
+          }
+        }
+      } catch (e) {
+        print("Error completing: $e");
+      }
+
+      try {
+        final queryEarnSnapshot = await db.collection("RedeemList").get();
+
+        if (queryEarnSnapshot.docs.isNotEmpty) {
+          for (var docSnapshot in queryEarnSnapshot.docs) {
+            print('${docSnapshot.id} => ${docSnapshot.data()}');
+            redeemPoint += docSnapshot.data()['redeemPoint'];
+          }
+        }
+      } catch (e) {
+        print("Error completing: $e");
+      }
+    }
+
+    return earnPoint - redeemPoint;
+  }
   @override
   Widget build(BuildContext context) {
     mediaQueryData = MediaQuery.of(context);
@@ -213,11 +252,31 @@ class TabContainerScreenState extends State<TabContainerScreen>
                                     top: 3,
                                     bottom: 1,
                                   ),
-                                  child: const Text(
-                                    "십시일반 포인트 17950원",
-                                    overflow: TextOverflow.ellipsis,
-                                    textAlign: TextAlign.left,
-                                    // style: theme.textTheme.titleSmall,
+                                  child: FutureBuilder<num>(
+                                    future: readtotalPoint(),
+                                    builder: (BuildContext context, AsyncSnapshot<num> snapshot) {
+                                      if (snapshot.connectionState == ConnectionState.waiting) {
+                                        return const Text(
+                                          '십시일반 포인트 계산 중...',
+                                          overflow: TextOverflow.ellipsis,
+                                          textAlign: TextAlign.left,
+                                        );
+                                      } else if (snapshot.hasError) {
+                                        return const Text(
+                                          '십시일반 포인트를 가져오는 중 오류 발생',
+                                          overflow: TextOverflow.ellipsis,
+                                          textAlign: TextAlign.left,
+                                        );
+                                      } else {
+                                        final totalPoint = snapshot.data ?? 0;
+                                        final formattedPoint = totalPoint.toInt().toString();
+                                        return Text(
+                                          '십시일반 포인트 $formattedPoint원',
+                                          overflow: TextOverflow.ellipsis,
+                                          textAlign: TextAlign.left,
+                                        );
+                                      }
+                                    },
                                   ),
                                 ),
                               ],
@@ -283,12 +342,6 @@ class TabContainerScreenState extends State<TabContainerScreen>
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      // Tab(
-                      //   child: Text(
-                      //     "음료수",
-                      //     overflow: TextOverflow.ellipsis,
-                      //   ),
-                      // ),
                     ],
                   ),
                 ),
@@ -312,20 +365,56 @@ class TabContainerScreenState extends State<TabContainerScreen>
           ),
 
         ),
-        floatingActionButton: FloatingActionButton.extended(
-          onPressed:(){
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => CustomPricePage(
-                      ownerId : widget.ownerId
-                    )));
+        floatingActionButton: FutureBuilder<num>(
+          future: readtotalPoint(),
+          builder: (BuildContext context, AsyncSnapshot<num> snapshot) {
+            final totalPoint = snapshot.data ?? 0;
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              // 데이터를 가져오는 중인 동안에는 비활성화된 버튼을 표시
+              return const FloatingActionButton.extended(
+                onPressed: null,
+                label: Text(
+                  "예약하기",
+                  style: TextStyle(fontFamily: "Mainfonts", color: Colors.white),
+                ),
+                icon: Icon(Icons.check),
+                backgroundColor: MyColor.DARK_YELLOW,
+              );
+            } else if (snapshot.hasError || totalPoint < 10000) {
+              // 데이터 가져오기에 실패하거나 총 포인트가 10,000원 미만인 경우 버튼을 비활성화
+              return const FloatingActionButton.extended(
+                onPressed: null,
+                label: Text(
+                  "예약하기",
+                  style: TextStyle(fontFamily: "Mainfonts", color: Colors.white),
+                ),
+                icon: Icon(Icons.check,
+                color: Colors.white,),
+                backgroundColor: MyColor.DARK_YELLOW,
+              );
+            } else {
+              // 총 포인트가 10,000원 이상이면 버튼을 활성화
+              return FloatingActionButton.extended(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CustomPricePage(
+                        ownerId: widget.ownerId, title: widget.title, location: widget.location,
+                      ),
+                    ),
+                  );
+                },
+                label: const Text(
+                  "예약하기",
+                  style: TextStyle(fontFamily: "Mainfonts", color: Colors.white),
+                ),
+                icon: const Icon(Icons.check,
+                  color: Colors.white,),
+                backgroundColor: MyColor.DARK_YELLOW,
+              );
+            }
           },
-          label: const Text("예약하기",
-            style: TextStyle(fontFamily: "Mainfonts",color: Colors.white),
-          ),
-          icon: const Icon(Icons.check),
-          backgroundColor: MyColor.DARK_YELLOW,
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat, // 오른쪽 아래에 배치
 

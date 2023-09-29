@@ -1,14 +1,16 @@
-import 'package:chipin/child_previous_reservation/write_thank_note.dart';
+import 'package:chipin/child/screen/child_previous_reservation/write_thank_note.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import '../base_appbar.dart';
+import '../../../base_appbar.dart';
+
 
 class PreviousReservation extends StatelessWidget {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  PreviousReservation({super.key});
 
   @override
   Widget build(BuildContext context) {

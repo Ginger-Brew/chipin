@@ -133,7 +133,7 @@ class _RestaurantDiscountState extends State<RestaurantDiscount> {
 
 // 식당 db에 차감 내역을 작성하기 위해 필요 - 이전 페이지에서 전달받은 값과 아동 db에서 가져온 예약 금액을 가져와서 비교 후 저장
   void writeRestaurantEarnData(
-      int earnPoint, DateTime redeemDate, num totalPoint) async {
+      int earnPoint, DateTime earnDate, num totalPoint) async {
     User? currentUser = getUser();
 
     if (currentUser != null) {
@@ -147,7 +147,7 @@ class _RestaurantDiscountState extends State<RestaurantDiscount> {
       await db
           .set({
             'earnPoint': earnPoint,
-            'earnDate': redeemDate,
+            'earnDate': earnDate,
             'totalPoint': totalPoint + earnPoint
           })
           .then((value) => print("document added")) // firestore에 저장이 잘 된 경우

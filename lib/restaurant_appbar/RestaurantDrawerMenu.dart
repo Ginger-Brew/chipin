@@ -72,6 +72,20 @@ class _RestaurantDrawerMenuState extends State<RestaurantDrawerMenu> {
 
     }
 
+    Future<void> logoutUser() async {
+      try {
+        await FirebaseAuth.instance.signOut();
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+                builder: (context) => LoginPage()), (route) => false);
+        // 로그아웃 성공적으로 완료됨.
+      } catch (e) {
+        print("로그아웃 중 오류 발생: $e");
+        // 로그아웃 중 오류 발생.
+      }
+    }
+
     @override
   void initState() {
     // TODO: implement initState
@@ -112,7 +126,7 @@ class _RestaurantDrawerMenuState extends State<RestaurantDrawerMenu> {
             ),
             title: Text('로그아웃'),
             onTap: () {
-              print('Home is clicked');
+              logoutUser();
             },
             trailing: Icon(Icons.arrow_forward_ios_rounded),
           ),

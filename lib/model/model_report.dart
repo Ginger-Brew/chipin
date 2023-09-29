@@ -1,34 +1,52 @@
-import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-class ReportModel extends ChangeNotifier {
-  String id = "";
-  String email = "";
-  String password = "";
-  String passwordConfirm = "";
-  String name = "";
+class Review {
+  String? childId;
+  String? restaurantId;
+  String? content;
+  String? childNickName;
+  Timestamp? timestamp;
+  //List<Report>? reports;
 
-  void setId(String id) {
-    this.id = id;
-    notifyListeners();
+  Review({this.childId, this.restaurantId, this.content, this.childNickName,
+    this.timestamp, /*this.reports = const []*/});
+
+  void fromJson(Map<dynamic, dynamic> json) {
+    this.childId= json['childId'];
+    this.restaurantId= json['restaurantId'];
+    this.content= json['content'];
+    this.childNickName= json['childNickName'];
+    this.timestamp= json['timestamp'];
+    //reports= json['reports'].map((report) => Report.fromJson(report)).toList();
   }
 
-  void setEmail(String email) {
-    this.email = email;
-    notifyListeners();
+  toJson() {
+    return {
+      'childId': this.childId,
+      'restaurantId': this.restaurantId,
+      'content' : this.content,
+      'childNickName' : this.childNickName,
+      'timestamp' : this.timestamp,
+      //'reports' : this.reports?.map((report) => report.toJson()).toList()
+    };
+  }
+}
+
+class Report {
+  String? reporterId;
+  String? reason;
+
+  Report({required this.reporterId, required this.reason});
+
+  Report.fromJson(Map<dynamic, dynamic> json) {
+    reporterId = json['reportId'];
+    reason = json['reason'];
   }
 
-  void setPassword(String password) {
-    this.password = password;
-    notifyListeners();
-  }
-
-  void setPasswordConfirm(String passwordConfirm) {
-    this.passwordConfirm = passwordConfirm;
-    notifyListeners();
-  }
-
-  void setName(String name) {
-    this.name = name;
-    notifyListeners();
+  toJson() {
+    return {
+      'reporterId' : this.reporterId,
+      'reason': this.reason
+    };
   }
 }

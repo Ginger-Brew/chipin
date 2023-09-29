@@ -2,7 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import '../core/utils/size_utils.dart';
+import '../model/model_report.dart';
 import '../report/report_detail.dart';
+import '../service/review_service.dart';
 
 // ignore_for_file: must_be_immutable
 class thanks extends StatefulWidget {
@@ -25,26 +27,36 @@ class thanksState extends State<thanks>
   Widget build(BuildContext context) {
     mediaQueryData = MediaQuery.of(context);
 
+    ReviewService reviewService = ReviewService();
     return Padding(
         padding: const EdgeInsets.only(bottom: 16),
-        child: StreamBuilder(
-          stream:
-          FirebaseFirestore.instance.collection('Review').snapshots(),
+        child: FutureBuilder(
+          future: reviewService.getReviewList('restaurant@test.com'),
           builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              final docs = snapshot.data!.docs;
+            if (snapshot.hasData == false) {
+              return CircularProgressIndicator();
+            }
+            else if (snapshot.hasError) {
+              return Padding(
+                padding: const EdgeInsets.all(8.0),
+
+                child: Text(
+                  'Error!: ${snapshot.error}', // 에러명을 텍스트에 뿌려줌
+                  style: TextStyle(fontSize: 15),
+                ),
+              );
+            }
+            else if (snapshot.hasData) {
+              print("print!");
+              print(snapshot.data!);
               return Column(children: [
                 SizedBox(height: 16),
                 Center(
                     child: ListView.builder(
                       shrinkWrap: true,
-                      itemCount: docs.length,
+                      itemCount: snapshot.data?.length,
                       itemBuilder: (context, index) {
-                        return RestaurantCard(
-                            docs[index].get('childId'),
-                            docs[index].get('restaurantId'),
-                            docs[index].get('content'),
-                            docs[index].get('childNickname'));
+                        return RestaurantCard(snapshot.data![index]);
                       },
                     ))
               ]);
@@ -58,30 +70,23 @@ class thanksState extends State<thanks>
 
 
 class RestaurantCard extends StatelessWidget {
-  String childId;
-  String restaurantId;
-  String content;
-  String childNickname;
+  Review review;
 
-  RestaurantCard(this.childId, this.restaurantId, this.content, this.childNickname);
+  RestaurantCard(this.review);
 
   @override
   Widget build(BuildContext context) {
     return Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-      CustomRestaurantCategory(
-          childId, restaurantId, content, childNickname),
+      CustomRestaurantCategory(review),
       SizedBox(height: 20),
     ]);
   }
 }
 
 class CustomRestaurantCategory extends StatelessWidget {
-  final String childId;
-  final String restaurantId;
-  final String content;
-  final String childNickname;
+  Review review;
 
-  const CustomRestaurantCategory(this.childId, this.restaurantId, this.content, this.childNickname, {super.key});
+  CustomRestaurantCategory(this.review);
 
   @override
   Widget build(BuildContext context) {
@@ -101,7 +106,7 @@ class CustomRestaurantCategory extends StatelessWidget {
             MainAxisAlignment.start,
             children: [
               Text(
-                content,
+                review.content!,
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.left,
                 // style: theme.textTheme.titleLarge,
@@ -111,7 +116,7 @@ class CustomRestaurantCategory extends StatelessWidget {
                   top: 1,
                 ),
                 child: Text(
-                  childId,
+                  review.childId!,
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.left,
                   // style:
@@ -126,7 +131,7 @@ class CustomRestaurantCategory extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                       builder: (context) => ReportDetail(
-                          childId : childId
+                          childId : review.childId!
                       )
                   )
               );

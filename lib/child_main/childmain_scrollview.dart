@@ -191,10 +191,6 @@ class CustomRestaurantCategory extends StatelessWidget {
                               context,
                               MaterialPageRoute(
                                   builder: (context) => TabContainerScreen(
-                                    // restaurantName: "오양칼국수",
-                                    // restaurantAddress: "충남 보령시 보령남로 125-7",
-                                    // openingHours: "매일 09:00 ~ 19:00",
-                                    // bannerImageUrl: "assets/images/ohyang_restaurant.png",
                                         title: title,
                                         location: location,
                                         time: time,

@@ -23,6 +23,7 @@ class _RestaurantEarnListState extends State<RestaurantEarnList> {
   bool showList2 = false;
 
 
+
   User? getUser() {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {

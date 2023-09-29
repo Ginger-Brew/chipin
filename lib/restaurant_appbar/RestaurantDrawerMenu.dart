@@ -91,7 +91,7 @@ class _RestaurantDrawerMenuState extends State<RestaurantDrawerMenu> {
           UserAccountsDrawerHeader(
             currentAccountPicture: CircleAvatar(
               // 현재 계정 이미지 set
-              backgroundImage: AssetImage('assets/images/nobanner.png'),
+              backgroundImage: AssetImage('assets/images/user.png'),
               backgroundColor: Colors.white,
             ),
             accountName: Text(name, style: TextStyle(color: Colors.black),),

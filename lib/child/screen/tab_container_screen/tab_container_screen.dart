@@ -34,7 +34,18 @@ class TabContainerScreen extends StatefulWidget {
       title: title, location: location, time: time, banner: banner
   );
 }
+User? getUser() {
+  final user = FirebaseAuth.instance.currentUser;
+  if (user != null) {
+    final name = user.displayName;
+    final email = user.email;
+    final photoUrl = user.photoURL;
 
+    final amailVerified = user.emailVerified;
+    final uid = user.uid;
+  }
+  return user;
+}
 class TabContainerScreenState extends State<TabContainerScreen>
     with TickerProviderStateMixin {
   late TabController tabviewController;
@@ -109,6 +120,51 @@ class TabContainerScreenState extends State<TabContainerScreen>
     }
 
     return earnPoint - redeemPoint;
+  }
+  // 예약 가능 여부를 확인하는 비동기 함수
+  Future<bool> checkIsInReservation() async {
+    // 여기에서 isInReservation 값을 Firestore 또는 다른 데이터베이스에서 가져와서 확인합니다.
+    // 예를 들어, ownerId나 다른 필드를 기반으로 확인할 수 있습니다.
+    // 값을 확인하여 true 또는 false를 반환합니다.
+    // 예약 가능한 경우 true 반환, 불가능한 경우 false 반환
+    User? currentChild = getUser();
+    // return await FirebaseFirestore.instance.collection("Child").doc(currentChild?.email).get().then((snapshot) {
+    //       return snapshot.data()?['isInReservation'] ?? false;
+    //     });
+    try {
+      final snapshot = await FirebaseFirestore.instance.collection("Child").doc(currentChild?.email).get();
+      if (snapshot.exists) {
+        final idInReservation = snapshot.data()?['idInReservation'] ?? false;
+        return idInReservation;
+      } else {
+        // 문서가 존재하지 않을 경우 처리할 내용 추가 (예: false 반환 또는 예외 처리)
+        return false; // 예시에서는 문서가 없을 경우 항상 false 반환
+      }
+    } catch (e) {
+      // 오류 처리 (예외 발생 시 false 반환 또는 예외 처리)
+      print("오류 발생: $e");
+      return false; // 예시에서는 오류 발생 시 항상 false 반환
+    }
+  }
+  // 팝업을 표시하는 함수
+  void showAlertDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("예약 불가능"),
+          content: const Text("이 식당은 현재 예약이 불가능합니다."),
+          actions: [
+            TextButton(
+              child: const Text("확인"),
+              onPressed: () {
+                Navigator.of(context).pop(); // 팝업 닫기
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
   @override
   Widget build(BuildContext context) {
@@ -395,15 +451,26 @@ class TabContainerScreenState extends State<TabContainerScreen>
             } else {
               // 총 포인트가 10,000원 이상이면 버튼을 활성화
               return FloatingActionButton.extended(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => CustomPricePage(
-                        ownerId: widget.ownerId, title: widget.title, location: widget.location,
+                onPressed: () async {
+                  // 예약 가능 여부를 확인하는 비동기 함수 호출
+                  bool isInReservation = await checkIsInReservation();
+
+                  if (isInReservation) {
+                    // 예약 불가능한 경우 팝업 표시
+                    showAlertDialog(context);
+                  } else {
+                    // 예약 가능한 경우 페이지 이동
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CustomPricePage(
+                          ownerId: widget.ownerId,
+                          title: widget.title,
+                          location: widget.location,
+                        ),
                       ),
-                    ),
-                  );
+                    );
+                  }
                 },
                 label: const Text(
                   "예약하기",

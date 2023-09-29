@@ -436,12 +436,12 @@ class _CustomPricePageState extends State<CustomPricePage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('예약 완료'),
-          content: Text('예약이 성공적으로 완료되었습니다.'),
+          title: const Text('예약 완료'),
+          content: const Text('예약이 성공적으로 완료되었습니다.'),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: Text('확인'),
+              child: const Text('확인'),
             ),
           ],
         );
@@ -522,7 +522,7 @@ class _CustomPricePageState extends State<CustomPricePage> {
     try {
       final db = FirebaseFirestore.instance;
       DateTime reservationDate = DateTime.now();
-      DateTime expirationDate = reservationDate.add(Duration(hours: 1));
+      DateTime expirationDate = reservationDate.add(const Duration(hours: 1));
       FieldValue.serverTimestamp();
       User? currentUser = getUser();
 

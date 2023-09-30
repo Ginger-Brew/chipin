@@ -1,10 +1,12 @@
 import 'package:chipin/colors.dart';
 import 'package:chipin/restaurant_main/RestaurantMain.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'child/model/model_menu_provider.dart';
 import 'child/screen/child_code_generate/code_generate_screen.dart';
 import 'child/screen/child_main/ChildMain.dart';
@@ -16,9 +18,12 @@ import 'login/model/model_login.dart';
 import 'login/registerdetail_over.dart';
 import 'child/model/model_restaurant_provider.dart';
 import 'restaurant_register/RestaurantInfoRegister.dart';
+import 'package:workmanager/workmanager.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:logger/logger.dart';
 
-
-class ColorService { //테마 컬러를 지정할 때 사용하는 classs
+class ColorService {
+  //테마 컬러를 지정할 때 사용하는 classs
   static MaterialColor createMaterialColor(Color color) {
     List strengths = <double>[.05];
     Map<int, Color> swatch = {};
@@ -40,6 +45,133 @@ class ColorService { //테마 컬러를 지정할 때 사용하는 classs
   }
 }
 
+@pragma('vm:entry-point')
+void callbackDispatcher() {
+  Workmanager().executeTask((task, inputData) async {
+    // 백그라운드 작업 수행
+    // 여기서 데이터베이스 업데이트 또는 기타 작업을 수행할 수 있습니다.
+    // await Firebase.initializeApp(
+    //   options: DefaultFirebaseOptions.currentPlatform,
+    // );
+    // await updateIsValidField();
+    print(
+        "Native called background task: $task"); //simpleTask will be emitted here.
+    // int? totalExecutions;
+    // final _sharedPreference = await SharedPreferences.getInstance(); //Initialize dependency
+
+    try {
+      //add code execution
+      // totalExecutions = _sharedPreference.getInt("totalExecutions");
+      // _sharedPreference.setInt("totalExecutions", totalExecutions == null ? 1 : totalExecutions+1);
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+      await updateIsValidField();
+    } catch (err) {
+      Logger().e(err
+          .toString()); // Logger flutter package, prints error on the debug console
+      throw Exception(err);
+    }
+
+    return Future.value(true);
+  });
+}
+
+Future<num> readtotalPoint(String restaurantId) async {
+  num earnPoint = 0;
+  num redeemPoint = 0;
+
+
+
+    final db = FirebaseFirestore.instance
+        .collection("Restaurant")
+        .doc(restaurantId);
+
+    try {
+      final queryEarnSnapshot = await db.collection("EarnList").get();
+
+      if (queryEarnSnapshot.docs.isNotEmpty) {
+        for (var docSnapshot in queryEarnSnapshot.docs) {
+          print('${docSnapshot.id} => ${docSnapshot.data()}');
+          earnPoint += docSnapshot.data()['earnPoint'];
+        }
+      }
+    } catch (e) {
+      print("Error completing: $e");
+    }
+
+    try {
+      final queryEarnSnapshot = await db.collection("RedeemList").get();
+
+      if (queryEarnSnapshot.docs.isNotEmpty) {
+        for (var docSnapshot in queryEarnSnapshot.docs) {
+          print('${docSnapshot.id} => ${docSnapshot.data()}');
+          redeemPoint += docSnapshot.data()['redeemPoint'];
+        }
+      }
+    } catch (e) {
+      print("Error completing: $e");
+    }
+
+
+  return earnPoint - redeemPoint;
+}
+
+Future<void> updateIsValidField() async {
+  try {
+    final firestore = FirebaseFirestore.instance;
+    final discountCodeCollection = firestore.collection('DiscountCode');
+    final RestaurantCollection = firestore.collection('Restaurant');
+    final currentTimestamp = DateTime.now();
+
+    // DiscountCode 콜렉션의 도큐먼트들을 가져옴
+    final QuerySnapshot CodeSnapshot = await discountCodeCollection.get();
+
+    // 도큐먼트 돌면서 도큐먼트 아이디 (할인코드), isUsed, isValid, restaurantId, reservationPrice, isWritten  가져와서 노쇼 여부 확인 후
+    // isValid 업데이트 및 식당 적립 내역에 해당 내용 추가
+    // 식당 적립 내역에 내용 추가 시 isWritten 필드 true로 변경
+    for (QueryDocumentSnapshot documentSnapshot in CodeSnapshot.docs) {
+      final Map<String, dynamic> data =
+          documentSnapshot.data() as Map<String, dynamic>;
+
+      final String discountCode = documentSnapshot.id;
+      final DateTime expirationDate = data['expirationDate'].toDate();
+      final bool isUsed = data['isUsed'];
+      final String restaurantId = data['restaurantId'];
+      final bool isWritten = data['isWritten'];
+      final num reservationPrice = data['reservationPrice'];
+      final bool isValid = isUsed
+          ? true
+          : (expirationDate.isAfter(currentTimestamp) ? true : false);
+
+      // print('valid한가요? : ${isValid}');
+      // isValid 값을 업데이트
+      await discountCodeCollection
+          .doc(discountCode)
+          .update({'isValid': isValid});
+
+      if (!isValid && !isWritten) {
+
+        num totalPoint = await readtotalPoint(restaurantId);
+        await RestaurantCollection.doc(restaurantId)
+            .collection('EarnList')
+            .add({
+          'earnDate': DateTime.now(),
+          'earnPoint': reservationPrice,
+          'totalPoint': totalPoint + reservationPrice
+        });
+
+        await discountCodeCollection
+            .doc(discountCode)
+            .update({'isWritten': true});
+      }
+    }
+
+    print('업데이트가 완료되었습니다.');
+  } catch (error) {
+    print('업데이트 중 오류 발생: $error');
+  }
+}
 
 void main() async {
   // WidgetsFlutterBinding.ensureInitialized()는 runApp으로 앱이 실행되기 전에 비동기로 지연이 되더라도 오류가 발생하지 않도록 하는 역할.
@@ -59,6 +191,13 @@ void main() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown
   ]).then((_) => runApp(MyApp()));
+
+  await Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
+  Workmanager().registerPeriodicTask('1', 'simpleTask',
+      initialDelay: Duration(seconds: 10),
+      frequency: Duration(seconds: 20) // 작업 시작 지연 시간 설정
+
+      );
 }
 
 class MyApp extends StatelessWidget {
@@ -74,26 +213,25 @@ class MyApp extends StatelessWidget {
         child: MaterialApp(
             title: 'CHIPIN',
             theme: ThemeData(
-                primarySwatch: ColorService.createMaterialColor(
-                    MyColor.DARK_YELLOW)), //테마 컬러를 dark_yellow로 설정함
+                primarySwatch:
+                    ColorService.createMaterialColor(MyColor.DARK_YELLOW)),
+            //테마 컬러를 dark_yellow로 설정함
 
             // debugShowCheckedModeBanner : 오른쪽상단 빨간색 표시
             debugShowCheckedModeBanner: false,
-
             routes: {
               // '/home': (context) => NavigationHomeScreen(pagename: DrawerIndex.HOME),
               '/login': (context) => LoginPage(),
               // '/splash': (context) => SplashScreen(),
               '/register': (context) => RegisterPage(),
               '/childmain': (context) => ChildMain(),
-              '/storeregister' : (context) => RestaurantInfoRegister(),
+              '/storeregister': (context) => RestaurantInfoRegister(),
               '/storemain': (context) => RestaurantMain(),
               // '/restaurantdetail' : (context) => TabContainerScreen(),
-              '/clientmain' : (context) => ClientMain(),
-              '/codegenerate' : (context) => CodeGenerateScreen()
+              '/clientmain': (context) => ClientMain(),
+              '/codegenerate': (context) => CodeGenerateScreen()
             },
             // 실행 시 가장 먼저 보여지는 화면 (splash 화면을 따로 만들거면 그 화면으로 해야함)
-            initialRoute: '/login'
-        ));
+            initialRoute: '/login'));
   }
 }

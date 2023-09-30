@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../../../colors.dart';
@@ -5,6 +7,7 @@ import '../../model/model_child.dart';
 import '../child_code_generate/code_generate_screen.dart';
 import '../child_profile/profile_screen.dart';
 
+bool idInReservation = true; // 사용자의 idInReservation 상태에 따라 설정
 
 class ChildMainSearch extends StatelessWidget {
   @override
@@ -12,7 +15,7 @@ class ChildMainSearch extends StatelessWidget {
     return Column(
       children: <Widget>[
         CustomSearchContainer(),
-        CustomCategoryChip(),
+        buildReservationButton(),
       ],
     );
   }
@@ -77,7 +80,60 @@ class CustomUserAvatar extends StatelessWidget {
     );
   }
 }
+User? getUser() {
+  final user = FirebaseAuth.instance.currentUser;
+  if (user != null) {
+    final name = user.displayName;
+    final email = user.email;
+    final photoUrl = user.photoURL;
+    final emailVerified = user.emailVerified;
+    final uid = user.uid;
+  }
+  return user;
+}
+Stream<bool> getIdInReservationStream(String email) {
+  return FirebaseFirestore.instance
+      .collection("Child")
+      .doc(email)
+      .snapshots()
+      .map((snapshot) {
+    if (snapshot.exists) {
+      final data = snapshot.data() as Map<String, dynamic>?;
+      if (data != null && data.containsKey('idInReservation')) {
+        return data['idInReservation'] == true;
+      }
+    }
+    return false;
+  });
+}
+Widget buildReservationButton() {
+  User? currentChild = getUser();
 
+  if (currentChild != null) {
+    String? email = currentChild.email;
+
+    return StreamBuilder<bool>(
+      stream: getIdInReservationStream(email!),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          // 데이터를 아직 가져오는 중인 경우 로딩 표시나 기본값 반환 가능
+          return CircularProgressIndicator();
+        }
+
+        if (snapshot.hasError || !snapshot.data!) {
+          // 데이터를 가져오지 못하거나 idInReservation이 false인 경우
+          return Container();
+        }
+
+        // idInReservation이 true인 경우 버튼을 반환
+        return const CustomCategoryChip();
+      },
+    );
+  } else {
+    // 사용자가 로그인하지 않은 경우
+    return Container();
+  }
+}
 class CustomCategoryChip extends StatelessWidget {
   const CustomCategoryChip({super.key});
 
@@ -98,7 +154,7 @@ class CustomCategoryChip extends StatelessWidget {
                 child: Container(
                     width: 450,
                     height: 50,
-                    child: Center(
+                    child: const Center(
                         child: Text("예약현황보기",
                             style: TextStyle(
                                 fontFamily: "Mainfonts", fontSize: 15),

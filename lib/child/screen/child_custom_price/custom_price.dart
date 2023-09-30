@@ -1,41 +1,57 @@
 import 'dart:math';
 
-import 'package:chipin/base_appbar.dart';import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:chipin/base_appbar.dart';
 import '../../../colors.dart';
 import '../../../core/utils/size_utils.dart';
-
+import 'package:firebase_auth/firebase_auth.dart';
 class CustomPricePage extends StatefulWidget {
   final String ownerId;
+  final String title;
+  final String location;
   CustomPricePage({
     required this.ownerId,
+    required this.title,
+    required this.location
   });
 
   @override
   _CustomPricePageState createState() => _CustomPricePageState(ownerId: ownerId);
 }
-
+String newCode="";
 class _CustomPricePageState extends State<CustomPricePage> {
   final String colName = "Child";
-  final String email = "child@test.com";
   String enteredNumber = '';
   String randomCode = '';
   String uid ="";
   bool codeGenerated = false;
-
+  bool isLoading = false;
   late String _ownerId = "";
+  bool isButtonPressed = false;
+
+
   _CustomPricePageState({
     required String ownerId,
-}) {
+  }) {
     _ownerId = ownerId;
   }
   int get maxRegister => 10000;
   bool idInReservation = false;
 
+  User? getUser() {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final name = user.displayName;
+      final email = user.email;
+      final photoUrl = user.photoURL;
 
-  void generateRandomCode() {
+      final amailVerified = user.emailVerified;
+      final uid = user.uid;
+    }
+    return user;
+  }
+  String generateRandomCode() {
     final random = Random();
     const int codeLength = 4;
     const String chars = '0123456789abcdefghijklmnopqrstuvwxyz';
@@ -46,10 +62,7 @@ class _CustomPricePageState extends State<CustomPricePage> {
       code += chars[index];
     }
 
-    randomCode = code;
-    setState(() {
-      codeGenerated = true;
-    });
+    return code;
   }
 
   void _onKeyPressed(String key) {
@@ -138,33 +151,34 @@ class _CustomPricePageState extends State<CustomPricePage> {
                       Padding(padding: getPadding(
                           left: 1
                       ),
-                        child: const Text(
-                          "오양칼국수",
+                        child: Text(
+                          // "오양칼국수",
+                          widget.title,
                           overflow: TextOverflow.ellipsis,
                           textAlign: TextAlign.left,
-                          style: TextStyle(
-                            fontSize: 40,
+                          style: const TextStyle(
+                            fontSize: 30,
                             fontFamily: "Mainfonts",
                             color: Colors.black,
                           ),
                         ),
                       ),
-                      const Padding(padding: EdgeInsets.only(top: 2),
+                      Padding(padding: const EdgeInsets.only(top: 2),
                         child: Row(
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.location_on_rounded,
                               color: Colors.black,
                               size: 19,
                             ),
 
                             Padding(
-                              padding: EdgeInsets.only(left: 4),
+                              padding: const EdgeInsets.only(left: 4),
                               child: Text(
-                                "충남 보령시 보령남로 125-7",
+                                widget.location,
                                 overflow: TextOverflow.ellipsis,
                                 textAlign: TextAlign.left,
-                                style: TextStyle(fontSize: 20),
+                                style: const TextStyle(fontSize: 15),
                               ),
                             ),
                           ],
@@ -216,46 +230,49 @@ class _CustomPricePageState extends State<CustomPricePage> {
 
             const SizedBox(height: 55),
 
-            ElevatedButton(
-              onPressed: isAmountValid ? _showConfirmationDialog : null,
-              // onPressed: () => _showConfirmationDialog(),
-              style: ButtonStyle(
+            IgnorePointer(
+              ignoring: isButtonPressed,
+              child: ElevatedButton(
+                onPressed: isAmountValid && !isButtonPressed ? _showConfirmationDialog : null,
+                // onPressed: () => _showConfirmationDialog(),
+                style: ButtonStyle(
 
-                foregroundColor: MaterialStateProperty.all(Colors.white),
-                backgroundColor: MaterialStateProperty.resolveWith<Color>((
-                    states) {
-                  if (states.contains(MaterialState.disabled)) {
-                    return Colors.grey; // 비활성화 상태일 때 회색 배경색
-                  }
-                  return MyColor.DARK_YELLOW; // 활성화 상태일 때 파란 배경색
-                }),
-                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(18.0),
-                      // side: BorderSide(color: Colors.red)
-                    )
+                  foregroundColor: MaterialStateProperty.all(Colors.white),
+                  backgroundColor: MaterialStateProperty.resolveWith<Color>((
+                      states) {
+                    if (states.contains(MaterialState.disabled)) {
+                      return Colors.grey; // 비활성화 상태일 때 회색 배경색
+                    }
+                    return MyColor.DARK_YELLOW; // 활성화 상태일 때 파란 배경색
+                  }),
+                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(18.0),
+                        // side: BorderSide(color: Colors.red)
+                      )
 
+                  ),
+
+                  fixedSize: MaterialStateProperty.all<Size>(
+                    Size(MediaQuery
+                        .of(context)
+                        .size
+                        .width - 32, 48), // 가로 길이를 화면 가로 길이 - 32로 설정
+                  ),
                 ),
 
-                fixedSize: MaterialStateProperty.all<Size>(
-                  Size(MediaQuery
-                      .of(context)
-                      .size
-                      .width - 32, 48), // 가로 길이를 화면 가로 길이 - 32로 설정
-                ),
+                child: const Text("예약 확정하기",
+                  style: TextStyle(fontFamily: "Pretendard",
+                      color: Colors.black,
+                      fontSize: 17),
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,),
+
               ),
-
-              child: const Text("예약 확정하기",
-                style: TextStyle(fontFamily: "Pretendard",
-                    color: Colors.black,
-                    fontSize: 20),
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,),
-
             ),
 
 
-            SizedBox(height: 2),
+            const SizedBox(height: 2),
 
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -319,7 +336,7 @@ class _CustomPricePageState extends State<CustomPricePage> {
         child: Text(label,
           overflow: TextOverflow.ellipsis,
           textAlign: TextAlign.left,
-          style: TextStyle(fontFamily: "GyeonggiTitleB",
+          style: const TextStyle(fontFamily: "GyeonggiTitleB",
               fontSize: 30,
               color: Colors.black,
               fontWeight: FontWeight.bold),
@@ -331,6 +348,11 @@ class _CustomPricePageState extends State<CustomPricePage> {
   }
 
   Future<void> _showConfirmationDialog() async {
+    if (isLoading) return;
+    setState(() {
+      isButtonPressed = true;
+      isLoading = true;
+    });
     bool confirm = await showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -375,6 +397,7 @@ class _CustomPricePageState extends State<CustomPricePage> {
                     await saveReservationData();
 
                     Navigator.of(context).pop(true);
+
                   },
                   style: TextButton.styleFrom(
                     backgroundColor: MyColor.DARK_YELLOW, // 배경색 노란색으로 설정
@@ -395,15 +418,21 @@ class _CustomPricePageState extends State<CustomPricePage> {
       // 예약 확정 처리 완료 후 팝업 표시
       _showReservationCompletePopup();
 
+
+      setState(() {
+        isLoading = false;
+      });
       // 예약 확정 처리 완료 후 메인 화면으로 이동
       Navigator.of(context).pop();
 
       // 예약 완료 팝업이 닫힌 후 메인 화면으로 이동
-      await Future.delayed(Duration(seconds: 2));
+      await Future.delayed(Duration(seconds: 1));
       Navigator.of(context).popUntil((route) => route.isFirst);
-      // Navigator.of(context).pushReplacement(MaterialPageRoute(
-      //   builder: (context) => ChildMain(), // 이동할 화면
-      // ));
+
+    } else {
+      setState(() {
+        isLoading = false;
+      });
     }
   }
   void _showReservationCompletePopup() {
@@ -411,43 +440,130 @@ class _CustomPricePageState extends State<CustomPricePage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('예약 완료'),
-          content: Text('예약이 성공적으로 완료되었습니다.'),
+          title: const Text('예약 완료'),
+          content: const Text('예약이 성공적으로 완료되었습니다.'),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: Text('확인'),
+              child: const Text('확인'),
             ),
           ],
         );
       },
     );
   }
+  Future<void> writeRestaurantRedeemData(int redeemPoint, DateTime redeemDate, num totalPoint, String newCode) async {
+    User? currentUser = getUser();
+
+    if (currentUser != null) {
+      final db = FirebaseFirestore.instance.collection("Restaurant").doc(widget.ownerId).collection("RedeemList");
+
+      // Generate a unique document ID for the new entry
+      final newDocumentRef = db.doc();
+
+      // Create a map to represent the data you want to store
+      final data = {
+        'redeemPoint': redeemPoint,
+        'redeemDate': redeemDate,
+        'totalPoint' : totalPoint
+      };
+
+      try {
+        // Add the data to the subcollection
+        await db.doc(newCode).set(data);
+
+        // Update the total points in the Restaurant collection
+        await FirebaseFirestore.instance.collection("Restaurant").doc(widget.ownerId).update({
+          'totalPoint': totalPoint,
+        });
+
+        print("Redeem data added successfully");
+      } catch (e) {
+        print("Error adding redeem data: $e");
+      }
+    }
+  }
+  Future<num> readtotalPoint() async {
+    num earnPoint = 0;
+    num redeemPoint = 0;
+
+
+    if (_ownerId != null) {
+      final db = FirebaseFirestore.instance
+          .collection("Restaurant")
+          .doc(_ownerId);
+
+      try {
+        final queryEarnSnapshot = await db.collection("EarnList").get();
+
+        if (queryEarnSnapshot.docs.isNotEmpty) {
+          for (var docSnapshot in queryEarnSnapshot.docs) {
+            print('${docSnapshot.id} => ${docSnapshot.data()}');
+            earnPoint += docSnapshot.data()['earnPoint'];
+          }
+        }
+      } catch (e) {
+        print("Error completing: $e");
+      }
+
+      try {
+        final queryEarnSnapshot = await db.collection("RedeemList").get();
+
+        if (queryEarnSnapshot.docs.isNotEmpty) {
+          for (var docSnapshot in queryEarnSnapshot.docs) {
+            print('${docSnapshot.id} => ${docSnapshot.data()}');
+            redeemPoint += docSnapshot.data()['redeemPoint'];
+          }
+        }
+      } catch (e) {
+        print("Error completing: $e");
+      }
+    }
+
+    return earnPoint - redeemPoint;
+  }
   Future<void> saveReservationData() async {
     try {
       final db = FirebaseFirestore.instance;
-      // final user = FirebaseAuth.instance.currentUser;
-      //   String reservationId = FirebaseFirestore.instance.collection('Child').doc().id;
-      // if (user != null) {
-        // String uid = user.uid;
-        await db.collection('Child').doc(email).collection('ReservationInfo').doc(randomCode).set({
-          'restaurantId' : _ownerId,
-          // 'isCancelled' : false,
-          'reservationPrice' : int.parse(enteredNumber),
-          'ReservationCode' : randomCode,
-          'reservationDate' : FieldValue.serverTimestamp(),
-        });
-        await db.collection('DiscountCode').doc(randomCode).set({
-          'isValid' : false,
-          'isUsed' : false
-        });
+      DateTime reservationDate = DateTime.now();
+      DateTime expirationDate = reservationDate.add(const Duration(hours: 1));
+      FieldValue.serverTimestamp();
+      User? currentUser = getUser();
 
-        //idInReservation
-        await db.collection(colName).doc(email).update({'idInReservation': true});
 
+      bool codeExists = true;
+
+      // 중복되지 않는 코드 생성 및 확인
+      while (codeExists) {
+        newCode = generateRandomCode(); // 랜덤 코드 생성
+        final codeDoc = await db.collection('DiscountCode').doc(newCode).get();
+        if (!codeDoc.exists) {
+          codeExists = false; // 중복되지 않는 코드 발견
+        }
       }
-    // }
-    catch(e) {
+      await db.collection('Child').doc(currentUser?.email).collection('ReservationInfo').doc(newCode).set({
+        'restaurantId': _ownerId,
+        'isUsed': false,
+        'reservationPrice': int.parse(enteredNumber),
+        'reservationCode': newCode, // 새로 생성한 코드 사용
+        'reservationDate': FieldValue.serverTimestamp(),
+        'expirationDate': expirationDate,
+      });
+
+      await db.collection('DiscountCode').doc(newCode).set({
+        'isUsed': false,
+        'expirationDate': expirationDate,
+        'childId': currentUser?.email,
+        'reservationPrice': int.parse(enteredNumber),
+        'restaurantId': widget.ownerId,
+      });
+      num totalPoints = await readtotalPoint();
+      num updatedTotalPoints = totalPoints - int.parse(enteredNumber);
+      await writeRestaurantRedeemData(int.parse(enteredNumber), DateTime.now(),updatedTotalPoints,newCode);
+
+      // idInReservation 설정
+      await db.collection(colName).doc(currentUser?.email).update({'idInReservation': true});
+    } catch (e) {
       print('예약 정보 저장 중 오류 발생: $e');
     }
   }

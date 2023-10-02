@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../../base_appbar.dart';
 import '../../../colors.dart';
 import '../../../core/utils/size_utils.dart';
+import '../child_previous_reservation/previous_reservation.dart';
 
 
 class ProfileScreen extends StatelessWidget {
@@ -155,7 +156,13 @@ class ProfileScreen extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => PreviousReservation(),
+                    ),
+                  );
+                },
                 style: ButtonStyle(
                   foregroundColor: MaterialStateProperty.all(Colors.white),
                   backgroundColor: MaterialStateProperty.all(Colors.white),

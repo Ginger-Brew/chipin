@@ -409,7 +409,7 @@ class TabContainerScreenState extends State<TabContainerScreen>
                     controller: tabviewController,
                     children: [
                       MenuPage(restaurantId: _ownerId,), // Menu 데이터 전달),
-                      thanks(),
+                      thanks(restaurantId: _ownerId),
                       // menu3(),
                     ],
                   ),

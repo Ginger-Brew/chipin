@@ -10,7 +10,6 @@ class RegisterModel extends ChangeNotifier {
   //여기서부터 내가 추가한거
   bool checkOver = false;
   bool checkAgree = false;
-  //
 
   void setId(String id) {
     this.id = id;
@@ -36,6 +35,7 @@ class RegisterModel extends ChangeNotifier {
     this.name = name;
     notifyListeners();
   }
+
   //여기서부터 내가 추가한거
   void setCheckOver(bool checkOver){
     this.checkOver= checkOver;

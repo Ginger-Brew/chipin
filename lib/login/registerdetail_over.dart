@@ -1,3 +1,4 @@
+import 'package:chipin/login/information.dart';
 import 'package:chipin/login/login.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -122,9 +123,12 @@ class _CheckAgreeState extends State<CheckAgree> {
           });
         },
       ),
-      Text(
-        '이용 약관 및 개인 정보 취급 방침에 동의합니다',
-        style: TextStyle(fontSize: 13),
+      TextButton(
+        onPressed: () {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => Information()));
+      },
+        child: Text('이용 약관 및 개인 정보 취급 방침에 동의합니다',
+        style: TextStyle(fontSize: 13)),
       )
     ]);
   }
@@ -247,26 +251,6 @@ class NameInput extends StatelessWidget {
         ]));
   }
 }
-
-// class BdayInput extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     final register = Provider.of<RegisterModel>(context, listen: false);
-//     return Container(
-//       padding: EdgeInsets.all(15),
-//       child: TextField(
-//         onChanged: (name) {
-//           register.setName(name);
-//           userinfo["bday"] = register.name;
-//         },
-//         decoration: InputDecoration(
-//           labelText: 'name',
-//           helperText: '',
-//         ),
-//       ),
-//     );
-//   }
-// }
 
 class RegistButton extends StatelessWidget {
   FirebaseFirestore fireStore = FirebaseFirestore.instance;

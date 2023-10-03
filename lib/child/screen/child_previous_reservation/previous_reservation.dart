@@ -73,7 +73,7 @@ class PreviousReservation extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => WriteThankYouNotePage(),
+                            builder: (context) => WriteThankYouNotePage(restaurantEmail: restaurantId, mealDate: mealDateTimestamp,),
                           ),
                         );
                       },

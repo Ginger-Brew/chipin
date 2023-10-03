@@ -4,28 +4,48 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class WriteThankYouNotePage extends StatefulWidget {
+  final String restaurantEmail;
+  final Timestamp mealDate;
+  const WriteThankYouNotePage({super.key, required this.restaurantEmail, required this.mealDate});
   @override
-  _WriteThankYouNotePageState createState() => _WriteThankYouNotePageState();
+  _WriteThankYouNotePageState
+  createState() => _WriteThankYouNotePageState();
+}
+User? getUser() {
+  final user = FirebaseAuth.instance.currentUser;
+  if (user != null) {
+    final name = user.displayName;
+    final email = user.email;
+    final photoUrl = user.photoURL;
+    final amailVerified = user.emailVerified;
+    final uid = user.uid;
+  }
+  return user;
 }
 class _WriteThankYouNotePageState extends State<WriteThankYouNotePage> {
   final TextEditingController _noteController = TextEditingController();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  // final FirebaseAuth _auth = FirebaseAuth.instance;
 
   void _saveThankYouNote() async {
-    final user = _auth.currentUser;
-    if (user == null) {
+    // final user = _auth.currentUser;
+    User? currentUser = getUser();
+
+    if (currentUser == null) {
       // 사용자가 로그인하지 않았다면 처리
       return;
     }
 
     final String noteText = _noteController.text.trim();
     if (noteText.isNotEmpty) {
-      // Firestore에 감사편지 저장
-      await _firestore.collection('thank_you_notes').add({
-        'userId': user.uid,
-        'noteText': noteText,
-        'timestamp': FieldValue.serverTimestamp(),
+      final reviewCollection = _firestore.collection('Review');
+      final randomDocName = reviewCollection.doc().id;
+      await reviewCollection.doc(randomDocName).set({
+        'childId' : currentUser.email,
+        'childNickname' : currentUser.displayName,
+        'content' : noteText,
+        'restaurantId' :widget.restaurantEmail,
+        'timestamp' : widget.mealDate
       });
 
       // 감사편지 작성 완료 후 이전 화면으로 돌아감

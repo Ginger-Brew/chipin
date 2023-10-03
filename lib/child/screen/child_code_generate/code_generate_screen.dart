@@ -62,7 +62,6 @@ class _CodeGenerateScreenState extends State<CodeGenerateScreen> {
         Timestamp e_t = data["expirationDate"];
         DateTime e_date = e_t.toDate();
         expirationDate =DateFormat('yy/MM/dd HH:mm:ss').format(e_date);
-
         reservationPrice = data["reservationPrice"];
         restaurantEmail = data["restaurantId"];
         fetchRestaurantData();

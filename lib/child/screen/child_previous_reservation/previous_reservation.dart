@@ -68,12 +68,21 @@ class PreviousReservation extends StatelessWidget {
                   final restaurantBanner = restaurantData?['banner'] ?? '';
                   return ListTile(
                     title: Text('$restaurantName,${DateFormat('yyyy년 MM월 dd일 HH시 mm분').format(mealDate)}'),
-                    trailing: ElevatedButton(
+                    trailing: reservation['isReviewed'] == true // isReviewed가 true인 경우
+                        ? ElevatedButton(
+                      onPressed: null,
+                      child: Text('편지 작성 완료', style: TextStyle(color: Colors.white)),
+                    )
+                        : ElevatedButton(
                       onPressed: () {
+                        // 버튼 클릭 시 작성 페이지로 이동
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => WriteThankYouNotePage(restaurantEmail: restaurantId, mealDate: mealDateTimestamp,),
+                            builder: (context) => WriteThankYouNotePage(
+                              restaurantEmail: restaurantId,
+                              mealDate: mealDateTimestamp,
+                            ),
                           ),
                         );
                       },

@@ -27,15 +27,15 @@ Future<String?> getUserName (String? userEmail) async {
   try {
     final userCollection = FirebaseFirestore.instance.collection('Users');
     final userDoc = await userCollection.doc(userEmail).get();
+    final userinfoCollection = userDoc.reference.collection('userinfo');
+    final userinfoDoc = await userinfoCollection.doc('userinfo').get();
 
-    if (userDoc.exists) {
-      final userinfoCollection = userDoc.reference.collection('userinfo');
-      final userinfoDoc = await userinfoCollection.doc('userinfo').get();
-
-      if (userinfoDoc.exists) {
+    if (userinfoDoc.exists) {
+        print("좀되라ㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏ");
+        print(userinfoDoc['name']);
         return userinfoDoc['name'] as String?;
-      }
     }
+
   } catch (e) {
     print('Error getting user name: $e');
   }
@@ -67,12 +67,45 @@ class _WriteThankYouNotePageState extends State<WriteThankYouNotePage> {
         'restaurantId' :widget.restaurantEmail,
         'timestamp' : widget.mealDate
       });
-
+      saveReviewStatus(userEmail!, widget.restaurantEmail, widget.mealDate);
       // 감사편지 작성 완료 후 이전 화면으로 돌아감
       Navigator.pop(context);
     }
   }
+  Future<void> saveReviewStatus(String userId, String restaurantId, Timestamp mealDate) async {
+    final firestore = FirebaseFirestore.instance;
 
+    try {
+      // Child 컬렉션에서 해당 userId 문서 가져오기
+      final childDocRef = firestore.collection("Child").doc(userId);
+      final childDocSnapshot = await childDocRef.get();
+
+      if (childDocSnapshot.exists) {
+        // ReservationInfo 컬렉션에서 해당 restaurantId와 mealDate와 일치하는 예약 정보 가져오기
+        final reservationQuery = await firestore
+            .collection("Child")
+            .doc(userId)
+            .collection("ReservationInfo")
+            .where("restaurantId", isEqualTo: restaurantId)
+            .where("reservationDate", isEqualTo: mealDate)
+            .get();
+
+        // 가져온 예약 정보의 isReviewed 필드를 true로 설정
+        for (final reservationDoc in reservationQuery.docs) {
+          await reservationDoc.reference.update({"isReviewed": true});
+        }
+
+        // 성공적으로 업데이트되었을 때, 해당 작업을 로그에 기록하거나 추가 로직을 수행할 수 있습니다.
+        print("Review status updated successfully.");
+      } else {
+        // userId에 해당하는 Child 문서가 존재하지 않을 때 처리
+        print("Child document not found for userId: $userId");
+      }
+    } catch (e) {
+      // 오류 처리
+      print("Error updating review status: $e");
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(

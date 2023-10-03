@@ -548,6 +548,7 @@ class _CustomPricePageState extends State<CustomPricePage> {
         'reservationCode': newCode, // 새로 생성한 코드 사용
         'reservationDate': FieldValue.serverTimestamp(),
         'expirationDate': expirationDate,
+        'isReviewed' : false
       });
 
       await db.collection('DiscountCode').doc(newCode).set({

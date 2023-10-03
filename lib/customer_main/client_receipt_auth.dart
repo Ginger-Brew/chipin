@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -6,19 +7,61 @@ import '../colors.dart';
 import 'client_menu_unit.dart';
 
 class ClientReceiptAuth extends StatefulWidget {
-  const ClientReceiptAuth({Key? key}) : super(key: key);
+  String title;
+  DateTime? date;
+  TimeOfDay time;
+  List menu;
+
+  ClientReceiptAuth({
+    Key? key,
+    required this.title,
+    required this.date,
+    required this.time,
+    required this.menu,
+  }) : super(key: key);
 
   @override
-  State<ClientReceiptAuth> createState() => _ClientReceiptAuthState();
+  State<ClientReceiptAuth> createState() => _ClientReceiptAuthState(title, date, time, menu);
 }
 
 class _ClientReceiptAuthState extends State<ClientReceiptAuth> {
+  var title, date, time, menu;
+  _ClientReceiptAuthState(this.title, this.date, this.time, this.menu);
+
+  var result = [];
+  var image, addr;
+
+  getData() async {
+    await FirebaseFirestore.instance
+        .collection('Restaurant')
+        .snapshots()
+        .listen((data) async {
+      result.clear();
+
+      for (var element in data.docs) {
+        if(element["name"] == title) {
+          image = await element["banner"];
+          addr = await element["address1"]+' '+element["address2"];
+        }
+      }
+
+      if(image == null) {
+        image = 'https://firebasestorage.googleapis.com/v0/b/chipin-c3559.appspot.com/o'
+            '/support%2F%EC%B4%88%EB%A1%9D%EC%9A%B0%EC%82%B0.png?alt=media&token=d0a55dba-e01c-421c-a314-25dde8ffbd0c';
+        addr = '데이터업다';
+      }
+      print(addr);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    getData();
     return Scaffold(
         backgroundColor: MyColor.BACKGROUND,
         appBar: BaseAppBar(title: "가게 정보"),
         body: Container(
+          margin: EdgeInsets.fromLTRB(10, 20, 10, 0),
           child: SingleChildScrollView(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
@@ -28,7 +71,7 @@ class _ClientReceiptAuthState extends State<ClientReceiptAuth> {
                   child: Image(
                       width: 400.0,
                       height: 250.0,
-                      image: AssetImage('assets/images/ohyang_restaurant.png')
+                      image: Image.network(image).image
                   ),
                 ),
                 Container(
@@ -40,7 +83,7 @@ class _ClientReceiptAuthState extends State<ClientReceiptAuth> {
                         width: double.infinity,
                         margin: EdgeInsets.fromLTRB(20, 20, 0, 0),
                         child: Text(
-                            '오양 칼국수',
+                            title,
                             style: TextStyle(
                               fontFamily: "Mainfonts",
                               fontSize: 25,
@@ -49,12 +92,12 @@ class _ClientReceiptAuthState extends State<ClientReceiptAuth> {
                       ),
                       Container(
                         width: double.infinity,
-                        margin: EdgeInsets.fromLTRB(40, 20, 0, 0),
+                        margin: EdgeInsets.fromLTRB(20, 20, 0, 0),
                         child: Text(
-                            '충남 보령시 보령남로 125-7',
+                            addr,
                             style: TextStyle(
                                 fontFamily: "Pretendard",
-                                fontSize: 17,
+                                fontSize: 15,
                                 color: Colors.black)
                         ),
                       )
@@ -79,8 +122,7 @@ class _ClientReceiptAuthState extends State<ClientReceiptAuth> {
                     textAlign: TextAlign.left,
                   ),
                 ),
-                ClientMenuUnit(title: '오.칼(보리밥)', prize: '9000원', count: '1개',),
-                ClientMenuUnit(title: '키.칼(보리밥)', prize: '8000원', count: '2개',),
+                ClientMenuUnit(title: menu[0], prize: menu[1]+'원', count: menu[2]+'개',),
                 Container(
                   margin: EdgeInsets.fromLTRB(20, 20, 10, 0),
                   child: Row(
@@ -98,7 +140,7 @@ class _ClientReceiptAuthState extends State<ClientReceiptAuth> {
                       Expanded(
                         flex: 2,
                         child: Text(
-                            '2,000원',
+                            Point(),
                             style: TextStyle(
                               fontFamily: "Mainfonts",
                               fontSize: 17,
@@ -184,6 +226,28 @@ class _ClientReceiptAuthState extends State<ClientReceiptAuth> {
             ),
           ),
         )
+    );
+  }
+
+  String Point() {
+    int prize = int.parse(menu[1]);
+    int count = int.parse(menu[2]);
+    int result = (prize*count)~/10;
+
+    return result.toString()+"원";
+  }
+
+  Widget restaurant_addr() {
+    return Container(
+      width: double.infinity,
+      margin: EdgeInsets.fromLTRB(40, 20, 0, 0),
+      child: Text(
+          addr,
+          style: TextStyle(
+              fontFamily: "Pretendard",
+              fontSize: 17,
+              color: Colors.black)
+      ),
     );
   }
 }

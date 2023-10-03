@@ -14,12 +14,12 @@ class ClientMenuUnit extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.fromLTRB(40, 20, 10, 10),
+      margin: EdgeInsets.fromLTRB(20, 20, 10, 10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
         Column(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
+          crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                       title,

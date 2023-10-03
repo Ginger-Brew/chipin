@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:chipin/customer_main/client_temp_receipt.dart';
 import 'package:chipin/customer_main/client_text_btn.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -225,22 +226,26 @@ class _ClientMainState extends State<ClientMain> {
 
                   TextButton(
                       onPressed: () async {
-                        await getImage(ImageSource.camera);
-                        if (_image == null) return;
+                        // await getImage(ImageSource.camera);
+                        // if (_image == null) return;
+                        //
+                        // List<int> imageByte = await _image!.readAsBytes();
+                        // String encodedImage = base64Encode(imageByte);
+                        // print(encodedImage);
+                        //
+                        // final dio = Dio();
+                        // final result = await dio.post(
+                        //   "http://43.200.163.101:51854/",
+                        //   data: {
+                        //     'img': encodedImage,
+                        //   },
+                        // );
+                        //
+                        // print(result);
 
-                        List<int> imageByte = await _image!.readAsBytes();
-                        String encodedImage = base64Encode(imageByte);
-                        print(encodedImage);
-
-                        final dio = Dio();
-                        final result = await dio.post(
-                          "http://43.200.163.101:51854/",
-                          data: {
-                            'img': encodedImage,
-                          },
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) => const ClientTempReceipt())
                         );
-
-                        print(result);
                       },
                       child: ClientYellowBtn(
                         imgPath: "receipt.png",

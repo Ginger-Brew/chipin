@@ -84,21 +84,33 @@ class _ChildMainState extends State<ChildMain> {
           children: <Widget>[
             CustomGoogleMap(),
             ChildMainSearch(),
-            DraggableScrollableSheet(
-              /// 수정 필요
-              // 결과 높이를 구해서 maxChildSize로 설정해야함.
-              initialChildSize: 0.30,
-              minChildSize: 0.15,
-              builder: (BuildContext context, ScrollController scrollController) {
-                //return
-                //  ScrollingRestaurants();
-                return SingleChildScrollView(
-                  key: _containerkey,
-                  controller: scrollController,
-                  child: CustomScrollViewContent(),
-                );
+            StreamBuilder(
+              stream:
+              FirebaseFirestore.instance.collection('Restaurant').snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  final docs = snapshot.data!.docs;
+                  return DraggableScrollableSheet(
+                    // 결과 높이를 구해서 maxChildSize로 설정해야함.
+                    initialChildSize: 0.2,
+                    maxChildSize: 0.2 * docs.length.toDouble(),
+                    minChildSize: 0.15,
+                    builder: (BuildContext context, ScrollController scrollController) {
+                      //return
+                      //  ScrollingRestaurants();
+                      return SingleChildScrollView(
+                        key: _containerkey,
+                        controller: scrollController,
+                        child: CustomScrollViewContent(),
+                      );
+                    },
+                  );
+                } else {
+                  return CircularProgressIndicator();
+                }
               },
             ),
+
           ],
         )
     );

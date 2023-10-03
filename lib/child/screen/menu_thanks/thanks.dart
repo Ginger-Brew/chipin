@@ -7,17 +7,17 @@ import '../report/report_detail.dart';
 
 // ignore_for_file: must_be_immutable
 class thanks extends StatefulWidget {
-  const thanks({Key? key})
-      : super(
-    key: key,
-  );
+  String restaurantId;
+  thanks({super.key, required this.restaurantId});
 
   @override
-  thanksState createState() => thanksState();
+  thanksState createState() => thanksState(restaurantId: restaurantId);
 }
 
 class thanksState extends State<thanks>
     with AutomaticKeepAliveClientMixin<thanks> {
+  String restaurantId;
+  thanksState({required this.restaurantId});
 
   @override
   bool get wantKeepAlive => true;
@@ -30,7 +30,7 @@ class thanksState extends State<thanks>
     return Padding(
         padding: const EdgeInsets.only(bottom: 16),
         child: FutureBuilder(
-          future: reviewService.getReviewList('restaurant@test.com'),
+          future: reviewService.getReviewList(restaurantId),
           builder: (context, snapshot) {
             if (snapshot.hasData == false) {
               return CircularProgressIndicator();
@@ -129,9 +129,7 @@ class CustomRestaurantCategory extends StatelessWidget {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => ReportDetail(
-                          childId : review.childId!
-                      )
+                      builder: (context) => ReportDetail(review: review)
                   )
               );
             },

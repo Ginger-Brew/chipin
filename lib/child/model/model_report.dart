@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Review {
+  String? reviewId;
   String? childId;
   String? restaurantId;
   String? content;
@@ -11,7 +12,8 @@ class Review {
   Review({this.childId, this.restaurantId, this.content, this.childNickName,
     this.timestamp, /*this.reports = const []*/});
 
-  void fromJson(Map<dynamic, dynamic> json) {
+  void fromJson(String reviewId, Map<dynamic, dynamic> json) {
+    this.reviewId = reviewId;
     this.childId= json['childId'];
     this.restaurantId= json['restaurantId'];
     this.content= json['content'];

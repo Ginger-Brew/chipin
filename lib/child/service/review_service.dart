@@ -23,7 +23,7 @@ class ReviewService {
         for (var review in querySnapshot.docs) {
           Review _review = Review();
           // querySnapshot.docs.data() => Map
-          _review.fromJson(review.data());
+          _review.fromJson(review.id, review.data());
           if (_review.restaurantId == nowRestaurantId) {
             _reviews.add(_review);
           }
@@ -34,4 +34,5 @@ class ReviewService {
 
     return _reviews;
   }
+
 }

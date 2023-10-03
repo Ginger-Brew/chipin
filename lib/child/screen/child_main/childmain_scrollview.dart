@@ -37,6 +37,7 @@ class CustomInnerContent extends StatelessWidget {
   }
 }
 
+/// 모달 창에서 위에 있는 손잡이
 class CustomDraggingHandle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -49,6 +50,7 @@ class CustomDraggingHandle extends StatelessWidget {
   }
 }
 
+/// 모달 창 안에 있는 식당 리스트
 class ScrollingRestaurants extends StatelessWidget {
   StreamController<String> streamController = StreamController<String>();
 
@@ -125,9 +127,10 @@ class RestaurantCard extends StatelessWidget {
 class DivideLine extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    double width = MediaQuery.of(context).size.width;
     return Center(
         child: Container(
-            width: 350, child: Divider(color: Colors.grey, thickness: 1.0)));
+            width: width*0.8, child: Divider(color: Colors.grey, thickness: 1.0)));
   }
 }
 
@@ -172,10 +175,12 @@ class CustomRestaurantCategory extends StatelessWidget {
   }
   @override
   Widget build(BuildContext context) {
+    double width = MediaQuery.of(context).size.width;
+
     return Padding(
         padding: const EdgeInsets.only(bottom: 20),
         child: Container(
-            width: 340,
+            width: width*0.8,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -200,8 +205,8 @@ class CustomRestaurantCategory extends StatelessWidget {
                           );
                         },
                         child: Container(
-                            height: 90,
-                            width: 90,
+                            height: width*0.15,
+                            width: width*0.15,
                           child: Image.network(imageURL,
                             fit: BoxFit.cover,) // 이미지를 정사각형 비율로 크롭), // imageURL을 사용
                             // child: Image.network(
@@ -212,7 +217,7 @@ class CustomRestaurantCategory extends StatelessWidget {
                           // ),
                         )
                     ),
-                    SizedBox(width: 8),
+                    SizedBox(width: width*0.03),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -221,15 +226,15 @@ class CustomRestaurantCategory extends StatelessWidget {
                           style: TextStyle(
                             fontFamily: "Mainfonts",
                             fontWeight: FontWeight.bold,
-                            fontSize: 20,
+                            fontSize: 23,
                           ),
                         ),
                         Row(
                           children: <Widget>[
                             Icon(Icons.location_on, size: 20),
-                            SizedBox(width: 8),
+                            SizedBox(width: 5),
                             Container(
-                              width: MediaQuery.of(context).size.width - 250, // 48은 아이콘과 간격 등을 고려한 값입니다. 필요에 따라 조정하세요.
+                              width: width*0.5, // 48은 아이콘과 간격 등을 고려한 값입니다. 필요에 따라 조정하세요.
                               child: Text(
                                 location,
                                 maxLines: 3,
@@ -244,19 +249,18 @@ class CustomRestaurantCategory extends StatelessWidget {
                         ),
                         Row(
                           children: <Widget>[
-                            Icon(Icons.access_time_filled, size: 20),
+                            Icon(Icons.access_time_filled, size: 17),
                             SizedBox(width: 8),
                             Text(time, style: TextStyle(fontFamily: "Pretendard", fontSize: 15)),
                           ],
                         ),
                       ],
                     ),
-
                   ],
                 ),
                 Container(
-                  height: 40,
-                  width: 40,
+                  height: width*0.05,
+                  width: width*0.05,
                   child: Icon(Icons.favorite, size: 12, color: Colors.black54),
                   decoration: BoxDecoration(
                       color: Colors.grey[200],

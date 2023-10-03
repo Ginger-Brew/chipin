@@ -14,35 +14,55 @@ class WriteThankYouNotePage extends StatefulWidget {
 User? getUser() {
   final user = FirebaseAuth.instance.currentUser;
   if (user != null) {
-    final name = user.displayName;
     final email = user.email;
+    final name = user.displayName;
+
     final photoUrl = user.photoURL;
     final amailVerified = user.emailVerified;
     final uid = user.uid;
   }
   return user;
 }
+Future<String?> getUserName (String? userEmail) async {
+  try {
+    final userCollection = FirebaseFirestore.instance.collection('Users');
+    final userDoc = await userCollection.doc(userEmail).get();
+
+    if (userDoc.exists) {
+      final userinfoCollection = userDoc.reference.collection('userinfo');
+      final userinfoDoc = await userinfoCollection.doc('userinfo').get();
+
+      if (userinfoDoc.exists) {
+        return userinfoDoc['name'] as String?;
+      }
+    }
+  } catch (e) {
+    print('Error getting user name: $e');
+  }
+
+  return null; // 오류 발생 시 또는 데이터를 찾지 못한 경우 null 반환
+}
 class _WriteThankYouNotePageState extends State<WriteThankYouNotePage> {
   final TextEditingController _noteController = TextEditingController();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   // final FirebaseAuth _auth = FirebaseAuth.instance;
-
   void _saveThankYouNote() async {
     // final user = _auth.currentUser;
     User? currentUser = getUser();
+    final String? userEmail = currentUser?.email;
 
     if (currentUser == null) {
       // 사용자가 로그인하지 않았다면 처리
       return;
     }
-
+    final userName = await getUserName(userEmail);
     final String noteText = _noteController.text.trim();
     if (noteText.isNotEmpty) {
       final reviewCollection = _firestore.collection('Review');
       final randomDocName = reviewCollection.doc().id;
       await reviewCollection.doc(randomDocName).set({
-        'childId' : currentUser.email,
-        'childNickname' : currentUser.displayName,
+        'childId' :userEmail,
+        'childNickname' : userName,
         'content' : noteText,
         'restaurantId' :widget.restaurantEmail,
         'timestamp' : widget.mealDate

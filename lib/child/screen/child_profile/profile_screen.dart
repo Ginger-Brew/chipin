@@ -1,10 +1,11 @@
+import 'package:chipin/child/screen/child_appbar/ChildAppBar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import '../../../base_appbar.dart';
 import '../../../colors.dart';
 import '../../../core/utils/size_utils.dart';
+import '../child_appbar/ChildDrawerMenu.dart';
 import '../child_previous_reservation/previous_reservation.dart';
 
 
@@ -45,7 +46,7 @@ class ProfileScreen extends StatelessWidget {
       onTap: () {
         // 프로필 사진을 클릭할 때 실행할 동작 추가 (사진 등록)
       },
-      child: CircleAvatar(
+      child: const CircleAvatar(
         child: Icon(Icons.person),
         radius: 40.0,
       ),
@@ -53,7 +54,8 @@ class ProfileScreen extends StatelessWidget {
     return SafeArea(
       child: Scaffold(
         backgroundColor: MyColor.BACKGROUND,
-        appBar: const BaseAppBar(title: "내 정보"),
+        appBar: const ChildAppBar(title: "내 정보"),
+        endDrawer: ChildDrawerMenu(),
         body: SizedBox(
           width: double.maxFinite,
           child: Column(

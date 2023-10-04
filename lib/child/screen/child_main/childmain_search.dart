@@ -20,9 +20,30 @@ class ChildMainSearch extends StatelessWidget {
     );
   }
 }
+User? getUser() {
+  final user = FirebaseAuth.instance.currentUser;
+  if (user != null) {
+    final name = user.displayName;
+    final email = user.email;
+    final photoUrl = user.photoURL;
+
+    final emailVerified = user.emailVerified;
+    final uid = user.uid;
+  }
+  return user;
+}
 
 class CustomSearchContainer extends StatelessWidget {
-
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  late bool isCardAuthenticated = false;
+  User? currentChild = getUser();
+  Future<void> checkIsAuthenticated() async {
+    final isAuthenticatedQuery = await _firestore.collection('Child').doc(currentChild?.email).get();
+    if (isAuthenticatedQuery.exists) {
+      final AuthenticatedData = isAuthenticatedQuery.data();
+      isCardAuthenticated = AuthenticatedData?['isCardAuthenticated'] ?? false;
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -39,10 +60,14 @@ class CustomSearchContainer extends StatelessWidget {
             CustomTextField(),
             IconButton(
                 onPressed: () {
-                  Child child = Child();
-                  bool isCardOK = child.getIsCardAuthenticated();
+                  // Child child = Child();
+                  // bool isCardOK = child.getIsCardAuthenticated();
+                  bool isCardOK = isCardAuthenticated;
+                  print("테스트 is Card Ok$isCardOK");
 
                   Navigator.push(context,
+                      // MaterialPageRoute(builder: (context) => ProfileScreen(isCardVerified: true))); }
+
                       MaterialPageRoute(builder: (context) => ProfileScreen(isCardVerified: isCardOK))); }
                 , icon: Icon(Icons.person)),
             SizedBox(width: 16),
@@ -79,17 +104,6 @@ class CustomUserAvatar extends StatelessWidget {
           color: Colors.grey[500], borderRadius: BorderRadius.circular(16)),
     );
   }
-}
-User? getUser() {
-  final user = FirebaseAuth.instance.currentUser;
-  if (user != null) {
-    final name = user.displayName;
-    final email = user.email;
-    final photoUrl = user.photoURL;
-    final emailVerified = user.emailVerified;
-    final uid = user.uid;
-  }
-  return user;
 }
 Stream<bool> getIdInReservationStream(String email) {
   return FirebaseFirestore.instance

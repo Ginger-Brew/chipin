@@ -1,3 +1,4 @@
+import 'package:chipin/child/screen/child_appbar/ChildAppBar.dart';
 import 'package:chipin/child/screen/child_previous_reservation/write_thank_note.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -5,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../../base_appbar.dart';
+import '../child_appbar/ChildDrawerMenu.dart';
 
 User? getUser() {
   final user = FirebaseAuth.instance.currentUser;
@@ -26,7 +28,8 @@ class PreviousReservation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const BaseAppBar(title: "지난 식사 내역"),
+      appBar: const ChildAppBar(title: "지난 식사 내역"),
+      endDrawer: ChildDrawerMenu(),
       body: StreamBuilder<QuerySnapshot>(
         stream: _firestore
             .collection('Child')

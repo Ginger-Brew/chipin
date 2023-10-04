@@ -8,16 +8,18 @@ import 'package:intl/intl.dart';
 
 import '../../../base_appbar.dart';
 import '../../../core/utils/size_utils.dart';
-
+import '../child_appbar/ChildAppBar.dart';
+import '../child_appbar/ChildDrawerMenu.dart';
 
 class CodeGenerateScreen extends StatefulWidget {
-  const CodeGenerateScreen({super.key});
+  const CodeGenerateScreen({Key? key}) : super(key: key);
 
   @override
   _CodeGenerateScreenState createState() => _CodeGenerateScreenState();
 }
 
 class _CodeGenerateScreenState extends State<CodeGenerateScreen> {
+  bool isLoading = true;
   final String colName = "Child";
   User? user = FirebaseAuth.instance.currentUser;
   final String reservation = "ReservationInfo";
@@ -32,42 +34,35 @@ class _CodeGenerateScreenState extends State<CodeGenerateScreen> {
   String address1 = "";
   String banner = "";
   String restaurantName = "";
-  User? getUser() {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      final name = user.displayName;
-      final email = user.email;
-      final photoUrl = user.photoURL;
-      final emailVerified = user.emailVerified;
-      final uid = user.uid;
-    }
-    return user;
-  }
-  void readData() async {
+
+  Future<void> readData() async {
     final db = FirebaseFirestore.instance
         .collection(colName)
         .doc(user?.email)
         .collection(reservation);
     Timestamp currentTimestamp = Timestamp.now();
-    
-    QuerySnapshot querySnapshot = await db.where('expirationDate', isGreaterThan: currentTimestamp).get();
+
+    QuerySnapshot querySnapshot =
+    await db.where('expirationDate', isGreaterThan: currentTimestamp).get();
     if (querySnapshot.docs.isNotEmpty) {
       DocumentSnapshot ds = querySnapshot.docs.first;
       Map<String, dynamic> data = ds.data() as Map<String, dynamic>;
       setState(() {
+        isLoading = false;
         reservationCode = data["reservationCode"];
         Timestamp t = data["reservationDate"];
         DateTime date = t.toDate();
         reservationDate = DateFormat('yy/MM/dd HH:mm:ss').format(date);
         Timestamp e_t = data["expirationDate"];
         DateTime e_date = e_t.toDate();
-        expirationDate =DateFormat('yy/MM/dd HH:mm:ss').format(e_date);
+        expirationDate = DateFormat('yy/MM/dd HH:mm:ss').format(e_date);
         reservationPrice = data["reservationPrice"];
         restaurantEmail = data["restaurantId"];
         fetchRestaurantData();
       });
     }
   }
+
   void fetchRestaurantData() async {
     try {
       final restaurantCollection = FirebaseFirestore.instance.collection("Restaurant");
@@ -84,9 +79,7 @@ class _CodeGenerateScreenState extends State<CodeGenerateScreen> {
         banner = restaurantData["banner"];
         restaurantName = restaurantData["name"];
         setState(() {
-          // Set the values in the state
-          // address1State = address1;
-          // bannerState = banner;
+          isLoading = false; // 로딩이 끝났음을 표시
         });
       } else {
         print("No matching restaurant found.");
@@ -97,16 +90,24 @@ class _CodeGenerateScreenState extends State<CodeGenerateScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  void initState() {
+    super.initState();
     readData();
+  }
 
-    mediaQueryData = MediaQuery.of(context);
+  @override
+  Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.white,
         resizeToAvoidBottomInset: false,
-        appBar: const BaseAppBar(title: "가게정보"),
-        body: SizedBox(
+        appBar: const ChildAppBar(title: "가게정보"),
+        endDrawer: ChildDrawerMenu(),
+        body: isLoading
+            ? Center(
+          child: CircularProgressIndicator(),
+        )
+            : SizedBox(
           height: mediaQueryData.size.height,
           width: double.maxFinite,
           child: Container(
@@ -123,14 +124,15 @@ class _CodeGenerateScreenState extends State<CodeGenerateScreen> {
                   child: Padding(
                     padding: getPadding(left: 2, right: 11, top: 20),
                     child: Row(
-                      // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Container(
                           width: 122,
                           height: 122,
                           margin: const EdgeInsets.only(left: 21),
-                        child: Image.network(banner,
-                          fit: BoxFit.cover,),
+                          child: Image.network(
+                            banner,
+                            fit: BoxFit.cover,
+                          ),
                         ),
                         Padding(
                           padding: getPadding(
@@ -143,7 +145,6 @@ class _CodeGenerateScreenState extends State<CodeGenerateScreen> {
                             children: [
                               const Text(
                                 "현재 예약중!",
-
                                 overflow: TextOverflow.ellipsis,
                                 textAlign: TextAlign.left,
                                 style: TextStyle(
@@ -158,23 +159,24 @@ class _CodeGenerateScreenState extends State<CodeGenerateScreen> {
                                 ),
                                 child: Text(
                                   restaurantName,
-                                  overflow: TextOverflow.ellipsis,
+                                  overflow: TextOverflow.clip,
                                   textAlign: TextAlign.left,
                                   style: const TextStyle(
                                     fontSize: 20,
                                     fontFamily: "Mainfonts",
                                     color: Colors.black,
                                   ),
+                                  maxLines: 1,
                                 ),
                               ),
                               SizedBox(
-                                width: 200, // 원하는 너비 설정
+                                width: 130,
                                 child: Text(
                                   address1,
-                                  overflow: TextOverflow.ellipsis,
+                                  overflow: TextOverflow.clip,
                                   textAlign: TextAlign.left,
                                   style: const TextStyle(fontSize: 14),
-                                  maxLines: 3, // 한 줄에 표시하고 자동으로 줄바꿈
+                                  maxLines: 3,
                                 ),
                               )
                             ],
@@ -215,7 +217,6 @@ class _CodeGenerateScreenState extends State<CodeGenerateScreen> {
                   ),
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(20),
-                      // color:  Color(0XFFB3BFCB).withOpacity(0.46)
                       color: const Color(0xFFB3BFCB).withOpacity(0.46)),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -247,7 +248,6 @@ class _CodeGenerateScreenState extends State<CodeGenerateScreen> {
                                     "예약 포인트 $reservationPrice원",
                                     overflow: TextOverflow.ellipsis,
                                     textAlign: TextAlign.left,
-                                    // style: theme.textTheme.titleSmall,
                                   ),
                                 ),
                               ],
@@ -273,7 +273,6 @@ class _CodeGenerateScreenState extends State<CodeGenerateScreen> {
                                       "예약 확정 시간 : $reservationDate",
                                       overflow: TextOverflow.ellipsis,
                                       textAlign: TextAlign.left,
-                                      // style: theme.textTheme.titleSmall,
                                     ),
                                   ),
                                 ],
@@ -300,7 +299,6 @@ class _CodeGenerateScreenState extends State<CodeGenerateScreen> {
                                       "예약 마감 시간 : $expirationDate",
                                       overflow: TextOverflow.ellipsis,
                                       textAlign: TextAlign.left,
-                                      // style: theme.textTheme.titleSmall,
                                     ),
                                   ),
                                 ],
@@ -321,14 +319,14 @@ class _CodeGenerateScreenState extends State<CodeGenerateScreen> {
                     child: Container(
                       padding: const EdgeInsets.all(16),
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center, // 가운데 정렬
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           _buildCodeBox(reservationCode[0]),
-                          const SizedBox(width: 10), // 10 픽셀의 간격
+                          const SizedBox(width: 10),
                           _buildCodeBox(reservationCode[1]),
-                          const SizedBox(width: 10), // 10 픽셀의 간격
+                          const SizedBox(width: 10),
                           _buildCodeBox(reservationCode[2]),
-                          const SizedBox(width: 10), // 10 픽셀의 간격
+                          const SizedBox(width: 10),
                           _buildCodeBox(reservationCode[3]),
                         ],
                       ),
@@ -339,8 +337,6 @@ class _CodeGenerateScreenState extends State<CodeGenerateScreen> {
                   "코드를 매장 직원에게 보여주세요",
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.left,
-                  // style:
-                  // CustomTextStyles.titleLargeGyeonggiTitleB,
                 ),
               ],
             ),
@@ -366,19 +362,8 @@ class _CodeGenerateScreenState extends State<CodeGenerateScreen> {
         code,
         style: const TextStyle(
           fontSize: 20,
-          // fontWeight: FontWeight.bold
         ),
       ),
     );
   }
-}
-
-EdgeInsets getPadding(
-    {double? left, double? top, double? right, double? bottom}) {
-  return EdgeInsets.fromLTRB(left ?? 0, top ?? 0, right ?? 0, bottom ?? 0);
-}
-
-double getHorizontalSize(double size) {
-  // Replace this with your size calculation logic
-  return size;
 }

@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
+import '../child_appbar/ChildAppBar.dart';
+import '../child_appbar/ChildDrawerMenu.dart';
 
 class WriteThankYouNotePage extends StatefulWidget {
   final String restaurantEmail;
@@ -31,8 +33,6 @@ Future<String?> getUserName (String? userEmail) async {
     final userinfoDoc = await userinfoCollection.doc('userinfo').get();
 
     if (userinfoDoc.exists) {
-        print("좀되라ㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏ");
-        print(userinfoDoc['name']);
         return userinfoDoc['name'] as String?;
     }
 
@@ -109,9 +109,8 @@ class _WriteThankYouNotePageState extends State<WriteThankYouNotePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('감사편지 작성'),
-      ),
+      appBar: const ChildAppBar(title:"감사편지 작성"),
+      endDrawer: ChildDrawerMenu(),
       body: Padding(
         padding: EdgeInsets.all(16.0),
         child: Column(

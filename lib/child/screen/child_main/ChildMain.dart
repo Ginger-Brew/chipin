@@ -41,7 +41,6 @@ class _ChildMainState extends State<ChildMain> {
         .get();
 
     final hasValidReservation = reservationQuery.docs.isNotEmpty;
-
     // 업데이트할 데이터
     final data = {'idInReservation': hasValidReservation};
 

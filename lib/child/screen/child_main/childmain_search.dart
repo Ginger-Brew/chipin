@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../../../colors.dart';
-import '../../model/model_child.dart';
 import '../child_code_generate/code_generate_screen.dart';
 import '../child_profile/profile_screen.dart';
 
@@ -37,13 +36,17 @@ class CustomSearchContainer extends StatelessWidget {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   late bool isCardAuthenticated = false;
   User? currentChild = getUser();
-  Future<void> checkIsAuthenticated() async {
+  Future<bool> checkIsAuthenticated() async {
     final isAuthenticatedQuery = await _firestore.collection('Child').doc(currentChild?.email).get();
     if (isAuthenticatedQuery.exists) {
       final AuthenticatedData = isAuthenticatedQuery.data();
       isCardAuthenticated = AuthenticatedData?['isCardAuthenticated'] ?? false;
+      // print("가나다 $isCardAuthenticated");
+      return isCardAuthenticated;
     }
+    return false;
   }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -55,22 +58,17 @@ class CustomSearchContainer extends StatelessWidget {
             color: Colors.white, borderRadius: BorderRadius.circular(6)),
         child: Row(
           children: <Widget>[
-            SizedBox(width: 16),
-            Icon(Icons.search),
+            const SizedBox(width: 16),
+            const Icon(Icons.search),
             CustomTextField(),
             IconButton(
-                onPressed: () {
-                  // Child child = Child();
-                  // bool isCardOK = child.getIsCardAuthenticated();
-                  bool isCardOK = isCardAuthenticated;
-                  print("테스트 is Card Ok$isCardOK");
+                onPressed: () async {
+                  bool isCardOK = await checkIsAuthenticated();
 
                   Navigator.push(context,
-                      // MaterialPageRoute(builder: (context) => ProfileScreen(isCardVerified: true))); }
-
                       MaterialPageRoute(builder: (context) => ProfileScreen(isCardVerified: isCardOK))); }
-                , icon: Icon(Icons.person)),
-            SizedBox(width: 16),
+                , icon: const Icon(Icons.person)),
+            const SizedBox(width: 16),
           ],
         ),
       ),
@@ -112,7 +110,7 @@ Stream<bool> getIdInReservationStream(String email) {
       .snapshots()
       .map((snapshot) {
     if (snapshot.exists) {
-      final data = snapshot.data() as Map<String, dynamic>?;
+      final data = snapshot.data();
       if (data != null && data.containsKey('idInReservation')) {
         return data['idInReservation'] == true;
       }

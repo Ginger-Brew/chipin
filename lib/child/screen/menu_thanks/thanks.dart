@@ -33,7 +33,9 @@ class thanksState extends State<thanks>
           future: reviewService.getReviewList(restaurantId),
           builder: (context, snapshot) {
             if (snapshot.hasData == false) {
-              return CircularProgressIndicator();
+              return const Center(
+                child: CircularProgressIndicator(), // 데이터를 기다리는 동안 로딩 표시
+              );
             }
             else if (snapshot.hasError) {
               return Padding(

@@ -45,7 +45,9 @@ class MenuPageState extends State<MenuPage> {
           future: menuDataListFuture,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const CircularProgressIndicator(); // 데이터를 기다리는 동안 로딩 표시
+              return Center(
+                child: CircularProgressIndicator(), // 데이터를 기다리는 동안 로딩 표시
+              );
             } else if (snapshot.hasError) {
               return Text("Error: ${snapshot.error}");
             } else if (!snapshot.hasData || snapshot.data!.isEmpty) {

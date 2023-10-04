@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../../../colors.dart';
-import '../child_code_generate/code_generate_screen.dart';
+import '../child_current_reservation/current_reservation_screen.dart';
 import '../child_profile/profile_screen.dart';
 
 bool idInReservation = true; // 사용자의 idInReservation 상태에 따라 설정
@@ -82,8 +82,8 @@ class CustomTextField extends StatelessWidget {
     return Expanded(
       child: TextFormField(
         maxLines: 1,
-        decoration: InputDecoration(
-          contentPadding: const EdgeInsets.all(16),
+        decoration: const InputDecoration(
+          contentPadding: EdgeInsets.all(16),
           hintText: "가게 이름으로 검색하기",
           border: InputBorder.none,
         ),
@@ -129,7 +129,9 @@ Widget buildReservationButton() {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           // 데이터를 아직 가져오는 중인 경우 로딩 표시나 기본값 반환 가능
-          return CircularProgressIndicator();
+          return const Center(
+            child: CircularProgressIndicator(), // 데이터를 기다리는 동안 로딩 표시
+          );
         }
 
         if (snapshot.hasError || !snapshot.data!) {
@@ -154,7 +156,7 @@ class CustomCategoryChip extends StatelessWidget {
     return GestureDetector(
         onTap: () {
           Navigator.push(context,
-              MaterialPageRoute(builder: (context) => CodeGenerateScreen()));
+              MaterialPageRoute(builder: (context) => const CurrentReservationScreen()));
         },
         child: Center(
             child: Card(

@@ -131,13 +131,14 @@ class TabContainerScreenState extends State<TabContainerScreen>
     }
     try {
       final snapshot = await FirebaseFirestore.instance.collection("Child").doc(currentChild?.email).get();
+      print("isCardOK $isCardOK");
       if (!isCardOK){
         return false;
       }
       if (snapshot.exists) {
         final idInReservation = snapshot.data()?['idInReservation'] ?? false;
 
-        return idInReservation;
+        return !idInReservation;
       } else {
         // 문서가 존재하지 않을 경우 처리할 내용 추가 (예: false 반환 또는 예외 처리)
         return false; // 예시에서는 문서가 없을 경우 항상 false 반환
@@ -177,14 +178,14 @@ class TabContainerScreenState extends State<TabContainerScreen>
         appBar: const ChildAppBar(title:
         "가게정보"
         ),
-        endDrawer: ChildDrawerMenu(),
+        endDrawer: const ChildDrawerMenu(),
         body: SizedBox(
           width: mediaQueryData.size.width,
           child: SingleChildScrollView(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                Container(
+                SizedBox(
                   width: mediaQueryData.size.width, // Set the desired width
                   height: 200, // Set the desired height
                     child: Image.network(_banner,

@@ -11,7 +11,6 @@ import 'package:workmanager/workmanager.dart';
 
 import 'child/model/model_menu_provider.dart';
 import 'child/model/model_restaurant_provider.dart';
-import 'child/screen/child_code_generate/code_generate_screen.dart';
 import 'child/screen/child_main/ChildMain.dart';
 import 'customer_main/ClientMain.dart';
 import 'firebase_options.dart';
@@ -228,7 +227,6 @@ class MyApp extends StatelessWidget {
               '/storemain': (context) => RestaurantMain(),
               // '/restaurantdetail' : (context) => TabContainerScreen(),
               '/clientmain': (context) => ClientMain(),
-              '/codegenerate': (context) => CodeGenerateScreen()
             },
             // 실행 시 가장 먼저 보여지는 화면 (splash 화면을 따로 만들거면 그 화면으로 해야함)
             initialRoute: '/login'));

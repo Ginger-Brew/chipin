@@ -1,10 +1,11 @@
+import 'package:chipin/child/screen/child_appbar/ChildAppBar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import '../../../base_appbar.dart';
 import '../../../colors.dart';
 import '../../../core/utils/size_utils.dart';
+import '../child_appbar/ChildDrawerMenu.dart';
 import '../child_previous_reservation/previous_reservation.dart';
 
 
@@ -45,7 +46,7 @@ class ProfileScreen extends StatelessWidget {
       onTap: () {
         // 프로필 사진을 클릭할 때 실행할 동작 추가 (사진 등록)
       },
-      child: CircleAvatar(
+      child: const CircleAvatar(
         child: Icon(Icons.person),
         radius: 40.0,
       ),
@@ -53,7 +54,8 @@ class ProfileScreen extends StatelessWidget {
     return SafeArea(
       child: Scaffold(
         backgroundColor: MyColor.BACKGROUND,
-        appBar: const BaseAppBar(title: "내 정보"),
+        appBar: const ChildAppBar(title: "내 정보"),
+        endDrawer: ChildDrawerMenu(),
         body: SizedBox(
           width: double.maxFinite,
           child: Column(
@@ -67,34 +69,7 @@ class ProfileScreen extends StatelessWidget {
                 child: Stack(
                   alignment: Alignment.centerLeft,
                   children: [
-                    Align(
-                      alignment: Alignment.topCenter,
-                      child: Container(
-                        width:
-                        MediaQuery
-                            .of(context)
-                            .size
-                            .width, // 화면 가로 길이로 설정
-                        padding: getPadding(
-                          left: 156,
-                          top: 12,
-                          right: 156,
-                          bottom: 12,
-                        ),
-                        // decoration: AppDecoration.fill5,
-                        child: Padding(
-                          padding: getPadding(
-                            top: 10,
-                          ),
-                          child: const Text(
-                            "아동",
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.left,
-                            // style: theme.textTheme.headlineLarge,
-                          ),
-                        ),
-                      ),
-                    ),
+
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Padding(
@@ -135,8 +110,29 @@ class ProfileScreen extends StatelessWidget {
                                 as Map<String, dynamic>;
                                 String userNameFromUserInfo =
                                 userInfoData["name"]; // userInfo에서 이름 필드를 가져옵니다.
+                                String userEmailFromUserInfo =
+                                userInfoData["email"]; // userInfo에서 이메일 필드를 가져옵니다.
 
-                                return Text(userNameFromUserInfo);
+                                return Padding(
+                                  padding: EdgeInsets.only(top: 45), // 원하는 우측 패딩 값을 지정합니다.
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(userNameFromUserInfo,
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Text(userEmailFromUserInfo,
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
                               }
                             },
                           ),

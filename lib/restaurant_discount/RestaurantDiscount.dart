@@ -52,26 +52,39 @@ class _RestaurantDiscountState extends State<RestaurantDiscount> {
   }
 
   Future<void> updateCodeUsed() async {
+    final discountCode = result.join();
+    final String? childId = await getChildId();
     final db = FirebaseFirestore.instance
         .collection("DiscountCode")
-        .doc(result.join());
+        .doc(discountCode);
+    try {
+      await db
+          .update({
+        'isUsed': true,
+      })
+          .then((value) => print("document added")) // firestore에 저장이 잘 된 경우
+          .catchError((error) => print("Fail to add doc ${error}"));
+      final childRef = FirebaseFirestore.instance.collection("Child").doc(childId);
+      final reservationInfoRef = childRef.collection("ReservationInfo").doc(discountCode);
+      await reservationInfoRef.update({
+        'isUsed': true,
+      });
+    }
+    catch(error){
+      print("Error updating code and ReservationInfo: $error");
+    }
 
-    await db
-        .update({
-          'isUsed': true,
-        })
-        .then((value) => print("document added")) // firestore에 저장이 잘 된 경우
-        .catchError((error) => print("Fail to add doc ${error}"));
   }
 
-  Future<String> getChildId() async {
+  Future<String?> getChildId() async {
     final db = FirebaseFirestore.instance.collection("DiscountCode");
 
     try {
       DocumentSnapshot doc = await db.doc(result.join()).get();
 
       if (doc.exists) {
-        return doc['childId'];
+        final childId = doc['childId'];
+        return childId;
       }
     } catch (e) {
       print("Error completing: $e");

@@ -1,11 +1,14 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import '../tab_container_screen/tab_container_screen.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+
+import '../tab_restaurant_screen/tab_container_screen.dart';
 
 /// Content of the DraggableBottomSheet's child SingleChildScrollView
 class CustomScrollViewContent extends StatelessWidget {
+  const CustomScrollViewContent({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -17,20 +20,22 @@ class CustomScrollViewContent extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(24),
         ),
-        child: CustomInnerContent(),
+        child: const CustomInnerContent(),
       ),
     );
   }
 }
 
 class CustomInnerContent extends StatelessWidget {
+  const CustomInnerContent({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        SizedBox(height: 12),
+        const SizedBox(height: 12),
         CustomDraggingHandle(),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
         ScrollingRestaurants(),
       ],
     );
@@ -39,6 +44,8 @@ class CustomInnerContent extends StatelessWidget {
 
 /// 모달 창에서 위에 있는 손잡이
 class CustomDraggingHandle extends StatelessWidget {
+  const CustomDraggingHandle({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -75,7 +82,7 @@ class ScrollingRestaurants extends StatelessWidget {
               final docs = snapshot.data!.docs;
               return Column(children: [
                 ResultText(docs.length),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 Center(
                     child: ListView.builder(
                   shrinkWrap: true,
@@ -84,19 +91,21 @@ class ScrollingRestaurants extends StatelessWidget {
                     final restaurantData = docs[index].data();
                     final ownerId = docs[index].id;
                     return RestaurantCard(
-                        docs[index].get('name'),
-                        docs[index].get('address1'),
-                        docs[index].get('closeH'),
-                        docs[index].get('closeM'),
-                        docs[index].get('banner'),
-                        ownerId,
-                        //collection이름?
+                      docs[index].get('name'),
+                      docs[index].get('address1'),
+                      docs[index].get('closeH'),
+                      docs[index].get('closeM'),
+                      docs[index].get('banner'),
+                      ownerId,
+                      //collection이름?
                     );
                   },
                 ))
               ]);
             } else {
-              return CircularProgressIndicator();
+              return const Center(
+                child: CircularProgressIndicator(), // 데이터를 기다리는 동안 로딩 표시
+              );
             }
           },
         ));
@@ -111,33 +120,38 @@ class RestaurantCard extends StatelessWidget {
   String image;
   String ownerId; // Firestore collection 이름을 저장할 변수
 
-  RestaurantCard(this.name, this.address, this.closeH, this.closeM, this.image, this.ownerId);
+  RestaurantCard(this.name, this.address, this.closeH, this.closeM, this.image,
+      this.ownerId,
+      {super.key});
 
   @override
   Widget build(BuildContext context) {
     return Column(mainAxisAlignment: MainAxisAlignment.center, children: [
       CustomRestaurantCategory(
-          name, address, closeH + " : " + closeM + "까지 영업", image,ownerId),
-      DivideLine(),
-      SizedBox(height: 20),
+          name, address, "$closeH : $closeM까지 영업", image, ownerId),
+      const DivideLine(),
+      const SizedBox(height: 20),
     ]);
   }
 }
 
 class DivideLine extends StatelessWidget {
+  const DivideLine({super.key});
+
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
     return Center(
-        child: Container(
-            width: width*0.8, child: Divider(color: Colors.grey, thickness: 1.0)));
+        child: SizedBox(
+            width: width * 0.8,
+            child: const Divider(color: Colors.grey, thickness: 1.0)));
   }
 }
 
 class ResultText extends StatelessWidget {
   int length;
 
-  ResultText(this.length);
+  ResultText(this.length, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -146,8 +160,8 @@ class ResultText extends StatelessWidget {
       //only to left align the text
       child: Row(
         children: <Widget>[
-          Text("${length}개 결과",
-              style: TextStyle(fontFamily: "Mainfonts", fontSize: 14))
+          Text("$length개 결과",
+              style: const TextStyle(fontFamily: "Mainfonts", fontSize: 14))
         ],
       ),
     );
@@ -163,7 +177,8 @@ class CustomRestaurantCategory extends StatelessWidget {
   String imageURL = "";
 
   CustomRestaurantCategory(
-      this.title, this.location, this.time, this.image, this.collectionName, {super.key}) {
+      this.title, this.location, this.time, this.image, this.collectionName,
+      {super.key}) {
     imageURL = image; // 이미지 URL을 초기화
   }
 
@@ -173,14 +188,15 @@ class CustomRestaurantCategory extends StatelessWidget {
     String downloadURL = await reference.getDownloadURL();
     return downloadURL;
   }
+
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
 
     return Padding(
         padding: const EdgeInsets.only(bottom: 20),
-        child: Container(
-            width: width*0.8,
+        child: SizedBox(
+            width: width * 0.8,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -200,30 +216,23 @@ class CustomRestaurantCategory extends StatelessWidget {
                                         time: time,
                                         banner: imageURL,
                                         ownerId: collectionName,
-                                      )
-                              )
-                          );
+                                      )));
                         },
-                        child: Container(
-                            height: width*0.15,
-                            width: width*0.15,
-                          child: Image.network(imageURL,
-                            fit: BoxFit.cover,) // 이미지를 정사각형 비율로 크롭), // imageURL을 사용
-                            // child: Image.network(
-                            //     downloadImage(image) as String)
-                          // child: Image.file(
-                          //   File(image),
-                          //   fit: BoxFit.fill,
-                          // ),
-                        )
-                    ),
-                    SizedBox(width: width*0.03),
+                        child: SizedBox(
+                            height: width * 0.15,
+                            width: width * 0.15,
+                            child: Image.network(
+                              imageURL,
+                              fit: BoxFit.cover,
+                            )
+                            )),
+                    SizedBox(width: width * 0.03),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           title,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontFamily: "Mainfonts",
                             fontWeight: FontWeight.bold,
                             fontSize: 23,
@@ -231,15 +240,16 @@ class CustomRestaurantCategory extends StatelessWidget {
                         ),
                         Row(
                           children: <Widget>[
-                            Icon(Icons.location_on, size: 20),
-                            SizedBox(width: 5),
-                            Container(
-                              width: width*0.5, // 48은 아이콘과 간격 등을 고려한 값입니다. 필요에 따라 조정하세요.
+                            const Icon(Icons.location_on, size: 20),
+                            const SizedBox(width: 5),
+                            SizedBox(
+                              width: width * 0.5,
+                              // 48은 아이콘과 간격 등을 고려한 값입니다. 필요에 따라 조정하세요.
                               child: Text(
                                 location,
                                 maxLines: 3,
                                 overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontFamily: "Pretendard",
                                   fontSize: 15,
                                 ),
@@ -249,9 +259,11 @@ class CustomRestaurantCategory extends StatelessWidget {
                         ),
                         Row(
                           children: <Widget>[
-                            Icon(Icons.access_time_filled, size: 17),
-                            SizedBox(width: 8),
-                            Text(time, style: TextStyle(fontFamily: "Pretendard", fontSize: 15)),
+                            const Icon(Icons.access_time_filled, size: 17),
+                            const SizedBox(width: 8),
+                            Text(time,
+                                style: const TextStyle(
+                                    fontFamily: "Pretendard", fontSize: 15)),
                           ],
                         ),
                       ],
@@ -259,12 +271,12 @@ class CustomRestaurantCategory extends StatelessWidget {
                   ],
                 ),
                 Container(
-                  height: width*0.05,
-                  width: width*0.05,
-                  child: Icon(Icons.favorite, size: 12, color: Colors.black54),
+                  height: width * 0.05,
+                  width: width * 0.05,
                   decoration: BoxDecoration(
                       color: Colors.grey[200],
                       borderRadius: BorderRadius.circular(100)),
+                  child: const Icon(Icons.favorite, size: 12, color: Colors.black54),
                 ),
               ],
             )));
@@ -272,6 +284,8 @@ class CustomRestaurantCategory extends StatelessWidget {
 }
 
 class CustomFeaturedItem extends StatelessWidget {
+  const CustomFeaturedItem({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Container(

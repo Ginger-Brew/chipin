@@ -3,8 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../../../colors.dart';
-import '../../model/model_child.dart';
-import '../child_code_generate/code_generate_screen.dart';
+import '../child_current_reservation/current_reservation_screen.dart';
 import '../child_profile/profile_screen.dart';
 
 bool idInReservation = true; // 사용자의 idInReservation 상태에 따라 설정
@@ -20,8 +19,33 @@ class ChildMainSearch extends StatelessWidget {
     );
   }
 }
+User? getUser() {
+  final user = FirebaseAuth.instance.currentUser;
+  if (user != null) {
+    final name = user.displayName;
+    final email = user.email;
+    final photoUrl = user.photoURL;
+
+    final emailVerified = user.emailVerified;
+    final uid = user.uid;
+  }
+  return user;
+}
 
 class CustomSearchContainer extends StatelessWidget {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  late bool isCardAuthenticated = false;
+  User? currentChild = getUser();
+  Future<bool> checkIsAuthenticated() async {
+    final isAuthenticatedQuery = await _firestore.collection('Child').doc(currentChild?.email).get();
+    if (isAuthenticatedQuery.exists) {
+      final AuthenticatedData = isAuthenticatedQuery.data();
+      isCardAuthenticated = AuthenticatedData?['isCardAuthenticated'] ?? false;
+      // print("가나다 $isCardAuthenticated");
+      return isCardAuthenticated;
+    }
+    return false;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,18 +58,17 @@ class CustomSearchContainer extends StatelessWidget {
             color: Colors.white, borderRadius: BorderRadius.circular(6)),
         child: Row(
           children: <Widget>[
-            SizedBox(width: 16),
-            Icon(Icons.search),
+            const SizedBox(width: 16),
+            const Icon(Icons.search),
             CustomTextField(),
             IconButton(
-                onPressed: () {
-                  Child child = Child();
-                  bool isCardOK = child.getIsCardAuthenticated();
+                onPressed: () async {
+                  bool isCardOK = await checkIsAuthenticated();
 
                   Navigator.push(context,
                       MaterialPageRoute(builder: (context) => ProfileScreen(isCardVerified: isCardOK))); }
-                , icon: Icon(Icons.person)),
-            SizedBox(width: 16),
+                , icon: const Icon(Icons.person)),
+            const SizedBox(width: 16),
           ],
         ),
       ),
@@ -59,8 +82,8 @@ class CustomTextField extends StatelessWidget {
     return Expanded(
       child: TextFormField(
         maxLines: 1,
-        decoration: InputDecoration(
-          contentPadding: const EdgeInsets.all(16),
+        decoration: const InputDecoration(
+          contentPadding: EdgeInsets.all(16),
           hintText: "가게 이름으로 검색하기",
           border: InputBorder.none,
         ),
@@ -80,17 +103,6 @@ class CustomUserAvatar extends StatelessWidget {
     );
   }
 }
-User? getUser() {
-  final user = FirebaseAuth.instance.currentUser;
-  if (user != null) {
-    final name = user.displayName;
-    final email = user.email;
-    final photoUrl = user.photoURL;
-    final emailVerified = user.emailVerified;
-    final uid = user.uid;
-  }
-  return user;
-}
 Stream<bool> getIdInReservationStream(String email) {
   return FirebaseFirestore.instance
       .collection("Child")
@@ -98,7 +110,7 @@ Stream<bool> getIdInReservationStream(String email) {
       .snapshots()
       .map((snapshot) {
     if (snapshot.exists) {
-      final data = snapshot.data() as Map<String, dynamic>?;
+      final data = snapshot.data();
       if (data != null && data.containsKey('idInReservation')) {
         return data['idInReservation'] == true;
       }
@@ -117,7 +129,9 @@ Widget buildReservationButton() {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           // 데이터를 아직 가져오는 중인 경우 로딩 표시나 기본값 반환 가능
-          return CircularProgressIndicator();
+          return const Center(
+            child: CircularProgressIndicator(), // 데이터를 기다리는 동안 로딩 표시
+          );
         }
 
         if (snapshot.hasError || !snapshot.data!) {
@@ -142,7 +156,7 @@ class CustomCategoryChip extends StatelessWidget {
     return GestureDetector(
         onTap: () {
           Navigator.push(context,
-              MaterialPageRoute(builder: (context) => CodeGenerateScreen()));
+              MaterialPageRoute(builder: (context) => const CurrentReservationScreen()));
         },
         child: Center(
             child: Card(

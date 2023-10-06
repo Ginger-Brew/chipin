@@ -1,13 +1,11 @@
-import 'dart:io';
-
+import 'package:chipin/child/screen/child_appbar/ChildDrawerMenu.dart';
 import 'package:chipin/colors.dart';
-import 'package:chipin/main.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:chipin/base_appbar.dart';
+import 'package:flutter/material.dart';
+
 import '../../../core/utils/size_utils.dart';
+import '../child_appbar/ChildAppBar.dart';
 import '../child_custom_price/custom_price.dart';
 import '../menu_meals/meals.dart';
 import '../menu_thanks/thanks.dart';
@@ -118,24 +116,29 @@ class TabContainerScreenState extends State<TabContainerScreen>
         print("Error completing: $e");
       }
     }
-
     return earnPoint - redeemPoint;
   }
   // 예약 가능 여부를 확인하는 비동기 함수
   Future<bool> checkIsInReservation() async {
-    // 여기에서 isInReservation 값을 Firestore 또는 다른 데이터베이스에서 가져와서 확인합니다.
-    // 예를 들어, ownerId나 다른 필드를 기반으로 확인할 수 있습니다.
-    // 값을 확인하여 true 또는 false를 반환합니다.
-    // 예약 가능한 경우 true 반환, 불가능한 경우 false 반환
+    final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+    late bool isCardOK = false;
+
     User? currentChild = getUser();
-    // return await FirebaseFirestore.instance.collection("Child").doc(currentChild?.email).get().then((snapshot) {
-    //       return snapshot.data()?['isInReservation'] ?? false;
-    //     });
+    final isAuthenticatedQuery = await _firestore.collection('Child').doc(currentChild?.email).get();
+    if (isAuthenticatedQuery.exists) {
+      final AuthenticatedData = isAuthenticatedQuery.data();
+      isCardOK = AuthenticatedData?['isCardAuthenticated'] ?? false;
+    }
     try {
       final snapshot = await FirebaseFirestore.instance.collection("Child").doc(currentChild?.email).get();
+      print("isCardOK $isCardOK");
+      if (!isCardOK){
+        return false;
+      }
       if (snapshot.exists) {
         final idInReservation = snapshot.data()?['idInReservation'] ?? false;
-        return idInReservation;
+
+        return !idInReservation;
       } else {
         // 문서가 존재하지 않을 경우 처리할 내용 추가 (예: false 반환 또는 예외 처리)
         return false; // 예시에서는 문서가 없을 경우 항상 false 반환
@@ -172,17 +175,17 @@ class TabContainerScreenState extends State<TabContainerScreen>
     return SafeArea(
       child: Scaffold(
         backgroundColor: MyColor.BACKGROUND,
-        appBar: const BaseAppBar(title:
+        appBar: const ChildAppBar(title:
         "가게정보"
         ),
-
+        endDrawer: const ChildDrawerMenu(),
         body: SizedBox(
           width: mediaQueryData.size.width,
           child: SingleChildScrollView(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                Container(
+                SizedBox(
                   width: mediaQueryData.size.width, // Set the desired width
                   height: 200, // Set the desired height
                     child: Image.network(_banner,
@@ -425,6 +428,7 @@ class TabContainerScreenState extends State<TabContainerScreen>
           future: readtotalPoint(),
           builder: (BuildContext context, AsyncSnapshot<num> snapshot) {
             final totalPoint = snapshot.data ?? 0;
+
             if (snapshot.connectionState == ConnectionState.waiting) {
               // 데이터를 가져오는 중인 동안에는 비활성화된 버튼을 표시
               return const FloatingActionButton.extended(
@@ -446,7 +450,7 @@ class TabContainerScreenState extends State<TabContainerScreen>
                 ),
                 icon: Icon(Icons.check,
                 color: Colors.white,),
-                backgroundColor: MyColor.DARK_YELLOW,
+                backgroundColor: MyColor.GRAY,
               );
             } else {
               // 총 포인트가 10,000원 이상이면 버튼을 활성화
@@ -455,7 +459,7 @@ class TabContainerScreenState extends State<TabContainerScreen>
                   // 예약 가능 여부를 확인하는 비동기 함수 호출
                   bool isInReservation = await checkIsInReservation();
 
-                  if (isInReservation) {
+                  if (!isInReservation) {
                     // 예약 불가능한 경우 팝업 표시
                     showAlertDialog(context);
                   } else {
@@ -478,7 +482,8 @@ class TabContainerScreenState extends State<TabContainerScreen>
                 ),
                 icon: const Icon(Icons.check,
                   color: Colors.white,),
-                backgroundColor: MyColor.DARK_YELLOW,
+                backgroundColor: totalPoint >= 10000 ? MyColor.DARK_YELLOW : Colors.grey,
+
               );
             }
           },

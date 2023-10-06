@@ -1,16 +1,20 @@
-import 'package:chipin/colors.dart';
-import 'package:chipin/login/login.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-class RestaurantDrawerMenu extends StatefulWidget {
-  const RestaurantDrawerMenu({Key? key}) : super(key: key);
+
+import '../../../colors.dart';
+import '../../../login/login.dart';
+
+class ChildDrawerMenu extends StatefulWidget {
+  const ChildDrawerMenu({Key? key}) : super(key: key);
 
   @override
-  State<RestaurantDrawerMenu> createState() => _RestaurantDrawerMenuState();
+  State<ChildDrawerMenu> createState() => _ChildDrawerMenuState();
 }
 
-class _RestaurantDrawerMenuState extends State<RestaurantDrawerMenu> {
+
+class _ChildDrawerMenuState extends State<ChildDrawerMenu> {
   String name = "";
   String email = "";
 
@@ -57,9 +61,9 @@ class _RestaurantDrawerMenuState extends State<RestaurantDrawerMenu> {
     }
     debugPrint("namedebug : ${name}");
     debugPrint("emaildebug : ${email}");
-    }
+  }
 
-    Future<void> deleteUser() async{
+  Future<void> deleteUser() async{
     User? currentUser = getUser();
     await currentUser?.delete();
     ScaffoldMessenger.of(context)
@@ -69,23 +73,23 @@ class _RestaurantDrawerMenuState extends State<RestaurantDrawerMenu> {
         MaterialPageRoute(
             builder: (context) => LoginPage()), (route) => false);
 
-    }
+  }
 
-    Future<void> logoutUser() async {
-      try {
-        await FirebaseAuth.instance.signOut();
-        Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(
-                builder: (context) => LoginPage()), (route) => false);
-        // 로그아웃 성공적으로 완료됨.
-      } catch (e) {
-        print("로그아웃 중 오류 발생: $e");
-        // 로그아웃 중 오류 발생.
-      }
+  Future<void> logoutUser() async {
+    try {
+      await FirebaseAuth.instance.signOut();
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+              builder: (context) => LoginPage()), (route) => false);
+      // 로그아웃 성공적으로 완료됨.
+    } catch (e) {
+      print("로그아웃 중 오류 발생: $e");
+      // 로그아웃 중 오류 발생.
     }
+  }
 
-    @override
+  @override
   void initState() {
     // TODO: implement initState
     super.initState();
@@ -93,16 +97,16 @@ class _RestaurantDrawerMenuState extends State<RestaurantDrawerMenu> {
   }
 
 
-      @override
+  @override
   Widget build(BuildContext context) {
-        return Drawer(
+    return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
         children: <Widget>[
           // 프로젝트에 assets 폴더 생성 후 이미지 2개 넣기
           // pubspec.yaml 파일에 assets 주석에 이미지 추가하기
           UserAccountsDrawerHeader(
-            currentAccountPicture: CircleAvatar(
+            currentAccountPicture: const CircleAvatar(
               // 현재 계정 이미지 set
               backgroundImage: AssetImage('assets/images/user.png'),
               backgroundColor: Colors.white,
@@ -112,7 +116,7 @@ class _RestaurantDrawerMenuState extends State<RestaurantDrawerMenu> {
             // onDetailsPressed: () {
             //   print('arrow is clicked');
             // },
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
                 color: MyColor.DARK_YELLOW,
                 borderRadius: BorderRadius.only(
                     bottomLeft: Radius.circular(40.0),
@@ -123,22 +127,22 @@ class _RestaurantDrawerMenuState extends State<RestaurantDrawerMenu> {
               Icons.logout,
               color: Colors.grey[850],
             ),
-            title: Text('로그아웃'),
+            title: const Text('로그아웃'),
             onTap: () {
               logoutUser();
             },
-            trailing: Icon(Icons.arrow_forward_ios_rounded),
+            trailing: const Icon(Icons.arrow_forward_ios_rounded),
           ),
           ListTile(
             leading: Icon(
               Icons.message,
               color: Colors.grey[850],
             ),
-            title: Text('회원탈퇴'),
+            title: const Text('회원탈퇴'),
             onTap: () {
               deleteUser();
             },
-            trailing: Icon(Icons.arrow_forward_ios_rounded),
+            trailing: const Icon(Icons.arrow_forward_ios_rounded),
           ),
 
         ],

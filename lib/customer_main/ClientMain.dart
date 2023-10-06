@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:chipin/customer_main/client_temp_receipt.dart';
 import 'package:chipin/customer_main/client_text_btn.dart';
@@ -17,7 +15,6 @@ import 'package:url_launcher/url_launcher.dart';
 import '../base_appbar.dart';
 import '../colors.dart';
 import 'client_calendar.dart';
-import 'client_receipt_auth.dart';
 import 'client_support.dart';
 import 'client_yellow_btn.dart';
 

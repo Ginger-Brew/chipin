@@ -9,23 +9,23 @@ import '../../../core/utils/size_utils.dart';
 import '../child_appbar/ChildDrawerMenu.dart';
 import '../child_previous_reservation/previous_reservation.dart';
 
-
+User? getUser() {
+  final user = FirebaseAuth.instance.currentUser;
+  if (user != null) {
+    final name = user.displayName;
+    final email = user.email;
+    final photoUrl = user.photoURL;
+    final amailVerified = user.emailVerified;
+    final uid = user.uid;
+  }
+  return user;
+}
 class ProfileScreen extends StatelessWidget {
   final bool isCardVerified; // 복지카드 인증 여부
 
   const ProfileScreen({super.key, required this.isCardVerified});
 
-  User? getUser() {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      final name = user.displayName;
-      final email = user.email;
-      final photoUrl = user.photoURL;
-      final amailVerified = user.emailVerified;
-      final uid = user.uid;
-    }
-    return user;
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -267,58 +267,73 @@ class VerifiedCardWidget extends StatelessWidget {
 }
 
 class UnverifiedCardWidget extends StatelessWidget {
-  const UnverifiedCardWidget({super.key});
-
+  User? currentUser =getUser();
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        ElevatedButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => AuthenticationScreen(),
-              ),
-            );
-          },
-          style: ButtonStyle(
-            foregroundColor: MaterialStateProperty.all(Colors.white),
-            backgroundColor: MaterialStateProperty.all(Colors.white),
-            shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-              RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(18.0),
-                side: const BorderSide(color: Colors.red), // 스트로크 색상을 빨간색으로 변경
-              ),
-            ),
-            fixedSize: MaterialStateProperty.all<Size>(
-              Size(MediaQuery
-                  .of(context)
-                  .size
-                  .width - 32,
-                  48), // 가로 길이를 화면 가로 길이 - 32로 설정
-            ),
-          ),
-          child: const Row(
-            children: [
-              Icon(
-                Icons.error_outline_rounded, // 알림 아이콘
-                color: Colors.red, // 빨간색
-              ),
-              SizedBox(width: 8), // 아이콘과 텍스트 사이 간격 조절
-              Text(
-                '복지카드 인증하기',
-                style: TextStyle(
-                  fontFamily: "Pretendard",
-                  color: Colors.black,
-                  fontSize: 20,
+        FutureBuilder<DocumentSnapshot> (
+          future: FirebaseFirestore.instance.collection("Child").doc(currentUser?.email).get(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return CircularProgressIndicator();
+            }
+            else if (snapshot.hasError) {
+              return Text('Error : ${snapshot.error}');
+            }
+            else if (snapshot.data != null && snapshot.data!.exists) {
+              return const Text('카드 인증 확인 요청 중입니다...');
+            }
+            else {
+              return ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AuthenticationScreen(),
+                    ),
+                  );
+                },
+                style: ButtonStyle(
+                  foregroundColor: MaterialStateProperty.all(Colors.white),
+                  backgroundColor: MaterialStateProperty.all(Colors.white),
+                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18.0),
+                      side: const BorderSide(color: Colors.red), // 스트로크 색상을 빨간색으로 변경
+                    ),
+                  ),
+                  fixedSize: MaterialStateProperty.all<Size>(
+                    Size(MediaQuery
+                        .of(context)
+                        .size
+                        .width - 32,
+                        48), // 가로 길이를 화면 가로 길이 - 32로 설정
+                  ),
                 ),
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.left,
-              ),
-            ],
-          ),
-        ),
+                child: const Row(
+                  children: [
+                    Icon(
+                      Icons.error_outline_rounded, // 알림 아이콘
+                      color: Colors.red, // 빨간색
+                    ),
+                    SizedBox(width: 8), // 아이콘과 텍스트 사이 간격 조절
+                    Text(
+                      '복지카드 인증하기',
+                      style: TextStyle(
+                        fontFamily: "Pretendard",
+                        color: Colors.black,
+                        fontSize: 20,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.left,
+                    ),
+                  ],
+                ),
+              );
+            }
+          },
+        )
       ],
     );
   }

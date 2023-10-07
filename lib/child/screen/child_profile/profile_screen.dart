@@ -1,4 +1,5 @@
 import 'package:chipin/child/screen/child_appbar/ChildAppBar.dart';
+import 'package:chipin/child/screen/child_authentication/authentication_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -55,7 +56,7 @@ class ProfileScreen extends StatelessWidget {
       child: Scaffold(
         backgroundColor: MyColor.BACKGROUND,
         appBar: const ChildAppBar(title: "내 정보"),
-        endDrawer: ChildDrawerMenu(),
+        endDrawer: const ChildDrawerMenu(),
         body: SizedBox(
           width: double.maxFinite,
           child: Column(
@@ -73,7 +74,7 @@ class ProfileScreen extends StatelessWidget {
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Padding(
-                        padding: EdgeInsets.only(left: 20.0), // 왼쪽 패딩을 20.0으로 설정
+                        padding: const EdgeInsets.only(left: 20.0), // 왼쪽 패딩을 20.0으로 설정
                         child: profileImage, // 프로필 사진 위젯 추가
                       ),
                     ),
@@ -114,18 +115,18 @@ class ProfileScreen extends StatelessWidget {
                                 userInfoData["email"]; // userInfo에서 이메일 필드를 가져옵니다.
 
                                 return Padding(
-                                  padding: EdgeInsets.only(top: 45), // 원하는 우측 패딩 값을 지정합니다.
+                                  padding: const EdgeInsets.only(top: 45), // 원하는 우측 패딩 값을 지정합니다.
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(userNameFromUserInfo,
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
                                       Text(userEmailFromUserInfo,
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                           fontSize: 12,
                                           color: Colors.grey,
                                         ),
@@ -146,7 +147,7 @@ class ProfileScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   isCardVerified
-                      ? VerifiedCardWidget()
+                      ? const VerifiedCardWidget()
                       : UnverifiedCardWidget(),
                 ],
               ),
@@ -224,6 +225,8 @@ class ProfileScreen extends StatelessWidget {
 }
 
 class VerifiedCardWidget extends StatelessWidget {
+  const VerifiedCardWidget({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -264,12 +267,21 @@ class VerifiedCardWidget extends StatelessWidget {
 }
 
 class UnverifiedCardWidget extends StatelessWidget {
+  const UnverifiedCardWidget({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         ElevatedButton(
-          onPressed: () {},
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => AuthenticationScreen(),
+              ),
+            );
+          },
           style: ButtonStyle(
             foregroundColor: MaterialStateProperty.all(Colors.white),
             backgroundColor: MaterialStateProperty.all(Colors.white),

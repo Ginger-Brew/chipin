@@ -6,7 +6,7 @@ import '../../../colors.dart';
 
 class ChildAppBar extends StatelessWidget implements PreferredSize {
   final String title;
-  const ChildAppBar({Key? key, required this.title,}): super(key: key);
+  const ChildAppBar({Key? key, required this.title}): super(key: key);
 
 
   @override

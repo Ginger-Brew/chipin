@@ -10,10 +10,28 @@ import 'model/model_auth.dart';
 import 'model/model_login.dart';
 
 final TextEditingController _idController =
-    TextEditingController(); //입력되는 값을 제어
-final TextEditingController _passwordController = TextEditingController();
+    TextEditingController(text: ""); //입력되는 값을 제어
+final TextEditingController _passwordController = TextEditingController(text: "");
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
+
+  @override
+  _LoginPageState createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+
+  @override
+  void initState() {
+    _idController.addListener(() { print("login화면");});
+  }
+
+  @override
+  void dispose() {
+    _idController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     var screenWidth = MediaQuery.of(context).size.width;
@@ -51,6 +69,7 @@ class LoginPage extends StatelessWidget {
           ),
         ));
   }
+
 }
 
 /*

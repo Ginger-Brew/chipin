@@ -15,8 +15,8 @@ class ChildMainSearch extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        buildReservationButton(),
         CustomSearchContainer(),
+        buildReservationButton(),
       ],
     );
   }
@@ -162,6 +162,8 @@ class CustomCategoryChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var screenWidth = MediaQuery.of(context).size.width;
+    var screenHeight = MediaQuery.of(context).size.height;
     return GestureDetector(
         onTap: () {
           Navigator.push(context,
@@ -175,8 +177,8 @@ class CustomCategoryChip extends StatelessWidget {
                 ),
                 elevation: 4.0,
                 child: Container(
-                    width: 450,
-                    height: 50,
+                    width: screenWidth*0.9,
+                    height: screenHeight*0.05,
                     child: const Center(
                         child: Text("예약현황보기",
                             style: TextStyle(

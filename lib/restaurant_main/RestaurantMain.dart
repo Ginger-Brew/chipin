@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import '../core/utils/size_utils.dart';
 import '../restaurant_appbar/RestaurantAppBar.dart';
 import '../restaurant_appbar/RestaurantDrawerMenu.dart';
+import 'my_restaurant_container_screen.dart';
 import 'restaurant_camera.dart';
 
 class RestaurantMain extends StatefulWidget {
@@ -31,47 +32,42 @@ class _RestaurantMainState extends State<RestaurantMain> {
   String closeddays = "";
   String phone = "";
   String banner = "";
+  String ownerId = "";
 
-  void initState(){
+  void initState() {
     super.initState();
-  readInfoData();
-
+    readInfoData();
   }
 
   Future<void> readInfoData() async {
     User? currentUser = getUser();
-    if(currentUser != null) {
-      final db = FirebaseFirestore.instance.collection(colName).doc(currentUser.email);
+    if (currentUser != null) {
+      final db =
+          FirebaseFirestore.instance.collection(colName).doc(currentUser.email);
 
       debugPrint("debug: +${currentUser.email}");
-
 
       await db.get().then((DocumentSnapshot ds) {
         Map<String, dynamic> data = ds.data() as Map<String, dynamic>;
 
-setState(() {
-  name = data['name'];
-  address1 = data['address1'];
-  address2 = data['address2'];
-  openH = data['openH'];
-  openM = data['openM'];
-  closeH = data['closeH'];
-  closeM = data['closeM'];
-  closeddays = data['closeddays'];
-  phone = data['phone'];
-  banner = data['banner'];
-});
-
+        setState(() {
+          name = data['name'];
+          address1 = data['address1'];
+          address2 = data['address2'];
+          openH = data['openH'];
+          openM = data['openM'];
+          closeH = data['closeH'];
+          closeM = data['closeM'];
+          closeddays = data['closeddays'];
+          phone = data['phone'];
+          banner = data['banner'];
+          ownerId = currentUser.email!;
+        });
       });
-
     } else {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text('로그인 정보가 유효하지 않습니다')));
     }
-
-
-
-
   }
 
   User? getUser() {
@@ -93,15 +89,14 @@ setState(() {
     return user;
   }
 
-
   Future<num> readRemainingData() async {
     User? currentUser = getUser();
     num earnPoint = 0;
     num redeemPoint = 0;
 
-    if(currentUser != null) {
-      final db = FirebaseFirestore.instance.collection(colName).doc(
-          currentUser.email);
+    if (currentUser != null) {
+      final db =
+          FirebaseFirestore.instance.collection(colName).doc(currentUser.email);
 
       try {
         final queryEarnSnapshot = await db.collection("EarnList").get();
@@ -132,14 +127,13 @@ setState(() {
 
     return earnPoint - redeemPoint;
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: MyColor.BACKGROUND,
         appBar: RestaurantAppBar(title: "십시일반"),
         endDrawer: RestaurantDrawerMenu(),
-
-
         body: Container(
             child: SingleChildScrollView(
                 child: Center(
@@ -184,17 +178,20 @@ setState(() {
                                   color: Colors.black,
                                   fontFamily: "Mainfonts"),
                             ),
-                            SizedBox(height:10),
+                            SizedBox(height: 10),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Expanded(
                                   flex: 1,
-                                  child: Align(alignment : Alignment.centerRight, child: Image.asset('assets/images/coins.png')),
+                                  child: Align(
+                                      alignment: Alignment.centerRight,
+                                      child: Image.asset(
+                                          'assets/images/coins.png')),
                                 ),
                                 // SizedBox(height: 8),
                                 Expanded(
-                                  flex: 2,
+                                    flex: 2,
                                     child: FutureBuilder<num>(
                                         future: readRemainingData(),
                                         builder: (context, snapshot) {
@@ -222,12 +219,12 @@ setState(() {
                                             return Align(
                                               alignment: Alignment.center,
                                               child: Text(
-                                              '$remainingPoint 원',
-                                              style: TextStyle(
-                                                fontSize: 17,
-                                                color: Colors.black,
-                                                fontFamily: "Mainfonts",
-                                              ),
+                                                '$remainingPoint 원',
+                                                style: TextStyle(
+                                                  fontSize: 17,
+                                                  color: Colors.black,
+                                                  fontFamily: "Mainfonts",
+                                                ),
                                               ),
                                             );
                                           }
@@ -245,19 +242,17 @@ setState(() {
           SizedBox(height: 20),
           Container(height: 111, child: CameraButton()),
           SizedBox(height: 20),
-
-    Container(
-                      height: 420,
-                      child: RestaurantInfoButton(
-
-                        address: this.address1 + " " + this.address2,
-                        open: this.openH + ":" + this.openM,
-                        close: this.closeH + ":" + this.closeM,
-                        phone: this.phone,
-                        closeddays: this.closeddays,
-                        name: this.name,
-                        banner: this.banner
-                      )),
+          Container(
+              height: 420,
+              child: RestaurantInfoButton(
+                  address: this.address1 + " " + this.address2,
+                  open: this.openH + ":" + this.openM,
+                  close: this.closeH + ":" + this.closeM,
+                  phone: this.phone,
+                  closeddays: this.closeddays,
+                  name: this.name,
+                  banner: this.banner,
+                  ownerId: this.ownerId)),
           SizedBox(
             height: 20,
           ),
@@ -273,17 +268,19 @@ class RestaurantInfoButton extends StatelessWidget {
   String closeddays;
   String phone;
   String banner;
+  String ownerId;
 
-  RestaurantInfoButton({
-    Key? key,
-    required this.name,
-    required this.address,
-    required this.open,
-    required this.close,
-    required this.closeddays,
-    required this.phone,
-    required this.banner,
-  }) : super(key: key);
+  RestaurantInfoButton(
+      {Key? key,
+      required this.name,
+      required this.address,
+      required this.open,
+      required this.close,
+      required this.closeddays,
+      required this.phone,
+      required this.banner,
+      required this.ownerId})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -298,110 +295,119 @@ class RestaurantInfoButton extends StatelessWidget {
         ]),
         child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-              padding: EdgeInsets.all(20),
+                padding: EdgeInsets.all(20),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10)),
                 backgroundColor: Colors.white,
                 foregroundColor: MyColor.HOVER),
-            onPressed: () {},
-                child: Column(
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => MyRestaurantContainerScreen(
+                          title: name,
+                          location: address,
+                          time: close,
+                          banner: banner,
+                          ownerId: ownerId)));
+            },
+            child: Column(
+              children: [
+                if (banner != "")
+                  Container(
+                    width: 300, // Set the desired width
+                    height: 200, // Set the desired height
+                    child: Image.network(
+                      banner,
+                      fit: BoxFit.cover,
+                    ),
+                  )
+                else
+                  Container(
+                    width: 300, // Set the desired width
+                    height: 200, // Set the desired height
+                    child: Image.asset('assets/images/nobanner.png',
+                        fit: BoxFit.cover),
+                  ),
+                SizedBox(
+                  height: 20,
+                ),
+                Row(
                   children: [
-                    if (banner != "")
-                      Container(
-                        width: 300, // Set the desired width
-                        height: 200, // Set the desired height
-                        child: Image.network(
-                          banner,
-                          fit: BoxFit.cover,
-                        ),
-                      )
-                    else
-                      Container(
-                        width: 300, // Set the desired width
-                        height: 200, // Set the desired height
-                        child: Image.asset('assets/images/nobanner.png',
-                            fit: BoxFit.cover),
-                      ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    Row(
-                      children: [
-                        Flexible(
-                          child: Text(
-                            overflow: TextOverflow.ellipsis,
-                            maxLines:2,
-                            name,
-                            style: TextStyle(
-                                fontSize: 25,
-                                fontFamily: "Mainfonts",
-                                color: Colors.black),
-                          ),
-                        )
-                      ],
-                    ),
-                    SizedBox(
-                      height: 5,
-                    ),
-                    Divider(),
-                    Row(
-                      children: [
-                        Icon(CupertinoIcons.placemark_fill,
+                    Flexible(
+                      child: Text(
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 2,
+                        name,
+                        style: TextStyle(
+                            fontSize: 25,
+                            fontFamily: "Mainfonts",
                             color: Colors.black),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        Flexible(
-                          child: Text(
-                            overflow: TextOverflow.ellipsis,
-                            maxLines:2,
-                            address,
-                            style: TextStyle(
-                                fontSize: 16,
-                                fontFamily: "Mainfonts",
-                                color: Colors.black),
-                          ),
-                        )
-                      ],
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Row(
-                      children: [
-                        Icon(CupertinoIcons.clock_fill, color: Colors.black),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        Text(
-                          open + "~" + close,
-                          style: TextStyle(
-                              fontSize: 16,
-                              fontFamily: "Mainfonts",
-                              color: Colors.black),
-                        )
-                      ],
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Row(
-                      children: [
-                        Icon(CupertinoIcons.calendar, color: Colors.black),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        Text(
-                          overflow: TextOverflow.ellipsis,
-                          closeddays,
-                          style: TextStyle(
-                              fontSize: 16,
-                              fontFamily: "Mainfonts",
-                              color: Colors.black),
-                        )
-                      ],
-                    ),
+                      ),
+                    )
                   ],
-                )));
+                ),
+                SizedBox(
+                  height: 5,
+                ),
+                Divider(),
+                Row(
+                  children: [
+                    Icon(CupertinoIcons.placemark_fill, color: Colors.black),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Flexible(
+                      child: Text(
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 2,
+                        address,
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontFamily: "Mainfonts",
+                            color: Colors.black),
+                      ),
+                    )
+                  ],
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Row(
+                  children: [
+                    Icon(CupertinoIcons.clock_fill, color: Colors.black),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Text(
+                      open + "~" + close,
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontFamily: "Mainfonts",
+                          color: Colors.black),
+                    )
+                  ],
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Row(
+                  children: [
+                    Icon(CupertinoIcons.calendar, color: Colors.black),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Text(
+                      overflow: TextOverflow.ellipsis,
+                      closeddays,
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontFamily: "Mainfonts",
+                          color: Colors.black),
+                    )
+                  ],
+                ),
+              ],
+            )));
   }
 }

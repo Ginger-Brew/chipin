@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:chipin/colors.dart';
 import 'package:image_picker/image_picker.dart';
 
+import 'my_restaurant_container_screen.dart';
+
 class ShadowButton extends StatefulWidget {
   const ShadowButton({Key? key}) : super(key: key);
 
@@ -75,7 +77,15 @@ class _ShadowButtonState extends State<ShadowButton> {
                     borderRadius: BorderRadius.circular(10)),
                 backgroundColor: Colors.white,
                 foregroundColor: MyColor.HOVER),
-            onPressed: () {},
+            onPressed: () {
+              // Navigator.push(context,
+              //     MaterialPageRoute(builder: (context) => const MyRestaurantContainerScreen(
+              //       title: name,
+              //       location: location,
+              //       time: time,
+              //       banner: imageURL,
+              //       ownerId: collectionName,)));
+            },
             child: Padding(
                 padding: EdgeInsets.all(20),
                 child: Column(
@@ -125,7 +135,8 @@ class _ShadowButtonState extends State<ShadowButton> {
                           width: 10,
                         ),
                         Text(
-                          "충남 보령시 보령남로 125-7",
+                          //"충남 보령시 보령남로 125-7",
+                            address1,
                           style: TextStyle(
                               fontSize: 16,
                               fontFamily: "Mainfonts",

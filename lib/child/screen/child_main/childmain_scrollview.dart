@@ -11,16 +11,21 @@ class CustomScrollViewContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: Colors.white,
-      elevation: 12.0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-      margin: const EdgeInsets.all(0),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(24),
+    var screenWidth = MediaQuery.of(context).size.width;
+    var screenHeight = MediaQuery.of(context).size.height;
+    return SizedBox(
+      height : screenHeight,
+      child: Card(
+        color: Colors.white,
+        elevation: 12.0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        margin: const EdgeInsets.all(0),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          child: const CustomInnerContent(),
         ),
-        child: const CustomInnerContent(),
       ),
     );
   }
@@ -224,8 +229,7 @@ class CustomRestaurantCategory extends StatelessWidget {
                             child: Image.network(
                               imageURL,
                               fit: BoxFit.cover,
-                            )
-                            )),
+                            ))),
                     SizedBox(width: width * 0.03),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -276,24 +280,10 @@ class CustomRestaurantCategory extends StatelessWidget {
                   decoration: BoxDecoration(
                       color: Colors.grey[200],
                       borderRadius: BorderRadius.circular(100)),
-                  child: const Icon(Icons.favorite, size: 12, color: Colors.black54),
+                  child: const Icon(Icons.favorite,
+                      size: 12, color: Colors.black54),
                 ),
               ],
             )));
-  }
-}
-
-class CustomFeaturedItem extends StatelessWidget {
-  const CustomFeaturedItem({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 200,
-      decoration: BoxDecoration(
-        color: Colors.grey[500],
-        borderRadius: BorderRadius.circular(8),
-      ),
-    );
   }
 }

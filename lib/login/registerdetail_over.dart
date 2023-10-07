@@ -1,9 +1,9 @@
+import 'package:chipin/colors.dart';
 import 'package:chipin/login/information.dart';
-import 'package:chipin/login/login.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:chipin/colors.dart';
+
 import 'model/model_auth.dart';
 import 'model/model_register.dart';
 
@@ -30,11 +30,14 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
+    var screenWidth = MediaQuery.of(context).size.width;
+    var screenHeight = MediaQuery.of(context).size.height;
+
     return ChangeNotifierProvider(
         create: (_) => RegisterModel(),
         child: Scaffold(
           appBar: AppBar(
-            backgroundColor: MyColor.DARK_YELLOW,
+            //backgroundColor: MyColor.DARK_YELLOW,
             title: Text("회원가입",
                 style: const TextStyle(
                     fontSize: 24,
@@ -48,7 +51,7 @@ class _RegisterPageState extends State<RegisterPage> {
               child: Column(
                 children: [
                   SizedBox(
-                    height: 40,
+                    height: screenHeight*0.01,
                   ),
                   NameInput(),
                   EmailInput(),
@@ -58,9 +61,12 @@ class _RegisterPageState extends State<RegisterPage> {
                   CheckOver(),
                   CheckAgree(),
                   SizedBox(
-                    height: 50,
+                    height: screenHeight*0.03,
                   ),
                   RegistButton(),
+                  SizedBox(
+                    height: screenHeight*0.03,
+                  ),
                 ],
               ),
             ),

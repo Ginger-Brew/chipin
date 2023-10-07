@@ -197,7 +197,6 @@ class _ChoiceRoleState extends State<ChoiceRole> {
                     } else if (role == "/storemain") {
                       updaterole["restaurant"] = true;
                       nowrole = "restaurant";
-                      await FirebaseFirestore.instance.collection("Restaurant").doc(userid).set({});
                     } else if (role == "/clientmain") {
                       updaterole["client"] = true;
                       nowrole = "client";

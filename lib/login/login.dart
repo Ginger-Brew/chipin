@@ -16,33 +16,38 @@ final TextEditingController _passwordController = TextEditingController();
 class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    var screenWidth = MediaQuery.of(context).size.width;
+    var screenHeight = MediaQuery.of(context).size.height;
     return ChangeNotifierProvider(
         create: (_) => LoginModel(),
         child: Scaffold(
-          body: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                "로그인",
-                style: TextStyle(
-                    color: Colors.black,
-                    fontFamily: "Pretendard",
-                    fontWeight: FontWeight.bold,
-                    fontSize: 32),
+          body: Container(
+            padding: EdgeInsets.only(top:screenHeight*0.2),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Center(
+                      child: Image(
+                          width: screenWidth * 0.3,
+                          height: screenWidth * 0.3,
+                          fit: BoxFit.contain,
+                          image: AssetImage("assets/images/logo.png"))),
+                  SizedBox(height: screenHeight*0.05),
+                  IdInput(),
+                  PasswordInput(),
+                  LoginButton(),
+                  SizedBox(height: screenHeight*0.05),
+                  Align(
+                    alignment: Alignment.center,
+                    child: Row(children: [
+                      Expanded(child: FindById()),
+                      Expanded(child: RegisterButton())
+                    ]),
+                  )
+                ],
               ),
-              SizedBox(height: 19),
-              IdInput(),
-              PasswordInput(),
-              LoginButton(),
-              SizedBox(height: 16),
-              Align(
-                alignment: Alignment.center,
-                child: Row(children: [
-                  Expanded(child: FindById()),
-                  Expanded(child: RegisterButton())
-                ]),
-              )
-            ],
+            ),
           ),
         ));
   }
@@ -54,9 +59,11 @@ class LoginPage extends StatelessWidget {
 class IdInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    var screenWidth = MediaQuery.of(context).size.width;
+    var screenHeight = MediaQuery.of(context).size.height;
     final login = Provider.of<LoginModel>(context, listen: false);
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 46),
+      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.1),
       child: TextFormField(
         controller: _idController,
         onChanged: (id) {
@@ -83,9 +90,10 @@ class IdInput extends StatelessWidget {
 class PasswordInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    var screenWidth = MediaQuery.of(context).size.width;
     final login = Provider.of<LoginModel>(context, listen: false);
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 46),
+      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.1),
       child: TextFormField(
           obscureText: true,
           controller: _passwordController,
@@ -114,7 +122,6 @@ class LoginButton extends StatefulWidget {
 }
 
 class _LoginButtonState extends State<LoginButton> {
-
   User? getUser() {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
@@ -133,11 +140,13 @@ class _LoginButtonState extends State<LoginButton> {
     }
     return user;
   }
+
   Future<int> isPresentRestaurantInfo() async {
     User? currentUser = getUser();
     if (currentUser != null) {
       FirebaseFirestore firestore = FirebaseFirestore.instance;
-      DocumentSnapshot document = await firestore.collection("Restaurant").doc(currentUser.email).get();
+      DocumentSnapshot document =
+          await firestore.collection("Restaurant").doc(currentUser.email).get();
 
       if (document.exists) {
         return 1;
@@ -148,15 +157,18 @@ class _LoginButtonState extends State<LoginButton> {
       return 0;
     }
   }
+
   @override
   Widget build(BuildContext context) {
+    var screenWidth = MediaQuery.of(context).size.width;
+    var screenHeight = MediaQuery.of(context).size.height;
     final authClient =
         Provider.of<FirebaseAuthProvider>(context, listen: false);
     final login = Provider.of<LoginModel>(context, listen: false);
 
     return Container(
-      width: MediaQuery.of(context).size.width - 92, // 화면 가로 크기의 반
-      height: 51,
+      width: screenWidth * 0.8, // 화면 가로 크기의 반
+      height: screenHeight * 0.08,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: MyColor.DARK_YELLOW,
@@ -176,18 +188,22 @@ class _LoginButtonState extends State<LoginButton> {
                         Text('welcome! ' + authClient.user!.email! + ' ')));
               String nowrole = "";
               //var logger = Logger();
-              final docRef = FirebaseFirestore.instance.collection("Users").doc(login.id).collection("userinfo").doc("nowrole");
+              final docRef = FirebaseFirestore.instance
+                  .collection("Users")
+                  .doc(login.id)
+                  .collection("userinfo")
+                  .doc("nowrole");
               docRef.get().then(
-                    (DocumentSnapshot doc) async {
-                  final data = doc.data() as  Map<String, dynamic>;
+                (DocumentSnapshot doc) async {
+                  final data = doc.data() as Map<String, dynamic>;
                   nowrole = data["nowrole"];
                   if (nowrole == "child") {
                     Navigator.pushReplacementNamed(context, '/childmain');
-                  } else if (nowrole == "restaurant" ) {
+                  } else if (nowrole == "restaurant") {
                     int direnction = await isPresentRestaurantInfo();
                     debugPrint("debug + ${direnction}");
 
-                    if (direnction == 1){
+                    if (direnction == 1) {
                       Navigator.pushReplacementNamed(context, '/storemain');
                     } else {
                       Navigator.pushReplacementNamed(context, '/storeregister');
@@ -195,12 +211,14 @@ class _LoginButtonState extends State<LoginButton> {
                   } else if (nowrole == "client") {
                     Navigator.pushReplacementNamed(context, '/clientmain');
                   } else {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const ChoiceRole()));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const ChoiceRole()));
                   }
                 },
                 onError: (e) => print("Error getting document: $e"),
               );
-
             } else {
               ScaffoldMessenger.of(context)
                 ..hideCurrentSnackBar()

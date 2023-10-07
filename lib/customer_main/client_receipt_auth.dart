@@ -346,8 +346,8 @@ class _ClientReceiptAuthState extends State<ClientReceiptAuth> {
   writeClientHistory(year, month, day, hour, minute, title, point) {
     FirebaseFirestore.instance.
     collection('History').
-    doc(userid).collection('getPoint').
-    add(
+    doc(userid).
+    update(
         {
           _saveIndex.toString() : [year, month, day, hour, minute, title, point]
         }

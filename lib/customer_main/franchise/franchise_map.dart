@@ -31,31 +31,6 @@ class _FranchiseMapState extends State<FranchiseMap> {
   User? currentChild = getUser();
   final GlobalKey _containerkey = GlobalKey();
 
-  Future<void> checkAndUpdateReservationStatus() async {
-    final currentDateTime = DateTime.now();
-
-    final reservationQuery = await _firestore
-        .collection('Child')
-        .doc(currentChild?.email)
-        .collection('ReservationInfo')
-        .where('expirationDate', isGreaterThan: currentDateTime)
-        .get();
-
-    final hasValidReservation = reservationQuery.docs.isNotEmpty;
-    // 업데이트할 데이터
-    final data = {'idInReservation': hasValidReservation};
-
-    // Child 컬렉션 내의 해당 문서 업데이트
-    await _firestore
-        .collection('Child')
-        .doc(currentChild?.email)
-        .update(data);
-
-    setState(() {
-      // 상태를 업데이트하고 화면을 다시 그립니다.
-      idInReservation = hasValidReservation;
-    });
-  }
   Size? size;
   Size? _getSize() {
     if (_containerkey.currentContext != null) {
@@ -69,7 +44,6 @@ class _FranchiseMapState extends State<FranchiseMap> {
   @override
   void initState() {
     super.initState();
-    checkAndUpdateReservationStatus();
     WidgetsBinding.instance!.addPostFrameCallback((_) {
       setState(() {
         size = _getSize();

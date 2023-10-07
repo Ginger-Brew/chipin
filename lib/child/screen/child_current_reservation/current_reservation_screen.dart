@@ -39,26 +39,49 @@ class _CurrentReservationScreenState extends State<CurrentReservationScreen> {
         .doc(user?.email)
         .collection(reservation);
     Timestamp currentTimestamp = Timestamp.now();
-
-    QuerySnapshot querySnapshot =
-        await db.where('expirationDate', isGreaterThan: currentTimestamp).get();
-    if (querySnapshot.docs.isNotEmpty) {
-      DocumentSnapshot ds = querySnapshot.docs.first;
-      Map<String, dynamic> data = ds.data() as Map<String, dynamic>;
-      setState(() {
-        isLoading = false;
-        reservationCode = data["reservationCode"];
-        Timestamp t = data["reservationDate"];
-        DateTime date = t.toDate();
-        reservationDate = DateFormat('yy/MM/dd HH:mm:ss').format(date);
-        Timestamp eT = data["expirationDate"];
-        DateTime eDate = eT.toDate();
-        expirationDate = DateFormat('yy/MM/dd HH:mm:ss').format(eDate);
-        reservationPrice = data["reservationPrice"];
-        restaurantEmail = data["restaurantId"];
-        fetchRestaurantData();
-      });
-    }
+    DocumentSnapshot? ds;
+    await db.where('expirationDate', isGreaterThan: currentTimestamp).get().then(
+            (querySnapshot) {
+              for (var docSnapshot in querySnapshot.docs) {
+                print(docSnapshot['isUsed']);
+                if (docSnapshot['isUsed'] == false) {
+                   ds = docSnapshot;
+                }
+              }
+            }
+        );
+    Map<String, dynamic> data = ds?.data() as Map<String, dynamic>;
+    setState(() {
+      isLoading = false;
+      reservationCode = data["reservationCode"];
+      Timestamp t = data["reservationDate"];
+      DateTime date = t.toDate();
+      reservationDate = DateFormat('yy/MM/dd HH:mm:ss').format(date);
+      Timestamp eT = data["expirationDate"];
+      DateTime eDate = eT.toDate();
+      expirationDate = DateFormat('yy/MM/dd HH:mm:ss').format(eDate);
+      reservationPrice = data["reservationPrice"];
+      restaurantEmail = data["restaurantId"];
+      fetchRestaurantData();
+    });
+    //print("씨!!!!!!!!! $querySnapshot");
+    // if (querySnapshot.docs.isNotEmpty) {
+    //   DocumentSnapshot ds = querySnapshot.docs.first;
+    //   Map<String, dynamic> data = ds.data() as Map<String, dynamic>;
+    //   setState(() {
+    //     isLoading = false;
+    //     reservationCode = data["reservationCode"];
+    //     Timestamp t = data["reservationDate"];
+    //     DateTime date = t.toDate();
+    //     reservationDate = DateFormat('yy/MM/dd HH:mm:ss').format(date);
+    //     Timestamp eT = data["expirationDate"];
+    //     DateTime eDate = eT.toDate();
+    //     expirationDate = DateFormat('yy/MM/dd HH:mm:ss').format(eDate);
+    //     reservationPrice = data["reservationPrice"];
+    //     restaurantEmail = data["restaurantId"];
+    //     fetchRestaurantData();
+    //   });
+    // }
   }
 
   void fetchRestaurantData() async {

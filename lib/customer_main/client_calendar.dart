@@ -7,6 +7,8 @@ import 'package:table_calendar/table_calendar.dart';
 import '../base_appbar.dart';
 import '../colors.dart';
 
+import 'client_appbar.dart';
+import 'client_drawer_menu.dart';
 import 'client_history_unit.dart';
 
 
@@ -90,7 +92,8 @@ class _ClientCalendarState extends State<ClientCalendar>{
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: MyColor.BACKGROUND,
-        appBar: BaseAppBar(title: "내 누적 포인트"),
+        appBar: ClientAppBar(title: "내 누적 포인트"),
+        endDrawer: const ClientDrawerMenu(),
         body: Container(
           margin: EdgeInsets.fromLTRB(10, 10, 10, 20),
         child: SingleChildScrollView(

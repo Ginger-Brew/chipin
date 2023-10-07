@@ -32,9 +32,9 @@ class _LoginPageState extends State<LoginPage> {
     return ChangeNotifierProvider(
         create: (_) => LoginModel(),
         child: Scaffold(
-          body: Container(
-            padding: EdgeInsets.only(top: screenHeight * 0.2),
-            child: SingleChildScrollView(
+          body: SingleChildScrollView(
+            child: Container(
+              padding: EdgeInsets.only(top: screenHeight * 0.2),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

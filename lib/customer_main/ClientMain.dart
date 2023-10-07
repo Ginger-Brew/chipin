@@ -2,20 +2,20 @@ import 'dart:convert';
 
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:chipin/customer_main/client_text_btn.dart';
+import 'package:chipin/customer_main/franchise/franchise_map.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
-import 'package:dio/dio.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../base_appbar.dart';
 import '../colors.dart';
+import 'client_appbar.dart';
 import 'client_calendar.dart';
+import 'client_drawer_menu.dart';
 import 'client_receipt_auth.dart';
 import 'client_support.dart';
 import 'client_yellow_btn.dart';
@@ -91,7 +91,8 @@ class _ClientMainState extends State<ClientMain> {
     getData();
     return Scaffold(
         backgroundColor: MyColor.BACKGROUND,
-        appBar: BaseAppBar(title: "십시일반"),
+        appBar: ClientAppBar(title: "십시일반"),
+        endDrawer: const ClientDrawerMenu(),
         body: Container(
           child: SingleChildScrollView(
             child: Center(
@@ -240,7 +241,9 @@ class _ClientMainState extends State<ClientMain> {
                   ),
 
                   TextButton(
-                      onPressed: () {},
+                      onPressed: () async {
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) => FranchiseMap())); },
                       child: ClientYellowBtn(
                         imgPath: "map.png",
                         title: "가맹점 확인하기",

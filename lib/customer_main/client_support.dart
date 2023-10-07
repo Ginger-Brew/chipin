@@ -5,6 +5,8 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../base_appbar.dart';
 import '../colors.dart';
+import 'client_appbar.dart';
+import 'client_drawer_menu.dart';
 
 class ClientSupport extends StatefulWidget {
   const ClientSupport({Key? key}) : super(key: key);
@@ -36,7 +38,8 @@ class _ClientSupportState extends State<ClientSupport> {
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: MyColor.BACKGROUND,
-        appBar: BaseAppBar(title: "도움의 손길들"),
+        appBar: ClientAppBar(title: "도움의 손길들"),
+        endDrawer: const ClientDrawerMenu(),
         body: Container(
           padding: EdgeInsets.fromLTRB(30, 20, 30, 40),
           child: SingleChildScrollView(

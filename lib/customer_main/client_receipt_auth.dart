@@ -11,6 +11,8 @@ import 'package:intl/intl.dart';
 
 import '../base_appbar.dart';
 import '../colors.dart';
+import 'client_appbar.dart';
+import 'client_drawer_menu.dart';
 import 'client_menu_unit.dart';
 
 class ClientReceiptAuth extends StatefulWidget {
@@ -76,7 +78,8 @@ class _ClientReceiptAuthState extends State<ClientReceiptAuth> {
     getData();
     return Scaffold(
         backgroundColor: MyColor.BACKGROUND,
-        appBar: BaseAppBar(title: "가게 정보"),
+        appBar: ClientAppBar(title: "가게 정보"),
+        endDrawer: const ClientDrawerMenu(),
         body: Container(
           margin: EdgeInsets.fromLTRB(10, 20, 10, 0),
           child: SingleChildScrollView(

@@ -2,11 +2,11 @@ import 'package:chipin/customer_main/ClientMain.dart';
 import 'package:flutter/material.dart';
 import 'package:chipin/colors.dart';
 
-class RestaurantAppBar extends StatelessWidget implements PreferredSize{
+class ClientAppBar extends StatelessWidget implements PreferredSize{
   final String title;
   // final VoidCallback drawer;
 
-  const RestaurantAppBar({Key? key, required this.title,}) : super(key: key);
+  const ClientAppBar({Key? key, required this.title}) : super(key: key);
 
   @override
   Size get preferredSize => Size.fromHeight(kToolbarHeight);

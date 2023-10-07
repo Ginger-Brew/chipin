@@ -1,22 +1,15 @@
-import 'dart:io';
-
+import 'package:chipin/colors.dart';
 import 'package:chipin/restaurant_main/restaurant_info_correction.dart';
+import 'package:chipin/restaurant_point_list/RestaurantEarnList.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:chipin/colors.dart';
-import 'package:chipin/base_appbar.dart';
-import 'package:image_picker/image_picker.dart';
+
 import '../core/utils/size_utils.dart';
 import '../restaurant_appbar/RestaurantAppBar.dart';
 import '../restaurant_appbar/RestaurantDrawerMenu.dart';
-import 'restaurant_splitbutton.dart';
-import 'restaurant_info.dart';
 import 'restaurant_camera.dart';
-import 'package:chipin/base_shadow.dart';
-import 'restaurant_pointbutton.dart';
-import 'package:chipin/restaurant_point_list/RestaurantEarnList.dart';
 
 class RestaurantMain extends StatefulWidget {
   const RestaurantMain({Key? key}) : super(key: key);
@@ -187,7 +180,7 @@ setState(() {
                             Text(
                               "가게 잔여 포인트",
                               style: TextStyle(
-                                  fontSize: 20,
+                                  fontSize: 16,
                                   color: Colors.black,
                                   fontFamily: "Mainfonts"),
                             ),
@@ -412,232 +405,3 @@ class RestaurantInfoButton extends StatelessWidget {
                 )));
   }
 }
-// class PointButton extends StatefulWidget {
-//   const PointButton({Key? key}) : super(key: key);
-//
-//   @override
-//   State<PointButton> createState() => _PointButtonState();
-// }
-//
-// class _PointButtonState extends State<PointButton> {
-//
-//   Future<num> readRemainingPoint() async {
-//     num earnPoint = 0;
-//     num redeemPoint = 0;
-//
-//     final db =
-//     FirebaseFirestore.instance.collection("Restaurant").doc("jdh33114");
-//
-//     try {
-//       final queryEarnSnapshot = await db.collection("EarnList").get();
-//
-//       if (queryEarnSnapshot.docs.isNotEmpty) {
-//         for (var docSnapshot in queryEarnSnapshot.docs) {
-//           print('${docSnapshot.id} => ${docSnapshot.data()}');
-//           earnPoint += docSnapshot.data()['earnPoint'];
-//         }
-//       }
-//     } catch (e) {
-//       print("Error completing: $e");
-//     }
-//
-//     try {
-//       final queryEarnSnapshot = await db.collection("RedeemList").get();
-//
-//       if (queryEarnSnapshot.docs.isNotEmpty) {
-//         for (var docSnapshot in queryEarnSnapshot.docs) {
-//           print('${docSnapshot.id} => ${docSnapshot.data()}');
-//           redeemPoint += docSnapshot.data()['redeemPoint'];
-//         }
-//       }
-//     } catch (e) {
-//       print("Error completing: $e");
-//     }
-//
-//     return earnPoint - redeemPoint;
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Container(
-//         height: 110,
-//         margin: EdgeInsets.fromLTRB(20, 0, 5, 0),
-//         decoration: BoxDecoration(
-//             boxShadow: [
-//               BoxShadow(
-//                   color : Colors.black.withOpacity(0.15),
-//                   blurRadius: 10,
-//                   spreadRadius: 0.0,
-//                   offset: const Offset(0,7)
-//
-//               )
-//             ]
-//         ),
-//         child:  ElevatedButton(
-//             style: ElevatedButton.styleFrom(
-//                 shape: RoundedRectangleBorder(
-//                     borderRadius: BorderRadius.circular(10)),
-//                 backgroundColor: Colors.white,
-//                 foregroundColor: MyColor.HOVER),
-//             onPressed: () {
-//               Navigator.push(
-//                   context,
-//                   MaterialPageRoute(
-//                       builder: (context) => const RestaurantEarnList()));
-//             },
-//             child: Column(
-//               mainAxisAlignment: MainAxisAlignment.center,
-//               children: [
-//                 SizedBox(
-//                   height: 10,
-//                 ),
-//                 Text(
-//                   "가게 잔여 포인트",
-//                   style: TextStyle(
-//                       fontSize: 20,
-//                       color: Colors.black,
-//                       fontFamily: "Mainfonts"),
-//                 ),
-//                 Row(
-//                   mainAxisAlignment: MainAxisAlignment.center,
-//                   children: [
-//                     Expanded(
-//                       flex: 2,
-//                       child: Image.asset('assets/images/coins.png'),
-//                     ),
-//                     SizedBox(height: 8),
-//                     // Expanded(
-//                     //     // flex: 4,
-//                     //     child: FutureBuilder<num>(
-//                     //         future: readRemainingPoint(),
-//                     //         builder: (context, snapshot) {
-//                     //           if (snapshot.connectionState ==
-//                     //               ConnectionState.waiting) {
-//                     //             return Center(
-//                     //                 child: Container(
-//                     //                     width: (mediaQueryData.size.width - 43) / 10,
-//                     //                     height: (mediaQueryData.size.width - 43) / 10,
-//                     //                     child:
-//                     //                     CircularProgressIndicator())); // You can replace this with your loading screen widget.
-//                     //           } else if (snapshot.hasError) {
-//                     //             // If there's an error, show an error screen or messag
-//                     //             return Text('Error: ${snapshot.error}');
-//                     //           } else {
-//                     //             final remainingPoint = snapshot.data;
-//                     //             return Align(
-//                     //               alignment: Alignment.centerRight,
-//                     //               child: Text(
-//                     //                 '$remainingPoint',
-//                     //                 style: TextStyle(
-//                     //                   fontSize: 17,
-//                     //                   color: Colors.black,
-//                     //                   fontFamily: "Mainfonts",
-//                     //                 ),
-//                     //               ),
-//                     //             );
-//                     //           }
-//                     //         }))
-//                     Expanded(
-//                         child: StreamBuilder<num>(
-//                             stream: readRemainingPoint(),
-//                             builder: (context, snapshot) {
-//                               if (snapshot.connectionState ==
-//                                   ConnectionState.waiting) {
-//                                 return Center(
-//                                     child: Container(
-//                                         width: (mediaQueryData.size.width - 43) / 10,
-//                                         height: (mediaQueryData.size.width - 43) / 10,
-//                                         child:
-//                                         CircularProgressIndicator())); // You can replace this with your loading screen widget.
-//                               } else if (snapshot.hasError) {
-//                                 // If there's an error, show an error screen or messag
-//                                 return Text('Error: ${snapshot.error}');
-//                               } else {
-//                                 final remainingPoint = snapshot.data;
-//                                 return Align(
-//                                   alignment: Alignment.centerRight,
-//                                   child: Text(
-//                                     '$remainingPoint',
-//                                     style: TextStyle(
-//                                       fontSize: 17,
-//                                       color: Colors.black,
-//                                       fontFamily: "Mainfonts",
-//                                     ),
-//                                   ),
-//                                 );
-//                               }
-//                             })
-//                     )
-//                   ],
-//                 ),
-//               ],
-//             )));
-//   }
-//   Widget _buildRemainingPoint(){
-//     final db = FirebaseFirestore.instance;
-//     // Replace this with your first list widget implementation
-//     return StreamBuilder<QuerySnapshot>(
-//         stream: readRemainingPoint(),
-//         builder: (context, snapshot) {
-//           if (!snapshot.hasData) {
-//             return Center(
-//               child: Text("적립 내역이 존재하지 않습니다"),
-//             );
-//           } else if (snapshot.connectionState == ConnectionState.waiting) {
-//             // While the data is being fetched, show a loading indicator or screen
-//             return Center(
-//                 child: Container(
-//                     width: mediaQueryData.size.width / 5,
-//                     height: mediaQueryData.size.width / 5,
-//                     child:
-//                     CircularProgressIndicator())); // You can replace this with your loading screen widget.
-//           } else if (snapshot.hasError) {
-//             // If there's an error, show an error screen or message
-//             return Text('Error: ${snapshot.error}');
-//           } else {
-//             final docs = snapshot.data!.docs;
-//             return ListView.separated(
-//               itemCount: docs.length,
-//               itemBuilder: (context, index) => ListTile(
-//                 visualDensity: VisualDensity.compact,
-//                 contentPadding: EdgeInsets.symmetric(horizontal: 40),
-//                 title: Text(
-//                   "십시일반 적립금",
-//                   style: TextStyle(
-//                       fontFamily: "Pretendard",
-//                       fontWeight: FontWeight.bold,
-//                       fontSize: 17,
-//                       color: Colors.black),
-//                 ),
-//                 subtitle: Text(
-//                   docs[index]['earnDate'].toDate().toString(),
-//                   style: TextStyle(fontSize: 10),
-//                 ),
-//                 trailing: Column(
-//                     crossAxisAlignment: CrossAxisAlignment.end,
-//                     children: [
-//                       Text('${docs[index]['earnPoint']}P',
-//                           style: TextStyle(
-//                               fontFamily: "Pretendard",
-//                               fontWeight: FontWeight.bold,
-//                               fontSize: 20,
-//                               color: MyColor.PRICE)),
-//                       Text(
-//                         '${docs[index]['totalPoint']}P',
-//                         style: TextStyle(fontSize: 10, color: MyColor.GRAY),
-//                       )
-//                     ]),
-//               ),
-//               separatorBuilder: (BuildContext context, int index) {
-//                 return Padding(
-//                     padding: EdgeInsets.symmetric(horizontal: 30),
-//                     child: Divider());
-//               },
-//             );
-//           }
-//         });
-//
-//   }
-//
-// }
-//

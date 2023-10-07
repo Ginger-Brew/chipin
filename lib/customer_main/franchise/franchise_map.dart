@@ -1,16 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'childmain_google_map.dart';
+
 import 'childmain_scrollview.dart';
-import 'childmain_search.dart';
+import 'franchise_google_map.dart';
+import 'franchise_search.dart';
 
 
-class ChildMain extends StatefulWidget {
-  const ChildMain({super.key});
+class FranchiseMap extends StatefulWidget {
+  const FranchiseMap({super.key});
 
   @override
-  State<ChildMain> createState() => _ChildMainState();
+  State<FranchiseMap> createState() => _FranchiseMapState();
 }
 User? getUser() {
   final user = FirebaseAuth.instance.currentUser;
@@ -25,7 +26,7 @@ User? getUser() {
   return user;
 }
 
-class _ChildMainState extends State<ChildMain> {
+class _FranchiseMapState extends State<FranchiseMap> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   User? currentChild = getUser();
   final GlobalKey _containerkey = GlobalKey();
@@ -40,20 +41,20 @@ class _ChildMainState extends State<ChildMain> {
         .where('expirationDate', isGreaterThan: currentDateTime)
         .get();
 
-    //final hasValidReservation = reservationQuery.docs.isNotEmpty;
+    final hasValidReservation = reservationQuery.docs.isNotEmpty;
     // 업데이트할 데이터
-    //final data = {'idInReservation': hasValidReservation};
+    final data = {'idInReservation': hasValidReservation};
 
     // Child 컬렉션 내의 해당 문서 업데이트
-    // await _firestore
-    //     .collection('Child')
-    //     .doc(currentChild?.email)
-    //     .update(data);
+    await _firestore
+        .collection('Child')
+        .doc(currentChild?.email)
+        .update(data);
 
-    // setState(() {
-    //   // 상태를 업데이트하고 화면을 다시 그립니다.
-    //   idInReservation = hasValidReservation;
-    // });
+    setState(() {
+      // 상태를 업데이트하고 화면을 다시 그립니다.
+      idInReservation = hasValidReservation;
+    });
   }
   Size? size;
   Size? _getSize() {
@@ -81,8 +82,8 @@ class _ChildMainState extends State<ChildMain> {
     return Scaffold(
         body: Stack(
           children: <Widget>[
-            CustomGoogleMap(),
-            ChildMainSearch(),
+            FranchiseGoogleMap(),
+            FranchiseSearch(),
             StreamBuilder(
               stream:
               FirebaseFirestore.instance.collection('Restaurant').snapshots(),
@@ -100,7 +101,7 @@ class _ChildMainState extends State<ChildMain> {
                       return ListView(
                         key: _containerkey,
                         controller: scrollController,
-                        children: [CustomScrollViewContent()],
+                        children: [FranchiseScrollViewContent()],
                       );
                     },
                   );

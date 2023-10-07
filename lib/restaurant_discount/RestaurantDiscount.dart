@@ -65,6 +65,9 @@ class _RestaurantDiscountState extends State<RestaurantDiscount> {
           .then((value) => print("document added")) // firestore에 저장이 잘 된 경우
           .catchError((error) => print("Fail to add doc ${error}"));
       final childRef = FirebaseFirestore.instance.collection("Child").doc(childId);
+      await childRef.update({
+        'idInReservation' : false
+      });
       final reservationInfoRef = childRef.collection("ReservationInfo").doc(discountCode);
       await reservationInfoRef.update({
         'isUsed': true,

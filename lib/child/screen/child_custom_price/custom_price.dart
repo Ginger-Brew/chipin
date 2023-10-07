@@ -252,10 +252,10 @@ class _CustomPricePageState extends State<CustomPricePage> {
                     child: IgnorePointer(
                       ignoring: isButtonPressed,
                       child: ElevatedButton(
-                        onPressed: isAmountValid && !isButtonPressed
-                            ? _showConfirmationDialog
-                            : null,
-                        // onPressed: () => _showConfirmationDialog(),
+                        // onPressed: isAmountValid && !isButtonPressed
+                        //     ? _showConfirmationDialog
+                        //     : null,
+                        onPressed: () => _showConfirmationDialog(),
                         style: ButtonStyle(
                           foregroundColor:
                               MaterialStateProperty.all(Colors.white),

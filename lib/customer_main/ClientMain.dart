@@ -1,5 +1,6 @@
+import 'dart:convert';
+
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:chipin/customer_main/client_temp_receipt.dart';
 import 'package:chipin/customer_main/client_text_btn.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -15,6 +16,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../base_appbar.dart';
 import '../colors.dart';
 import 'client_calendar.dart';
+import 'client_receipt_auth.dart';
 import 'client_support.dart';
 import 'client_yellow_btn.dart';
 
@@ -34,6 +36,8 @@ class _ClientMainState extends State<ClientMain> {
     setState(() {
       _image = XFile(image.path); // 가져온 이미지를 _image에 저장
     });
+    Navigator.pop(context);
+    toConnectServer(_image!);
   }
 
   String? userid = FirebaseAuth.instance.currentUser!.email;
@@ -74,7 +78,7 @@ class _ClientMainState extends State<ClientMain> {
         .collection('Support')
         .snapshots()
         .listen((data) {
-          result.clear();
+      result.clear();
 
       for (var element in data.docs) {
         result.add([element["image"], element["title"], element["subtitle"], element["url"]]);
@@ -140,7 +144,7 @@ class _ClientMainState extends State<ClientMain> {
                               color: Colors.black),
                         ),
                         Image(
-                            image: AssetImage("assets/images/coins.png"),
+                          image: AssetImage("assets/images/coins.png"),
                           width: 15,
                           height: 15,
                         )
@@ -223,26 +227,11 @@ class _ClientMainState extends State<ClientMain> {
 
                   TextButton(
                       onPressed: () async {
-                        // await getImage(ImageSource.camera);
-                        // if (_image == null) return;
-                        //
-                        // List<int> imageByte = await _image!.readAsBytes();
-                        // String encodedImage = base64Encode(imageByte);
-                        // print(encodedImage);
-                        //
-                        // final dio = Dio();
-                        // final result = await dio.post(
-                        //   "http://43.200.163.101:51854/",
-                        //   data: {
-                        //     'img': encodedImage,
-                        //   },
-                        // );
-                        //
-                        // print(result);
-
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) => const ClientTempReceipt())
-                        );
+                        setState(() {
+                          showDialog(context: context, builder: (context) {
+                            return dialogWidget();
+                          });
+                        });
                       },
                       child: ClientYellowBtn(
                         imgPath: "receipt.png",
@@ -268,101 +257,101 @@ class _ClientMainState extends State<ClientMain> {
   Widget sliderWidget() {
     return CarouselSlider(
         items: List<List>.from(result).map(
-        (imgInfo) {
-            return Builder(
-                builder: (context) {
-                  return Container(
-                    margin: EdgeInsets.fromLTRB(30, 5, 30, 0),
-                    width: MediaQuery.of(context).size.width,
-                    height: 100,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10.0),
-                        image: DecorationImage(
-                          image: Image.network(imgInfo[0]).image,
-                          fit: BoxFit.cover
-                        )
-                      ),
-                      child: Stack(
-                        children: [
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Color.fromRGBO(0, 0, 0, 0.3),
+                (imgInfo) {
+              return Builder(
+                  builder: (context) {
+                    return Container(
+                        margin: EdgeInsets.fromLTRB(30, 5, 30, 0),
+                        width: MediaQuery.of(context).size.width,
+                        height: 100,
+                        child: Container(
+                          decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(10.0),
-                            ),
+                              image: DecorationImage(
+                                  image: Image.network(imgInfo[0]).image,
+                                  fit: BoxFit.cover
+                              )
                           ),
-                          Container(
-                            margin: EdgeInsets.fromLTRB(15, 30, 5, 0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Container(
-                                  margin: EdgeInsets.only(left: 8),
-                                  child: Text(
-                                    imgInfo[1],
-                                    style: TextStyle(
-                                        fontFamily: "Pretendard",
-                                        fontSize: 20,
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold
-                                    ),
-                                  ),
+                          child: Stack(
+                            children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: Color.fromRGBO(0, 0, 0, 0.3),
+                                  borderRadius: BorderRadius.circular(10.0),
                                 ),
-                                Padding(padding: EdgeInsets.all(5)),
-                                Container(
-                                  margin: EdgeInsets.only(left: 8),
-                                  child: Text(
-                                    imgInfo[2],
-                                    style: TextStyle(
-                                      fontFamily: "Pretendard",
-                                      fontSize: 15,
-                                      color: Colors.white,),
-                                  ),
-                                ),
-                                TextButton(
-                                    onPressed: () {
-                                      launchUrl(Uri.parse(imgInfo[3]));
-                                    },
-                                    child: Container(
-                                        width: 70,
-                                        height: 40,
-                                        decoration: BoxDecoration(
-                                            color: Colors.orange,
-                                            borderRadius: BorderRadius.circular(20.0)
+                              ),
+                              Container(
+                                margin: EdgeInsets.fromLTRB(15, 30, 5, 0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Container(
+                                      margin: EdgeInsets.only(left: 8),
+                                      child: Text(
+                                        imgInfo[1],
+                                        style: TextStyle(
+                                            fontFamily: "Pretendard",
+                                            fontSize: 20,
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold
                                         ),
-                                        child: Center(
-                                            child: Column(
-                                              mainAxisAlignment: MainAxisAlignment.center,
-                                              children: [
-                                                Text(
-                                                  '더보기',
-                                                  style: TextStyle(
-                                                      color: Colors.white
-                                                  ),
-                                                ),],
+                                      ),
+                                    ),
+                                    Padding(padding: EdgeInsets.all(5)),
+                                    Container(
+                                      margin: EdgeInsets.only(left: 8),
+                                      child: Text(
+                                        imgInfo[2],
+                                        style: TextStyle(
+                                          fontFamily: "Pretendard",
+                                          fontSize: 15,
+                                          color: Colors.white,),
+                                      ),
+                                    ),
+                                    TextButton(
+                                        onPressed: () {
+                                          launchUrl(Uri.parse(imgInfo[3]));
+                                        },
+                                        child: Container(
+                                            width: 70,
+                                            height: 40,
+                                            decoration: BoxDecoration(
+                                                color: Colors.orange,
+                                                borderRadius: BorderRadius.circular(20.0)
+                                            ),
+                                            child: Center(
+                                                child: Column(
+                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                  children: [
+                                                    Text(
+                                                      '더보기',
+                                                      style: TextStyle(
+                                                          color: Colors.white
+                                                      ),
+                                                    ),],
+                                                )
                                             )
                                         )
-                                    )
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                          )
-                        ],
-                      ),
-                    )
-                  );
-                }
-            );
-          }
+                              )
+                            ],
+                          ),
+                        )
+                    );
+                  }
+              );
+            }
         ).toList(),
         options: CarouselOptions(
-          height: 200,
-          viewportFraction: 1.0,
-          onPageChanged: (index, reason) {
-            setState(() {
-              _current = index;
-            });
-          }
+            height: 200,
+            viewportFraction: 1.0,
+            onPageChanged: (index, reason) {
+              setState(() {
+                _current = index;
+              });
+            }
         )
     );
   }
@@ -380,13 +369,89 @@ class _ClientMainState extends State<ClientMain> {
               height: 10,
               margin: EdgeInsets.symmetric(vertical: 8, horizontal: 4),
               decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: _current == e.key ? MyColor.GOLD_YELLOW : MyColor.DARK_YELLOW
+                  shape: BoxShape.circle,
+                  color: _current == e.key ? MyColor.GOLD_YELLOW : MyColor.DARK_YELLOW
               ),
             ),
           );
         }).toList(),
       ),
+    );
+  }
+
+  Widget dialogWidget() {
+    return AlertDialog(
+      title: Text(
+          '영수증 인식하기',
+          style: TextStyle(
+              fontFamily: "Mainfonts",
+              fontSize: 20,
+              color: Colors.black)
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextButton(
+              onPressed: () async {
+                await getImage(ImageSource.camera);
+              },
+              child: Text(
+                  '카메라로 인식하기',
+                  style: TextStyle(
+                      fontFamily: "Pretendard",
+                      color: Colors.black)
+              )
+          ),
+          TextButton(
+              onPressed: () async {
+                await getImage(ImageSource.gallery);
+              },
+              child: Text(
+                  '사진으로 인식하기',
+                  style: TextStyle(
+                      fontFamily: "Pretendard",
+                      color: Colors.black)
+              )
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(onPressed: (){Navigator.pop(context);},
+            child: Text(
+                '닫기',
+                style: TextStyle(
+                    fontFamily: "Pretendard",
+                    color: MyColor.ALERT)
+            ))
+      ],
+    );
+  }
+
+  toConnectServer(XFile image) async {
+    List<int> imageByte = await image.readAsBytes();
+    String encodedImage = base64Encode(imageByte);
+
+    final dio = Dio();
+    final result = await dio.post(
+      "http://54.180.124.30:56963/",
+      data: {
+        'img': encodedImage,
+      },
+    );
+    print(result.data);
+    //var jsonfile = jsonDecode(result.data);
+
+    Navigator.pop(context);
+    var tmp = '${result.data['date'].substring(0, 8)}T${result.data['date'].substring(8)}';
+    DateTime? dt = DateTime.parse(tmp);
+    Navigator.push(context,
+        MaterialPageRoute(builder: (context) => ClientReceiptAuth(
+            business_num: result.data['business_num'],
+            date: dt,
+            menu: List<String>.from(result.data['menu']),
+          a_prize: List<String>.from(result.data['a_prize']),
+          count: List<String>.from(result.data['count']),
+          total: result.data['total_prize'],))
     );
   }
 }

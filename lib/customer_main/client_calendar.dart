@@ -29,19 +29,13 @@ class _ClientCalendarState extends State<ClientCalendar>{
   CalendarFormat _calendarFormat = CalendarFormat.month;
   String? userid = FirebaseAuth.instance.currentUser!.email;
 
-  // Map<DateTime, List> eventSource = {
-  //   DateTime.utc(2023, 09, 02) : [Event('정통집', '2023-09-02', '1800P'), Event('정통집', '2023-09-02', '200P')],
-  //   DateTime.utc(2023, 09, 03) : [Event('정통집', '2023-09-03', '1800P')],
-  //   DateTime.utc(2023, 09, 12) : [Event('정통집', '2023-09-03', '1800P')],
-  //   DateTime.utc(2023, 09, 20) : [Event('정통집', '2023-09-03', '1800P')],
-  // };
-
   Map<DateTime, List<Event>> eventSource = {};
   Map<String, List<List>> history = {};
   int sum = 0;
   var point_format = NumberFormat("###,###P");
 
   getData() async {
+
     int i = 0;
     final usercol=FirebaseFirestore.instance.collection("History").doc(userid);
     final snapshot = await usercol.get();
@@ -176,7 +170,6 @@ class _ClientCalendarState extends State<ClientCalendar>{
                   }),
 
                   selectedDayPredicate: (day) {
-                    //  selectedDay의 날짜 모양을 바꿔줌
                     return isSameDay(selectedDate, day);
                   },
 
@@ -190,19 +183,15 @@ class _ClientCalendarState extends State<ClientCalendar>{
                   },
 
                   calendarStyle: CalendarStyle(
-
                     defaultDecoration : BoxDecoration(
                         shape: BoxShape.rectangle
                     ),
-
                     todayTextStyle : TextStyle(
                         color: Colors.black
                     ),
-
                     todayDecoration : BoxDecoration(
                       color: Colors.white.withOpacity(0)
                     ),
-
                     selectedTextStyle : TextStyle(
                         color: Colors.black
                     ),
@@ -276,7 +265,7 @@ class _ClientCalendarState extends State<ClientCalendar>{
             ],
           ),
         )
-        )
+      )
     );
   }
 

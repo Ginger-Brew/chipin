@@ -138,13 +138,13 @@ class _ClientTempReceiptState extends State<ClientTempReceipt> {
                     ),
                     TextButton(
                         onPressed: () {
-                          Navigator.push(context,
-                              MaterialPageRoute(builder: (context) => ClientReceiptAuth(
-                                  title: title,
-                                  date: _selectedDate,
-                                  time: _initialTime,
-                                  menu: [menu, prize, count]))
-                          );
+                          // Navigator.push(context,
+                          //     MaterialPageRoute(builder: (context) => ClientReceiptAuth(
+                          //         title: title,
+                          //         date: _selectedDate,
+                          //         time: _initialTime,
+                          //         menu: [menu, prize, count]))
+                          // );
                         },
                         child: Container(
                           height: 50,

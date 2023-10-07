@@ -7,59 +7,57 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../base_appbar.dart';
 import '../colors.dart';
 import 'client_menu_unit.dart';
 
-class Tuple {
-  String item1;
-  String item2;
-
-  Tuple(this.item1, this.item2);
-}
-
 class ClientReceiptAuth extends StatefulWidget {
-  String title;
+  String business_num;
   DateTime? date;
-  TimeOfDay time;
   List menu;
+  List a_prize;
+  List count;
+  String total;
 
   ClientReceiptAuth({
     Key? key,
-    required this.title,
+    required this.business_num,
     required this.date,
-    required this.time,
     required this.menu,
+    required this.a_prize,
+    required this.count,
+    required this.total,
   }) : super(key: key);
 
   @override
-  State<ClientReceiptAuth> createState() => _ClientReceiptAuthState(title, date, time, menu);
+  State<ClientReceiptAuth> createState() => _ClientReceiptAuthState(business_num, date, menu, a_prize, count, total);
 }
 
 class _ClientReceiptAuthState extends State<ClientReceiptAuth> {
-  var title, date, time, menu;
-  _ClientReceiptAuthState(this.title, this.date, this.time, this.menu);
+  var business_num, date, menu, a_prize, count, total;
+  _ClientReceiptAuthState(this.business_num, this.date, this.menu, this.a_prize, this.count, this.total);
 
   var result = [];
-  var image, addr, restaurantId;
+  var image, addr, title, restaurantId;
   String? userid = FirebaseAuth.instance.currentUser!.email;
   int _saveIndex = 0;
   var tmpImg = 'https://firebasestorage.googleapis.com/v0/b/chipin-c3559.appspot.com/o/support%2F%EC%B4%88%EB%A1%9D%EC%9A%B0%EC%82%B0.png?alt=media&token=d0a55dba-e01c-421c-a314-25dde8ffbd0c';
 
-  Future<Tuple> getData() async {
+  Future<List> getData() async {
     await FirebaseFirestore.instance
         .collection('Restaurant')
         .snapshots()
         .listen((data) async {
       for (var element in data.docs) {
-        result.clear();
 
-        if(element["name"] == title) {
+        if(element["businessnumber"] == business_num) {
           restaurantId = element.id;
-          result.add([element["name"], element["banner"], element["address1"], element["address2"]]);
+          result = [element["name"], element["banner"], element["address1"], element["address2"]];
         }
       }
+      print(result);
     });
 
     final usercol=FirebaseFirestore.instance.collection("History").doc(userid);
@@ -67,14 +65,10 @@ class _ClientReceiptAuthState extends State<ClientReceiptAuth> {
     if(snapshot.exists) {
       _saveIndex = (snapshot.data() as Map).length;
     }
-    restaurant_img();
-    restaurant_addr();
-
     print(restaurantId);
-    print(image);
-    print(addr);
 
-    return image;
+    return result;
+
   }
 
   @override
@@ -92,8 +86,14 @@ class _ClientReceiptAuthState extends State<ClientReceiptAuth> {
                 FutureBuilder(
                     future: getData(),
                     builder: (context, snapshot) {
-                      if (snapshot.hasData == false) {
-                        return CircularProgressIndicator();
+                      if (!snapshot.hasData) {
+                        return Text(
+                            '가게에 등록된 사진이 없습니다.',
+                            style: TextStyle(
+                                fontFamily: "Mainfonts",
+                                fontSize: 15,
+                                color: Colors.grey)
+                        );
                       }
                       else if (snapshot.hasError) {
                         return Padding(
@@ -105,40 +105,28 @@ class _ClientReceiptAuthState extends State<ClientReceiptAuth> {
                         );
                       }
                       else if (snapshot.hasData) {
-                        print("print!");
-                        print(snapshot.data!);
                         return ClipRRect(
                           borderRadius: BorderRadius.circular(20.0),
                           child: Image(
                               width: 400.0,
                               height: 250.0,
-                              image: Image.network(image).image
+                              image: Image.network(snapshot.data![1].toString()).image
                           ),
                         );
                       } else {
+                        print("else");
                         return CircularProgressIndicator();
                       }
                     },),
-                Container(
+                Container(  // 상호명
                   width: double.maxFinite,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      Container(
-                        width: double.infinity,
-                        margin: EdgeInsets.fromLTRB(20, 20, 0, 0),
-                        child: Text(
-                            title,
-                            style: TextStyle(
-                              fontFamily: "Mainfonts",
-                              fontSize: 25,
-                              color: Colors.black,)
-                        ),
-                      ),
                       FutureBuilder(
-                        future: restaurant_addr(),
+                        future: getData(),
                         builder: (context, snapshot) {
-                          if (snapshot.hasData == false) {
+                          if (!snapshot.hasData) {
                             return CircularProgressIndicator();
                           }
                           else if (snapshot.hasError) {
@@ -152,12 +140,46 @@ class _ClientReceiptAuthState extends State<ClientReceiptAuth> {
                           }
                           else if (snapshot.hasData) {
                             print("print!");
-                            print(snapshot.data!);
                             return Container(
                               width: double.infinity,
                               margin: EdgeInsets.fromLTRB(20, 20, 0, 0),
                               child: Text(
-                                  snapshot.data.toString(),
+                                  snapshot.data![0].toString(),
+                                  style: TextStyle(
+                                    fontFamily: "Mainfonts",
+                                    fontSize: 25,
+                                    color: Colors.black,)
+                              ),
+                            );
+                          } else {
+                            print("else");
+                            return CircularProgressIndicator();
+                          }
+                        },
+                      ),
+
+                      FutureBuilder(
+                        future: getData(),
+                        builder: (context, snapshot) {
+                          if (!snapshot.hasData) {
+                            return CircularProgressIndicator();
+                          }
+                          else if (snapshot.hasError) {
+                            return Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                'Error!: ${snapshot.error}', // 에러명을 텍스트에 뿌려줌
+                                style: TextStyle(fontSize: 15),
+                              ),
+                            );
+                          }
+                          else if (snapshot.hasData) {
+                            print("print!");
+                            return Container(
+                              width: double.infinity,
+                              margin: EdgeInsets.fromLTRB(20, 20, 0, 0),
+                              child: Text(
+                                  '${snapshot.data![2].toString()} ${snapshot.data![3].toString()}',
                                   style: TextStyle(
                                       fontFamily: "Pretendard",
                                       fontSize: 15,
@@ -165,6 +187,7 @@ class _ClientReceiptAuthState extends State<ClientReceiptAuth> {
                               ),
                             );
                           } else {
+                            print("else");
                             return CircularProgressIndicator();
                           }
                         },
@@ -179,7 +202,7 @@ class _ClientReceiptAuthState extends State<ClientReceiptAuth> {
                   color: MyColor.DIVIDER,
                 ),
                 Container(
-                  margin: EdgeInsets.only(left: 20),
+                  margin: EdgeInsets.fromLTRB(20, 0, 0, 5),
                   width: double.infinity,
                   child: Text(
                       '내가 먹은 메뉴',
@@ -190,30 +213,25 @@ class _ClientReceiptAuthState extends State<ClientReceiptAuth> {
                     textAlign: TextAlign.left,
                   ),
                 ),
-                ClientMenuUnit(title: menu[0], prize: menu[1]+'원', count: menu[2]+'개',),
+                listviewBuilder(),
                 Container(
                   margin: EdgeInsets.fromLTRB(20, 20, 10, 0),
                   child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Expanded(
-                        flex: 8,
-                        child: Text(
-                            '후원 되는 포인트',
-                            style: TextStyle(
-                              fontFamily: "Mainfonts",
-                              fontSize: 17,
-                              color: Colors.black,)
-                        ),
+                      Text(
+                          '후원 되는 포인트',
+                          style: TextStyle(
+                            fontFamily: "Mainfonts",
+                            fontSize: 17,
+                            color: Colors.black,)
                       ),
-                      Expanded(
-                        flex: 2,
-                        child: Text(
-                            Point()+"원",
-                            style: TextStyle(
-                              fontFamily: "Mainfonts",
-                              fontSize: 17,
-                              color: Colors.black,)
-                        ),
+                      Text(
+                          Point()+"원",
+                          style: TextStyle(
+                            fontFamily: "Mainfonts",
+                            fontSize: 17,
+                            color: Colors.black,)
                       ),
                     ],
                   ),
@@ -240,7 +258,11 @@ class _ClientReceiptAuthState extends State<ClientReceiptAuth> {
                           children: [
                             Expanded(
                                 child: TextButton(
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      Navigator.push(context,
+                                          MaterialPageRoute(builder: (context) => const ClientMain())
+                                      );
+                                    },
                                     child: Container(
                                       height: 40,
                                       width: double.infinity,
@@ -251,7 +273,7 @@ class _ClientReceiptAuthState extends State<ClientReceiptAuth> {
                                           borderRadius: BorderRadius.circular(15.0)
                                       ),
                                       child: Text(
-                                          '다시 찍기',
+                                          '취소',
                                           style: TextStyle(
                                             fontFamily: "Mainfonts",
                                             fontSize: 17,
@@ -265,31 +287,14 @@ class _ClientReceiptAuthState extends State<ClientReceiptAuth> {
                                 child: TextButton(
                                     onPressed: () {
                                       String month, day, hour, minute;
-                                      if(date.month < 10) {
-                                        month = "0"+date.month.toString();
-                                      } else {
-                                        month = date.month.toString();
-                                      }
-                                      if(date.day < 10) {
-                                        day = "0"+date.day.toString();
-                                      } else {
-                                        day = date.day.toString();
-                                      }
-                                      if(time.hour < 10) {
-                                        hour = "0"+time.hour.toString();
-                                      } else {
-                                        hour = time.hour.toString();
-                                      }
-                                      if(time.minute < 10) {
-                                        minute = "0"+time.minute.toString();
-                                      } else {
-                                        minute = time.minute.toString();
-                                      }
+                                      month = DateFormat('MM').format(date);
+                                      day = DateFormat('dd').format(date);
+                                      hour = DateFormat('HH').format(date);
+                                      minute = DateFormat('mm').format(date);
 
-                                      writeClientHistory(date.year.toString(), month, day, hour, minute, title, Point());
+                                      writeClientHistory(date.year.toString(), month, day, hour, minute, result[0], Point());
 
-                                      DateTime dt = DateTime.parse("${date.year.toString()}-${month}-${day}T${hour}:${minute}");
-                                      writeRestaurantEarnList(dt, int.parse(Point()));
+                                      writeRestaurantEarnList(date, int.parse(Point()));
 
                                       Navigator.push(context,
                                           MaterialPageRoute(builder: (context) => const ClientMain())
@@ -329,33 +334,17 @@ class _ClientReceiptAuthState extends State<ClientReceiptAuth> {
   }
 
   String Point() {
-    num prize = int.parse(menu[1]);
-    num count = int.parse(menu[2]);
-    num result = (prize*count)~/10;
+    var tmp = total.replaceAll(',', '');
+    num result = int.parse(tmp)~/10;
 
     return result.toString();
-  }
-
-  restaurant_img()  {
-    for(var element in result) {
-      if(element[0] == title) {
-        image = element[1];
-      }
-    }
-  }
-
-  restaurant_addr() async {
-    for(var element in result) {
-      if(element[0] == title) {
-        return element[2] + " " + element[3];
-      }
-    }
   }
 
   writeClientHistory(year, month, day, hour, minute, title, point) {
     FirebaseFirestore.instance.
     collection('History').
-    doc(userid).update(
+    doc(userid).collection('getPoint').
+    add(
         {
           _saveIndex.toString() : [year, month, day, hour, minute, title, point]
         }
@@ -363,28 +352,38 @@ class _ClientReceiptAuthState extends State<ClientReceiptAuth> {
   }
 
   Future<num> calculateTotalPoint() async {
-    num sum = 0;
-    await FirebaseFirestore.instance
-        .collection("Restaurant")
-        .doc(restaurantId)
-        .collection("EarnList").snapshots().listen((data) async {
-      for (var element in data.docs) {
-        sum += element['earnPoint'];
-      }
-    });
-    print('earnListSum: $sum');
+    num earnPoint = 0;
+    num redeemPoint = 0;
+    final db = FirebaseFirestore.instance.collection("Restaurant").doc(
+        restaurantId);
 
-    await FirebaseFirestore.instance
-        .collection("Restaurant")
-        .doc(restaurantId)
-        .collection("RedeemList").snapshots().listen((data) async {
-      for (var element in data.docs) {
-        sum -= element["redeemPoint"];
-      }
-    });
-    print('redeemListSum: $sum');
+    try {
+      final queryEarnSnapshot = await db.collection("EarnList").get();
 
-    return sum;
+      if (queryEarnSnapshot.docs.isNotEmpty) {
+        for (var docSnapshot in queryEarnSnapshot.docs) {
+          print('${docSnapshot.id} => ${docSnapshot.data()}');
+          earnPoint += docSnapshot.data()['earnPoint'];
+        }
+      }
+    } catch (e) {
+      print("Error completing: $e");
+    }
+
+    try {
+      final queryEarnSnapshot = await db.collection("RedeemList").get();
+
+      if (queryEarnSnapshot.docs.isNotEmpty) {
+        for (var docSnapshot in queryEarnSnapshot.docs) {
+          print('${docSnapshot.id} => ${docSnapshot.data()}');
+          redeemPoint += docSnapshot.data()['redeemPoint'];
+        }
+      }
+    } catch (e) {
+      print("Error completing: $e");
+    }
+
+    return earnPoint - redeemPoint;
   }
 
   writeRestaurantEarnList(DateTime date, num point) async {
@@ -393,34 +392,30 @@ class _ClientReceiptAuthState extends State<ClientReceiptAuth> {
         .doc(restaurantId)
         .collection("EarnList");
 
-    num sum = 0;
-    await db.snapshots().listen((data) async {
-      for (var element in data.docs) {
-        sum += await element['earnPoint'];
-      }
-    });
-    print('earnListSum: $sum');
-
-    await FirebaseFirestore.instance
-        .collection("Restaurant")
-        .doc(restaurantId)
-        .collection("RedeemList").snapshots().listen((data) async {
-      for (var element in data.docs) {
-        print(element["redeemPoint"]);
-        sum -= await element["redeemPoint"];
-      }
-    });
-    print('redeemListSum: $sum');
-
-    // firestore에 저장
+    num sum = await calculateTotalPoint();
+    print("개새끼야");
+    print("sum : $sum");
     await db
         .add({
       'earnDate': date,
       'earnPoint': point,
-      'totalPoint': sum+point
+      'totalPoint': (sum as int) + (point as int)
     })
         .then((value) => print("document added")) // firestore에 저장이 잘 된 경우
         .catchError((error) => print("Fail to add doc ${error}"));
 
+  }
+
+  Widget listviewBuilder() {
+    return ListView.builder(
+        shrinkWrap: true,
+        itemCount: menu.length,
+        itemBuilder: (context, index) {
+          return ClientMenuUnit(
+              title: '${menu[index]}',
+            prize: '${a_prize[index]}원',
+            count: '${count[index]}개',);
+        }
+    );
   }
 }

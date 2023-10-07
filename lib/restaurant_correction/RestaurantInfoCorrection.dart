@@ -10,6 +10,7 @@ import '../base_appbar.dart';
 import 'package:kpostal/kpostal.dart';
 import '../base_button.dart';
 import 'package:chipin/restaurant_main/RestaurantMain.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../core/utils/size_utils.dart';
 import 'package:http/http.dart' as http;
@@ -314,16 +315,29 @@ class _RestaurantInfoCorrectionState extends State<RestaurantInfoCorrection> {
 
   Future pickImg() async {
     final ImagePicker _picker = ImagePicker();
-
-    XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-    if (image != null) {
-      setState(() {
-        pickedImgPath = image.path;
-        testimage = File(pickedImgPath);
-      });
+    XFile? image;
+    final status = await Permission.storage.request();
+    if (status.isGranted) {
+      image = await _picker.pickImage(source: ImageSource.gallery);
+      if (image != null) {
+        setState(() {
+          pickedImgPath = image!.path;
+          testimage = File(pickedImgPath);
+          // pickedImg = image;
+        });
+      } else {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('가게 대표 이미지를 선택해주세요')));
+      }
     }
-  }
+    else {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('가게 대표 이미지가 기본 이미지로 설정됩니다')));
 
+
+    }
+
+  }
   @override
   void initState() {
     super.initState();

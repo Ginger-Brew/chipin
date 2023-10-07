@@ -45,6 +45,40 @@ class _ChoiceRoleState extends State<ChoiceRole> {
     });
   }
 
+  User? getUser() {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      // Name, email address, and profile photo URL
+      final name = user.displayName;
+      final email = user.email;
+      final photoUrl = user.photoURL;
+
+      // Check if user's email is verified
+      final emailVerified = user.emailVerified;
+
+      // The user's ID, unique to the Firebase project. Do NOT use this value to
+      // authenticate with your backend server, if you have one. Use
+      // User.getIdToken() instead.
+      final uid = user.uid;
+    }
+    return user;
+  }
+  Future<int> isPresentRestaurantInfo() async {
+    User? currentUser = getUser();
+    if (currentUser != null) {
+      FirebaseFirestore firestore = FirebaseFirestore.instance;
+      DocumentSnapshot document = await firestore.collection("Restaurant").doc(currentUser.email).get();
+
+      if (document.exists) {
+        return 1;
+      } else {
+        return -1;
+      }
+    } else {
+      return 0;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -195,6 +229,10 @@ class _ChoiceRoleState extends State<ChoiceRole> {
 
                       await FirebaseFirestore.instance.collection("Child").doc(userid).set(childuser.toJson());
                     } else if (role == "/storemain") {
+                      int direnction = await isPresentRestaurantInfo();
+
+                      if (direnction != 1) role = '/storeregister';
+
                       updaterole["restaurant"] = true;
                       nowrole = "restaurant";
                     } else if (role == "/clientmain") {
@@ -202,6 +240,7 @@ class _ChoiceRoleState extends State<ChoiceRole> {
                       nowrole = "client";
                       await FirebaseFirestore.instance.collection("Client").doc(userid).set({});
                     }
+
 
                     await FirebaseFirestore.instance.collection("Users").doc(userid).collection("userinfo").doc("userinfo").update({'totalrole' : updaterole});
                     await FirebaseFirestore.instance.collection("Users").doc(userid).collection("userinfo").doc("nowrole").set({'nowrole' : nowrole});

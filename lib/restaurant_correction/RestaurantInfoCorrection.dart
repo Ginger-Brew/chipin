@@ -64,14 +64,14 @@ class _RestaurantInfoCorrectionState extends State<RestaurantInfoCorrection> {
 
   //firestore에 이미지 저장할 때 쓸 변수
   String pickedImgPath = "";
+
   // XFile pickedImg = XFile('');
   File? testimage;
 
-
   // String postCode = '-';
   String address1 = "-";
-  String latitude = '-';
-  String longitude = '-';
+  String latitude = '';
+  String longitude = '';
 
   bool isValidBsNum = false;
 
@@ -190,7 +190,7 @@ class _RestaurantInfoCorrectionState extends State<RestaurantInfoCorrection> {
             });
           }
 
-          debugPrint('menuItem 길이 '+'${menuItems.length}');
+          debugPrint('menuItem 길이 ' + '${menuItems.length}');
         } else {
           debugPrint("debug : 시발 못찾았어용오오오옹~");
         }
@@ -248,53 +248,55 @@ class _RestaurantInfoCorrectionState extends State<RestaurantInfoCorrection> {
       final db =
           FirebaseFirestore.instance.collection(colName).doc(currentUser.email);
 
-      final Reference storageRef = FirebaseStorage.instance.ref().child('images/${DateTime.now()}.png');
+      final Reference storageRef =
+          FirebaseStorage.instance.ref().child('images/${DateTime.now()}.png');
       final UploadTask uploadTask = storageRef.putFile(testimage!);
 
       final TaskSnapshot snapshot = await uploadTask.whenComplete(() => null);
       final String downloadURL = await snapshot.ref.getDownloadURL();
 
-        if (_newRestaurantName.text != "") name = _newRestaurantName.text;
-        if (_newRestaurantOpenHour.text != "")
-          openH = _newRestaurantOpenHour.text;
-        if (_newRestaurantOpenMinute.text != "")
-          openM = _newRestaurantOpenMinute.text;
-        if (_newRestaurantCloseHour.text != "")
-          closeH = _newRestaurantCloseHour.text;
-        if (_newRestaurantCloseMinute.text != "")
-          closeM = _newRestaurantCloseMinute.text;
-        if (_newRestaurantLocation.text != "")
-          address2 = _newRestaurantLocation.text;
-        if (_newRestaurantClosedday.text != "")
-          closeddays = _newRestaurantClosedday.text;
-        if (_newRestaurantPhone.text != "") phone = _newRestaurantPhone.text;
+      if (_newRestaurantName.text != "") name = _newRestaurantName.text;
+      if (_newRestaurantOpenHour.text != "")
+        openH = _newRestaurantOpenHour.text;
+      if (_newRestaurantOpenMinute.text != "")
+        openM = _newRestaurantOpenMinute.text;
+      if (_newRestaurantCloseHour.text != "")
+        closeH = _newRestaurantCloseHour.text;
+      if (_newRestaurantCloseMinute.text != "")
+        closeM = _newRestaurantCloseMinute.text;
+      if (_newRestaurantLocation.text != "")
+        address2 = _newRestaurantLocation.text;
+      if (_newRestaurantClosedday.text != "")
+        closeddays = _newRestaurantClosedday.text;
+      if (_newRestaurantPhone.text != "") phone = _newRestaurantPhone.text;
 
-        await db
-            .update({
-              'name': name,
-              'address1': this.address1,
-              'address2': address2,
-              'openH': openH,
-              'openM': openM,
-              'closeH': closeH,
-              'closeM': closeM,
-              'closeddays': closeddays,
-              'businessnumber': _newRestaurantBusinessNumber.text,
-              'phone': phone,
-              'banner': pickedImgPath
-            })
-            .then((value) => print("document added")) // firestore에 저장이 잘 된 경우
-            .catchError((error) => print("Fail to add doc ${error}"));
-        pickedImgPath = ""; // 변수 초기화
+      await db
+          .update({
+            'name': name,
+            'address1': this.address1,
+            'address2': address2,
+            'latitude': this.latitude,
+            'longitude': this.longitude,
+            'openH': openH,
+            'openM': openM,
+            'closeH': closeH,
+            'closeM': closeM,
+            'closeddays': closeddays,
+            'businessnumber': _newRestaurantBusinessNumber.text,
+            'phone': phone,
+            'banner': pickedImgPath
+          })
+          .then((value) => print("document added")) // firestore에 저장이 잘 된 경우
+          .catchError((error) => print("Fail to add doc ${error}"));
+      pickedImgPath = ""; // 변수 초기화
 
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('가게 정보가 수정되었습니다')));
-      } else {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('로그인 정보가 유효하지 않습니다')));
-      }
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('가게 정보가 수정되었습니다')));
+    } else {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('로그인 정보가 유효하지 않습니다')));
     }
-
+  }
 
   void writemenudata(String menu, String price, String explain) async {
     User? currentUser = getUser();
@@ -329,15 +331,12 @@ class _RestaurantInfoCorrectionState extends State<RestaurantInfoCorrection> {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text('가게 대표 이미지를 선택해주세요')));
       }
-    }
-    else {
+    } else {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text('가게 대표 이미지가 기본 이미지로 설정됩니다')));
-
-
     }
-
   }
+
   @override
   void initState() {
     super.initState();
@@ -528,24 +527,24 @@ class _RestaurantInfoCorrectionState extends State<RestaurantInfoCorrection> {
                   ElevatedButton(
                       child: Text("등록", style: TextStyle(fontSize: 16)),
                       onPressed: () async {
-
-                        if(isPresentBSNum()) {
+                        if (isPresentBSNum()) {
                           updatedata();
                           for (int i = 0; i < menuItems.length; i++) {
-                            writemenudata(menuItems[i].menuname,
+                            writemenudata(
+                                menuItems[i].menuname,
                                 menuItems[i].menuprice,
                                 menuItems[i].menuexplain);
                           }
                           await Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (
-                                      context) => const RestaurantMain()));
+                                  builder: (context) =>
+                                      const RestaurantMain()));
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('사업자 등록 번호는 필수 입력 값입니다')));
                         }
-                        else {
-                          ScaffoldMessenger.of(context)
-                              .showSnackBar(SnackBar(content: Text('사업자 등록 번호는 필수 입력 값입니다')));
-                        }})
+                      })
                 ]),
                 SizedBox(height: 20),
               ],
@@ -804,16 +803,16 @@ class _RestaurantMenuState extends State<RestaurantMenu> {
                       EdgeInsets.symmetric(vertical: 0.0, horizontal: 0.0),
                   // visualDensity: VisualDensity(horizontal: 0, vertical: 0),
                   title: Container(
-                    width:  (mediaQueryData.size.width-50) / 2,
+                    width: (mediaQueryData.size.width - 50) / 2,
                     child: Text(
                       menuItems[index].menuname,
                       style: TextStyle(color: Colors.black, fontSize: 18),
                     ),
                   ),
                   subtitle: Container(
-                    width: (mediaQueryData.size.width-50)/2,
+                    width: (mediaQueryData.size.width - 50) / 2,
                     child: Text(menuItems[index].menuexplain,
-                        style:TextStyle(color: MyColor.GRAY, fontSize: 13)),
+                        style: TextStyle(color: MyColor.GRAY, fontSize: 13)),
                   ),
                   trailing: Container(
                     width: 150,

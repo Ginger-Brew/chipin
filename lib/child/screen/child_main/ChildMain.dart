@@ -91,7 +91,7 @@ class _ChildMainState extends State<ChildMain> {
                   final docs = snapshot.data!.docs;
                   return DraggableScrollableSheet(
                     // 결과 높이를 구해서 maxChildSize로 설정해야함.
-                    initialChildSize: 0.2,
+                    initialChildSize: 0.15,
                     maxChildSize: 0.8,
                     minChildSize: 0.15,
                     builder: (BuildContext context, ScrollController scrollController) {

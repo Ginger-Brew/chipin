@@ -30,6 +30,8 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     mediaQueryData = MediaQuery.of(context);
+    var screenWidth = mediaQueryData.size.width;
+    var screenHeight = mediaQueryData.size.height;
     User? currentUser = getUser();
     String? photoUrl = currentUser?.photoURL;
 
@@ -58,164 +60,177 @@ class ProfileScreen extends StatelessWidget {
         appBar: const ChildAppBar(title: "내 정보"),
         endDrawer: const ChildDrawerMenu(),
         body: SizedBox(
-          width: double.maxFinite,
+          //width: double.maxFinite,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              SizedBox(
-                height: getVerticalSize(
-                  127,
-                ),
-                width: double.maxFinite,
-                child: Stack(
-                  alignment: Alignment.centerLeft,
+              Expanded(
+                child: Column(
                   children: [
+                    Container(
+                      margin:EdgeInsets.fromLTRB(0, 20, 0, 20),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children:[
+                          Container(
+                            margin:EdgeInsets.fromLTRB(20, 0, 10, 0),
+                            width: screenWidth * 0.2,
+                            height : screenWidth * 0.2,
+                            child: profileImage
+                          ),
+                          Expanded(child:
+                          Container(
+                            // padding: getPadding(
+                            //   right: 190,
+                            //   bottom: 33,
+                            // ),
+                            child: FutureBuilder<DocumentSnapshot>(
+                              future: FirebaseFirestore.instance
+                                  .collection("Users")
+                                  .doc(currentUser?.email)
+                                  .collection("userinfo")
+                                  .doc("userinfo")
+                                  .get(),
+                              builder: (context, userInfoSnapshot) {
+                                if (userInfoSnapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  // userInfo가 로드 중인 경우 표시할 위젯
+                                  return const CircularProgressIndicator();
+                                } else if (userInfoSnapshot.hasError) {
+                                  // 에러 발생 시 처리
+                                  return const Text("사용자 이름을 불러오는 중 오류가 발생했습니다.");
+                                } else if (!userInfoSnapshot.hasData ||
+                                    !userInfoSnapshot.data!.exists) {
+                                  // userInfo가 없거나 문서가 존재하지 않는 경우 처리
+                                  return const Text("사용자 이름에 해당하는 정보가 없습니다.");
+                                } else {
+                                  // userInfo가 로드되고 문서가 존재하는 경우
+                                  Map<String, dynamic> userInfoData =
+                                  userInfoSnapshot.data!.data()
+                                  as Map<String, dynamic>;
+                                  String userNameFromUserInfo =
+                                  userInfoData["name"]; // userInfo에서 이름 필드를 가져옵니다.
+                                  String userEmailFromUserInfo =
+                                  userInfoData["email"]; // userInfo에서 이메일 필드를 가져옵니다.
 
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 20.0), // 왼쪽 패딩을 20.0으로 설정
-                        child: profileImage, // 프로필 사진 위젯 추가
+                                  return Container(
+                                    //padding: const EdgeInsets.only(top: 45), // 원하는 우측 패딩 값을 지정합니다.
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(userNameFromUserInfo,
+                                          style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        Text(userEmailFromUserInfo,
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }
+                              },
+                            ),
+                          ))
+                        ]
                       ),
                     ),
-                    Align(
-                      alignment: Alignment.bottomRight,
-                      child: Padding(
-                          padding: getPadding(
-                            right: 190,
-                            bottom: 33,
+                    Expanded(
+                      child: Column(
+                        children: [
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              isCardVerified
+                                  ? const VerifiedCardWidget()
+                                  : UnverifiedCardWidget(),
+                            ],
                           ),
-                          child: FutureBuilder<DocumentSnapshot>(
-                            future: FirebaseFirestore.instance
-                                .collection("Users")
-                                .doc(currentUser?.email)
-                                .collection("userinfo")
-                                .doc("userinfo")
-                                .get(),
-                            builder: (context, userInfoSnapshot) {
-                              if (userInfoSnapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                // userInfo가 로드 중인 경우 표시할 위젯
-                                return const CircularProgressIndicator();
-                              } else if (userInfoSnapshot.hasError) {
-                                // 에러 발생 시 처리
-                                return const Text("사용자 이름을 불러오는 중 오류가 발생했습니다.");
-                              } else if (!userInfoSnapshot.hasData ||
-                                  !userInfoSnapshot.data!.exists) {
-                                // userInfo가 없거나 문서가 존재하지 않는 경우 처리
-                                return const Text("사용자 이름에 해당하는 정보가 없습니다.");
-                              } else {
-                                // userInfo가 로드되고 문서가 존재하는 경우
-                                Map<String, dynamic> userInfoData =
-                                userInfoSnapshot.data!.data()
-                                as Map<String, dynamic>;
-                                String userNameFromUserInfo =
-                                userInfoData["name"]; // userInfo에서 이름 필드를 가져옵니다.
-                                String userEmailFromUserInfo =
-                                userInfoData["email"]; // userInfo에서 이메일 필드를 가져옵니다.
-
-                                return Padding(
-                                  padding: const EdgeInsets.only(top: 45), // 원하는 우측 패딩 값을 지정합니다.
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(userNameFromUserInfo,
-                                        style: const TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      Text(userEmailFromUserInfo,
-                                        style: const TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.grey,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              }
+                          const SizedBox(height: 20),
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => PreviousReservation(),
+                                ),
+                              );
                             },
+                            style: ButtonStyle(
+                              foregroundColor: MaterialStateProperty.all(Colors.white),
+                              backgroundColor: MaterialStateProperty.all(Colors.white),
+                              shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                                  RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(18.0),
+                                    // side: BorderSide(color: Colors.red)
+                                  )),
+                              fixedSize: MaterialStateProperty.all<Size>(
+                                Size(MediaQuery
+                                    .of(context)
+                                    .size
+                                    .width - 32,
+                                    48), // 가로 길이를 화면 가로 길이 - 32로 설정
+                              ),
+                            ),
+                            child: const Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  "지난 식사 내역 보러가기",
+                                  style: TextStyle(
+                                      fontFamily: "Pretendard",
+                                      color: Colors.black,
+                                      fontSize: 20),
+                                  overflow: TextOverflow.ellipsis,
+                                  textAlign: TextAlign.left,
+                                ),
+                                Icon(
+                                  Icons.arrow_forward_ios,
+                                  color: Colors.black12,
+                                )
+                              ],
+                            ),
                           ),
-                      ),
+                          const Spacer(),
+                        ]
+                      )
                     )
 
-                  ],
-                ),
+                  ]
+                )
               ),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  isCardVerified
-                      ? const VerifiedCardWidget()
-                      : UnverifiedCardWidget(),
-                ],
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => PreviousReservation(),
-                    ),
-                  );
-                },
-                style: ButtonStyle(
-                  foregroundColor: MaterialStateProperty.all(Colors.white),
-                  backgroundColor: MaterialStateProperty.all(Colors.white),
-                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                      RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(18.0),
-                        // side: BorderSide(color: Colors.red)
-                      )),
-                  fixedSize: MaterialStateProperty.all<Size>(
-                    Size(MediaQuery
-                        .of(context)
-                        .size
-                        .width - 32,
-                        48), // 가로 길이를 화면 가로 길이 - 32로 설정
-                  ),
-                ),
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              Container(
+                padding: EdgeInsets.only(bottom:10),
+                child: Column(
                   children: [
-                    Text(
-                      "지난 식사 내역 보러가기",
-                      style: TextStyle(
-                          fontFamily: "Pretendard",
-                          color: Colors.black,
-                          fontSize: 20),
+                    const Text(
+                      "십시일반",
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.left,
+                      // style: theme.textTheme.labelLarge!.copyWith(
+                      //   decoration: TextDecoration.underline,
+                      // ),
                     ),
-                    Icon(
-                      Icons.arrow_forward_ios,
-                      color: Colors.black12,
-                    )
+                    Container(
+                      // padding: getPadding(
+                      //   top: 18,
+                      //   bottom: 43,
+                      // ),
+                      child: const Text(
+                        "version: 1.0.0",
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.left,
+                        // style: CustomTextStyles.bodySmallInterGray600,
+                      ),
+                    ),
                   ],
                 ),
               ),
-              const Spacer(),
-              const Text(
-                "십시일반",
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.left,
-                // style: theme.textTheme.labelLarge!.copyWith(
-                //   decoration: TextDecoration.underline,
-                // ),
-              ),
-              Padding(
-                padding: getPadding(
-                  top: 18,
-                  bottom: 43,
-                ),
-                child: const Text(
-                  "version: 1.0.0",
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.left,
-                  // style: CustomTextStyles.bodySmallInterGray600,
-                ),
-              ),
+
             ],
           ),
         ),

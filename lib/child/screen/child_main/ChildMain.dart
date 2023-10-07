@@ -92,7 +92,7 @@ class _ChildMainState extends State<ChildMain> {
                   return DraggableScrollableSheet(
                     // 결과 높이를 구해서 maxChildSize로 설정해야함.
                     initialChildSize: 0.2,
-                    maxChildSize: 0.999,
+                    maxChildSize: 0.8,
                     minChildSize: 0.15,
                     builder: (BuildContext context, ScrollController scrollController) {
                       //return

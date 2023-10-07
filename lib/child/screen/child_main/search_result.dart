@@ -3,80 +3,59 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import '../../model/model_restaurant.dart';
 import '../tab_restaurant_screen/tab_container_screen.dart';
 
 class SearchResult extends StatelessWidget {
   String searchContents;
+
   SearchResult({super.key, required this.searchContents});
 
   @override
   Widget build(BuildContext context) {
+    Restaurant restaurant = Restaurant();
     return Scaffold(
-    appBar: AppBar(
-      elevation: 1,
-    ),
-      body: Padding(
-          padding: const EdgeInsets.only(bottom: 16),
-          child: StreamBuilder(
-            stream:
-            FirebaseFirestore.instance.collection('Restaurant').snapshots(),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                final docs = snapshot.data!.docs;
-                return Column(children: [
-                  //ResultText(docs.length),
-                  const SizedBox(height: 16),
-                  Center(
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: docs.length,
-                        itemBuilder: (context, index) {
-                          final restaurantData = docs[index].data();
-                          final ownerId = docs[index].id;
-
-                          if (docs[index].get('name').toString().contains(searchContents)) {
-                            return RestaurantCard(
-                              docs[index].get('name'),
-                              docs[index].get('address1'),
-                              docs[index].get('closeH'),
-                              docs[index].get('closeM'),
-                              docs[index].get('banner'),
-                              ownerId,
-                              //collection이름?
-                            );
-                          }
-                        },
-                      ))
-                ]);
-              } else {
-                return const Center(
-                  child: CircularProgressIndicator(), // 데이터를 기다리는 동안 로딩 표시
-                );
-              }
-            },
-          ))
-    );
+        appBar: AppBar(
+          elevation: 1,
+        ),
+        body: Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: FutureBuilder(
+              future: restaurant.getSearchRestaurantList(searchContents),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return Column(children: [
+                    //ResultText(docs.length),
+                    const SizedBox(height: 16),
+                    Center(
+                        child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: snapshot.data?.length,
+                      itemBuilder: (context, index) {
+                        return RestaurantCard(snapshot.data![index]);
+                      },
+                    ))
+                  ]);
+                } else {
+                  return const Center(
+                    child: CircularProgressIndicator(), // 데이터를 기다리는 동안 로딩 표시
+                  );
+                }
+              },
+            )));
   }
 }
 
-
 class RestaurantCard extends StatelessWidget {
-  String name;
-  String address;
-  String closeH;
-  String closeM;
-  String image;
-  String ownerId; // Firestore collection 이름을 저장할 변수
+  Restaurant restaurant;
 
-  RestaurantCard(this.name, this.address, this.closeH, this.closeM, this.image,
-      this.ownerId,
-      {super.key});
+  RestaurantCard(this.restaurant);
 
   @override
   Widget build(BuildContext context) {
     return Column(mainAxisAlignment: MainAxisAlignment.center, children: [
       CustomRestaurantCategory(
-          name, address, "$closeH : $closeM까지 영업", image, ownerId),
+          restaurant.title!, restaurant.location!, "${restaurant.closetime!}까지 영업", restaurant.image!, restaurant.id!),
       const DivideLine(),
       const SizedBox(height: 20),
     ]);
@@ -117,11 +96,11 @@ class ResultText extends StatelessWidget {
 }
 
 class CustomRestaurantCategory extends StatelessWidget {
-  final String title;
-  final String location;
-  final String time;
-  final String image;
-  final String collectionName; // Firestore collection 이름을 저장할 변수
+  String title;
+  String location;
+  String time;
+  String image;
+  String collectionName; // Firestore collection 이름을 저장할 변수
   String imageURL = "";
 
   CustomRestaurantCategory(
@@ -152,19 +131,19 @@ class CustomRestaurantCategory extends StatelessWidget {
                   children: [
                     GestureDetector(
 
-                      /// 수정 필요
-                      // 각각 해당하는 가게 정보로 넘어가야함.
+                        /// 수정 필요
+                        // 각각 해당하는 가게 정보로 넘어가야함.
                         onTap: () {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
                                   builder: (context) => TabContainerScreen(
-                                    title: title,
-                                    location: location,
-                                    time: time,
-                                    banner: imageURL,
-                                    ownerId: collectionName,
-                                  )));
+                                        title: title,
+                                        location: location,
+                                        time: time,
+                                        banner: imageURL,
+                                        ownerId: collectionName,
+                                      )));
                         },
                         child: SizedBox(
                             height: width * 0.15,
@@ -172,8 +151,7 @@ class CustomRestaurantCategory extends StatelessWidget {
                             child: Image.network(
                               imageURL,
                               fit: BoxFit.cover,
-                            )
-                        )),
+                            ))),
                     SizedBox(width: width * 0.03),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -224,7 +202,8 @@ class CustomRestaurantCategory extends StatelessWidget {
                   decoration: BoxDecoration(
                       color: Colors.grey[200],
                       borderRadius: BorderRadius.circular(100)),
-                  child: const Icon(Icons.favorite, size: 12, color: Colors.black54),
+                  child: const Icon(Icons.favorite,
+                      size: 12, color: Colors.black54),
                 ),
               ],
             )));

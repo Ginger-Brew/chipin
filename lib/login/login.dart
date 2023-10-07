@@ -9,27 +9,20 @@ import 'choice_role.dart';
 import 'model/model_auth.dart';
 import 'model/model_login.dart';
 
-final TextEditingController _idController =
+TextEditingController _idController =
     TextEditingController(text: ""); //입력되는 값을 제어
-final TextEditingController _passwordController = TextEditingController(text: "");
+TextEditingController _passwordController = TextEditingController(text: "");
 
 class LoginPage extends StatefulWidget {
-
   @override
   _LoginPageState createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
-
   @override
   void initState() {
-    _idController.addListener(() { print("login화면");});
-  }
-
-  @override
-  void dispose() {
-    _idController.dispose();
-    super.dispose();
+    _idController = TextEditingController(text: ""); //입력되는 값을 제어
+    _passwordController = TextEditingController(text: "");
   }
 
   @override
@@ -40,7 +33,7 @@ class _LoginPageState extends State<LoginPage> {
         create: (_) => LoginModel(),
         child: Scaffold(
           body: Container(
-            padding: EdgeInsets.only(top:screenHeight*0.2),
+            padding: EdgeInsets.only(top: screenHeight * 0.2),
             child: SingleChildScrollView(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -51,11 +44,11 @@ class _LoginPageState extends State<LoginPage> {
                           height: screenWidth * 0.3,
                           fit: BoxFit.contain,
                           image: AssetImage("assets/images/logo.png"))),
-                  SizedBox(height: screenHeight*0.05),
+                  SizedBox(height: screenHeight * 0.05),
                   IdInput(),
                   PasswordInput(),
                   LoginButton(),
-                  SizedBox(height: screenHeight*0.05),
+                  SizedBox(height: screenHeight * 0.05),
                   Align(
                     alignment: Alignment.center,
                     child: Row(children: [
@@ -69,7 +62,6 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ));
   }
-
 }
 
 /*

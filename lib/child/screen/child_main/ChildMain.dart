@@ -92,15 +92,15 @@ class _ChildMainState extends State<ChildMain> {
                   return DraggableScrollableSheet(
                     // 결과 높이를 구해서 maxChildSize로 설정해야함.
                     initialChildSize: 0.2,
-                    maxChildSize: 0.2 * docs.length.toDouble(),
+                    maxChildSize: 0.17 * docs.length.toDouble(),
                     minChildSize: 0.15,
                     builder: (BuildContext context, ScrollController scrollController) {
                       //return
                       //  ScrollingRestaurants();
-                      return SingleChildScrollView(
+                      return ListView(
                         key: _containerkey,
                         controller: scrollController,
-                        child: CustomScrollViewContent(),
+                        children: [CustomScrollViewContent()],
                       );
                     },
                   );

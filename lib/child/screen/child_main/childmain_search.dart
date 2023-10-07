@@ -1,3 +1,4 @@
+import 'package:chipin/child/screen/child_main/search_result.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -7,14 +8,15 @@ import '../child_current_reservation/current_reservation_screen.dart';
 import '../child_profile/profile_screen.dart';
 
 bool idInReservation = true; // 사용자의 idInReservation 상태에 따라 설정
+String searchContents = "";
 
 class ChildMainSearch extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        CustomSearchContainer(),
         buildReservationButton(),
+        CustomSearchContainer(),
       ],
     );
   }
@@ -59,8 +61,6 @@ class CustomSearchContainer extends StatelessWidget {
         child: Row(
           children: <Widget>[
             const SizedBox(width: 16),
-            const Icon(Icons.search),
-            CustomTextField(),
             IconButton(
                 onPressed: () async {
                   bool isCardOK = await checkIsAuthenticated();
@@ -68,6 +68,12 @@ class CustomSearchContainer extends StatelessWidget {
                   Navigator.push(context,
                       MaterialPageRoute(builder: (context) => ProfileScreen(isCardVerified: isCardOK))); }
                 , icon: const Icon(Icons.person)),
+            CustomTextField(),
+            IconButton(
+                onPressed: () async {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => SearchResult(searchContents : searchContents))); }
+                , icon: const Icon(Icons.search)),
             const SizedBox(width: 16),
           ],
         ),
@@ -81,6 +87,9 @@ class CustomTextField extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: TextFormField(
+        onChanged: (contents) {
+          searchContents = contents;
+        },
         maxLines: 1,
         decoration: const InputDecoration(
           contentPadding: EdgeInsets.all(16),

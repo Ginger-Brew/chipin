@@ -59,7 +59,7 @@ class _CustomGoogleMapState extends State<CustomGoogleMap> {
         initialPosition = CameraPosition(
           //지도를 바라보는 카메라 위치
           target: schoolLatlng, //카메라 위치(위도, 경도)
-          zoom: 15, //확대 정도
+          zoom: 20, //확대 정도
         );
 
         /// 마커 설정

@@ -48,8 +48,6 @@ class thanksState extends State<thanks>
               );
             }
             else if (snapshot.hasData) {
-              print("print!");
-              print(snapshot.data!);
               return Column(children: [
                 SizedBox(height: 16),
                 Center(

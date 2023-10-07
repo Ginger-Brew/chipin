@@ -6,36 +6,38 @@ import 'package:chipin/base_appbar.dart';
 import '../../../colors.dart';
 import '../../../core/utils/size_utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+
 class CustomPricePage extends StatefulWidget {
   final String ownerId;
   final String title;
   final String location;
-  CustomPricePage({
-    required this.ownerId,
-    required this.title,
-    required this.location
-  });
+
+  CustomPricePage(
+      {required this.ownerId, required this.title, required this.location});
 
   @override
-  _CustomPricePageState createState() => _CustomPricePageState(ownerId: ownerId);
+  _CustomPricePageState createState() =>
+      _CustomPricePageState(ownerId: ownerId);
 }
-String newCode="";
+
+String newCode = "";
+
 class _CustomPricePageState extends State<CustomPricePage> {
   final String colName = "Child";
   String enteredNumber = '';
   String randomCode = '';
-  String uid ="";
+  String uid = "";
   bool codeGenerated = false;
   bool isLoading = false;
   late String _ownerId = "";
   bool isButtonPressed = false;
-
 
   _CustomPricePageState({
     required String ownerId,
   }) {
     _ownerId = ownerId;
   }
+
   int get maxRegister => 10000;
   bool idInReservation = false;
 
@@ -51,6 +53,7 @@ class _CustomPricePageState extends State<CustomPricePage> {
     }
     return user;
   }
+
   String generateRandomCode() {
     final random = Random();
     const int codeLength = 4;
@@ -111,7 +114,8 @@ class _CustomPricePageState extends State<CustomPricePage> {
     // readData();
 
     if (idInReservation == true) {
-      showDialog(context: context,
+      showDialog(
+        context: context,
         builder: (BuildContext context) {
           return AlertDialog(
             title: Text("알림"),
@@ -131,180 +135,220 @@ class _CustomPricePageState extends State<CustomPricePage> {
         },
       );
     }
+
+    var screenWidth = MediaQuery.of(context).size.width;
+    var screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: const BaseAppBar(title: "가게정보"),
       body: SizedBox(
-        width: mediaQueryData.size.width,
+        width: screenWidth,
+        height: screenHeight,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            Padding(padding: const EdgeInsets.fromLTRB(26, 27, 22, 0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                // crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Padding(padding: getPadding(
-                          left: 1
-                      ),
-                        child: Text(
-                          // "오양칼국수",
-                          widget.title,
-                          overflow: TextOverflow.ellipsis,
-                          textAlign: TextAlign.left,
-                          style: const TextStyle(
-                            fontSize: 30,
-                            fontFamily: "Mainfonts",
-                            color: Colors.black,
+            Flexible(
+              flex: 2,
+              child: Container(
+                padding: const EdgeInsets.fromLTRB(26, 27, 22, 0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  // crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Flexible(
+                          flex: 1,
+                          child: Text(
+                            // "오양칼국수",
+                            widget.title,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.left,
+                            style: const TextStyle(
+                              fontSize: 30,
+                              fontFamily: "Mainfonts",
+                              color: Colors.black,
+                            ),
                           ),
                         ),
-                      ),
-                      Padding(padding: const EdgeInsets.only(top: 2),
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.location_on_rounded,
-                              color: Colors.black,
-                              size: 19,
-                            ),
-
-                            Padding(
-                              padding: const EdgeInsets.only(left: 4),
-                              child: Text(
-                                widget.location,
-                                overflow: TextOverflow.ellipsis,
-                                textAlign: TextAlign.left,
-                                style: const TextStyle(fontSize: 15),
+                        Flexible(
+                          flex: 1,
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.location_on_rounded,
+                                color: Colors.black,
+                                size: 19,
                               ),
-                            ),
-                          ],
+                              Padding(
+                                padding: const EdgeInsets.only(left: 4),
+                                child: Text(
+                                  widget.location,
+                                  overflow: TextOverflow.ellipsis,
+                                  textAlign: TextAlign.left,
+                                  style: const TextStyle(fontSize: 15),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      ],
+                    )
+                  ],
+                ),
+              ),
+            ),
+            //const Spacer(),
+            //const SizedBox(height: 40),
+            Flexible(
+              flex: 3,
+              child: Column(
+                children: [
+                  Expanded(
+                      child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,children: [
+                    Text(
+                      enteredNumber.isNotEmpty
+                          ? '$enteredNumber 원'
+                          : '얼마를 예약할까요?',
+                      style: TextStyle(
+                          fontFamily: "Pretendard",
+                          color: enteredNumber.isNotEmpty
+                              ? Colors.black
+                              : Colors.grey,
+                          fontSize: 28,
+                          fontWeight: FontWeight.w800),
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
+                    ),
+                    Container(
+                      //padding: const EdgeInsets.only(top: 21),
+                      child: RichText(
+                        text: TextSpan(children: [
+                          const TextSpan(
+                            text: "최대 예약 가능 금액 ",
+                            style: TextStyle(
+                                fontFamily: "Pretendard",
+                                color: Colors.blueGrey,
+                                fontSize: 18),
+                          ),
+                          TextSpan(
+                            text: "$maxRegister원",
+                            style: const TextStyle(
+                                fontFamily: "Pretendard",
+                                color: MyColor.DARK_YELLOW,
+                                fontSize: 18),
+                          )
+                        ]),
+                        textAlign: TextAlign.left,
+                      ),
+                    ),
+                  ])),
+                  Container(
+                    //padding: const EdgeInsets.only(bottom: 1),
+                    child: IgnorePointer(
+                      ignoring: isButtonPressed,
+                      child: ElevatedButton(
+                        onPressed: isAmountValid && !isButtonPressed
+                            ? _showConfirmationDialog
+                            : null,
+                        // onPressed: () => _showConfirmationDialog(),
+                        style: ButtonStyle(
+                          foregroundColor:
+                              MaterialStateProperty.all(Colors.white),
+                          backgroundColor:
+                              MaterialStateProperty.resolveWith<Color>(
+                                  (states) {
+                            if (states.contains(MaterialState.disabled)) {
+                              return Colors.grey; // 비활성화 상태일 때 회색 배경색
+                            }
+                            return MyColor.DARK_YELLOW; // 활성화 상태일 때 파란 배경색
+                          }),
+                          shape:
+                              MaterialStateProperty.all<RoundedRectangleBorder>(
+                                  RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(18.0),
+                            // side: BorderSide(color: Colors.red)
+                          )),
+                          fixedSize: MaterialStateProperty.all<Size>(
+                            Size(
+                                MediaQuery.of(context).size.width - 32,
+                                screenHeight *
+                                    0.04), // 가로 길이를 화면 가로 길이 - 32로 설정
+                          ),
                         ),
-                      )
-                    ],
-                  )
+
+                        child: const Text(
+                          "예약 확정하기",
+                          style: TextStyle(
+                              fontFamily: "Pretendard",
+                              color: Colors.black,
+                              fontSize: 17),
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
-            const Spacer(),
-            const SizedBox(height: 50),
 
-            Text(
-
-              enteredNumber.isNotEmpty ? '$enteredNumber 원' : '얼마를 예약할까요?',
-              style: TextStyle(
-                  fontFamily: "Pretendard",
-                  color: enteredNumber.isNotEmpty ? Colors.black : Colors.grey,
-                  fontSize: 28,
-                  fontWeight: FontWeight.w800),
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
-
-            ),
-            Padding(padding: const EdgeInsets.only(top: 21),
-              child: RichText(
-                text: TextSpan(
-                    children: [
-                      const TextSpan(
-                        text: "최대 예약 가능 금액 ",
-                        style: TextStyle(fontFamily: "Pretendard",
-                            color: Colors.blueGrey,
-                            fontSize: 18),
-                      ),
-                      TextSpan(
-                        text: "$maxRegister원",
-                        style: const TextStyle(fontFamily: "Pretendard",
-                            color: MyColor.DARK_YELLOW,
-                            fontSize: 18),
-                      )
-                    ]
-
-                ),
-                textAlign: TextAlign.left,
-
-              ),
-            ),
-
-            const SizedBox(height: 55),
-
-            IgnorePointer(
-              ignoring: isButtonPressed,
-              child: ElevatedButton(
-                onPressed: isAmountValid && !isButtonPressed ? _showConfirmationDialog : null,
-                // onPressed: () => _showConfirmationDialog(),
-                style: ButtonStyle(
-
-                  foregroundColor: MaterialStateProperty.all(Colors.white),
-                  backgroundColor: MaterialStateProperty.resolveWith<Color>((
-                      states) {
-                    if (states.contains(MaterialState.disabled)) {
-                      return Colors.grey; // 비활성화 상태일 때 회색 배경색
-                    }
-                    return MyColor.DARK_YELLOW; // 활성화 상태일 때 파란 배경색
-                  }),
-                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                      RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(18.0),
-                        // side: BorderSide(color: Colors.red)
-                      )
-
+            //const SizedBox(height: 2),
+            Expanded(
+              flex: 6,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Flexible(
+                    flex: 1,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _buildKeypadButton('1'),
+                        _buildKeypadButton('2'),
+                        _buildKeypadButton('3'),
+                      ],
+                    ),
                   ),
-
-                  fixedSize: MaterialStateProperty.all<Size>(
-                    Size(MediaQuery
-                        .of(context)
-                        .size
-                        .width - 32, 48), // 가로 길이를 화면 가로 길이 - 32로 설정
+                  Flexible(
+                    flex: 1,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _buildKeypadButton('4'),
+                        _buildKeypadButton('5'),
+                        _buildKeypadButton('6'),
+                      ],
+                    ),
                   ),
-                ),
-
-                child: const Text("예약 확정하기",
-                  style: TextStyle(fontFamily: "Pretendard",
-                      color: Colors.black,
-                      fontSize: 17),
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,),
-
+                  Flexible(
+                    flex: 1,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _buildKeypadButton('7'),
+                        _buildKeypadButton('8'),
+                        _buildKeypadButton('9'),
+                      ],
+                    ),
+                  ),
+                  Flexible(
+                    flex: 1,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _buildKeypadButton('00'),
+                        _buildKeypadButton('0'),
+                        _buildKeypadButton('←', onPressed: _onDeletePressed)
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            ),
-
-
-            const SizedBox(height: 2),
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _buildKeypadButton('1'),
-                _buildKeypadButton('2'),
-                _buildKeypadButton('3'),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _buildKeypadButton('4'),
-                _buildKeypadButton('5'),
-                _buildKeypadButton('6'),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _buildKeypadButton('7'),
-                _buildKeypadButton('8'),
-                _buildKeypadButton('9'),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _buildKeypadButton('00'),
-                _buildKeypadButton('0'),
-                _buildKeypadButton('←', onPressed: _onDeletePressed)
-              ],
             ),
           ],
         ),
@@ -313,13 +357,13 @@ class _CustomPricePageState extends State<CustomPricePage> {
   }
 
   Widget _buildKeypadButton(String label, {Function()? onPressed}) {
-    return Padding(
+    return Container(
       // padding: EdgeInsets.all(8),
-      padding: getPadding(
-        left: 25,
-        top: 23,
-        right: 25,
-      ),
+      // padding: getPadding(
+      //   left: 25,
+      //   top: 23,
+      //   right: 25,
+      // ),
       child: TextButton(
         onPressed: () {
           if (onPressed != null) {
@@ -328,15 +372,14 @@ class _CustomPricePageState extends State<CustomPricePage> {
             _onKeyPressed(label);
           }
         },
-        style: (
-            TextButton.styleFrom(
-                backgroundColor: Colors.white, foregroundColor: MyColor.GRAY
-            )
-        ),
-        child: Text(label,
+        style: (TextButton.styleFrom(
+            backgroundColor: Colors.white, foregroundColor: MyColor.GRAY)),
+        child: Text(
+          label,
           overflow: TextOverflow.ellipsis,
           textAlign: TextAlign.left,
-          style: const TextStyle(fontFamily: "GyeonggiTitleB",
+          style: const TextStyle(
+              fontFamily: "GyeonggiTitleB",
               fontSize: 30,
               color: Colors.black,
               fontWeight: FontWeight.bold),
@@ -359,21 +402,25 @@ class _CustomPricePageState extends State<CustomPricePage> {
         return AlertDialog(
           title: const Row(
             children: [
-              Icon(Icons.check_circle_rounded, color: MyColor.ALERT,),
+              Icon(
+                Icons.check_circle_rounded,
+                color: MyColor.ALERT,
+              ),
               SizedBox(width: 8),
-              Text('주의사항',
-                style: TextStyle(color: MyColor.ALERT,
+              Text(
+                '주의사항',
+                style: TextStyle(
+                    color: MyColor.ALERT,
                     fontFamily: "Pretendard",
-                    fontWeight: FontWeight.w500),),
+                    fontWeight: FontWeight.w500),
+              ),
             ],
           ),
           content: const Text(
               '예약 확정 후 1시간 내에 식사하세요!\n1시간 내에 사용하지 않으면 예약이 자동 취소됩니다.',
               style: TextStyle(
-                  fontFamily: "Pretendard", fontWeight: FontWeight.w500)
-          ),
+                  fontFamily: "Pretendard", fontWeight: FontWeight.w500)),
           actions: [
-
             Row(
               mainAxisAlignment: MainAxisAlignment.center, // 가운데 정렬
               children: [
@@ -382,10 +429,13 @@ class _CustomPricePageState extends State<CustomPricePage> {
                   style: TextButton.styleFrom(
                     side: const BorderSide(color: Colors.black), // 검정색 스트로크 추가
                   ),
-                  child: const Text('뒤로가기',
-                    style: TextStyle(fontFamily: "Pretendard",
+                  child: const Text(
+                    '뒤로가기',
+                    style: TextStyle(
+                        fontFamily: "Pretendard",
                         color: Colors.black,
-                        fontWeight: FontWeight.w600),),
+                        fontWeight: FontWeight.w600),
+                  ),
                 ),
                 const SizedBox(width: 25), // 버튼 사이 간격
                 TextButton(
@@ -397,15 +447,17 @@ class _CustomPricePageState extends State<CustomPricePage> {
                     await saveReservationData();
 
                     Navigator.of(context).pop(true);
-
                   },
                   style: TextButton.styleFrom(
                     backgroundColor: MyColor.DARK_YELLOW, // 배경색 노란색으로 설정
                   ),
-                  child: const Text('예약 확정',
-                    style: TextStyle(fontFamily: "Pretendard",
+                  child: const Text(
+                    '예약 확정',
+                    style: TextStyle(
+                        fontFamily: "Pretendard",
                         color: Colors.white,
-                        fontWeight: FontWeight.w600),),
+                        fontWeight: FontWeight.w600),
+                  ),
                 ),
               ],
             ),
@@ -418,7 +470,6 @@ class _CustomPricePageState extends State<CustomPricePage> {
       // 예약 확정 처리 완료 후 팝업 표시
       _showReservationCompletePopup();
 
-
       setState(() {
         isLoading = false;
       });
@@ -428,13 +479,13 @@ class _CustomPricePageState extends State<CustomPricePage> {
       // 예약 완료 팝업이 닫힌 후 메인 화면으로 이동
       await Future.delayed(Duration(seconds: 1));
       Navigator.of(context).popUntil((route) => route.isFirst);
-
     } else {
       setState(() {
         isLoading = false;
       });
     }
   }
+
   void _showReservationCompletePopup() {
     showDialog(
       context: context,
@@ -452,11 +503,16 @@ class _CustomPricePageState extends State<CustomPricePage> {
       },
     );
   }
-  Future<void> writeRestaurantRedeemData(int redeemPoint, DateTime redeemDate, num totalPoint, String newCode) async {
+
+  Future<void> writeRestaurantRedeemData(int redeemPoint, DateTime redeemDate,
+      num totalPoint, String newCode) async {
     User? currentUser = getUser();
 
     if (currentUser != null) {
-      final db = FirebaseFirestore.instance.collection("Restaurant").doc(widget.ownerId).collection("RedeemList");
+      final db = FirebaseFirestore.instance
+          .collection("Restaurant")
+          .doc(widget.ownerId)
+          .collection("RedeemList");
 
       // Generate a unique document ID for the new entry
       final newDocumentRef = db.doc();
@@ -465,7 +521,7 @@ class _CustomPricePageState extends State<CustomPricePage> {
       final data = {
         'redeemPoint': redeemPoint,
         'redeemDate': redeemDate,
-        'totalPoint' : totalPoint
+        'totalPoint': totalPoint
       };
 
       try {
@@ -473,7 +529,10 @@ class _CustomPricePageState extends State<CustomPricePage> {
         await db.doc(newCode).set(data);
 
         // Update the total points in the Restaurant collection
-        await FirebaseFirestore.instance.collection("Restaurant").doc(widget.ownerId).update({
+        await FirebaseFirestore.instance
+            .collection("Restaurant")
+            .doc(widget.ownerId)
+            .update({
           'totalPoint': totalPoint,
         });
 
@@ -483,15 +542,14 @@ class _CustomPricePageState extends State<CustomPricePage> {
       }
     }
   }
+
   Future<num> readtotalPoint() async {
     num earnPoint = 0;
     num redeemPoint = 0;
 
-
     if (_ownerId != null) {
-      final db = FirebaseFirestore.instance
-          .collection("Restaurant")
-          .doc(_ownerId);
+      final db =
+          FirebaseFirestore.instance.collection("Restaurant").doc(_ownerId);
 
       try {
         final queryEarnSnapshot = await db.collection("EarnList").get();
@@ -522,6 +580,7 @@ class _CustomPricePageState extends State<CustomPricePage> {
 
     return earnPoint - redeemPoint;
   }
+
   Future<void> saveReservationData() async {
     try {
       final db = FirebaseFirestore.instance;
@@ -529,7 +588,6 @@ class _CustomPricePageState extends State<CustomPricePage> {
       DateTime expirationDate = reservationDate.add(const Duration(hours: 1));
       FieldValue.serverTimestamp();
       User? currentUser = getUser();
-
 
       bool codeExists = true;
 
@@ -541,14 +599,19 @@ class _CustomPricePageState extends State<CustomPricePage> {
           codeExists = false; // 중복되지 않는 코드 발견
         }
       }
-      await db.collection('Child').doc(currentUser?.email).collection('ReservationInfo').doc(newCode).set({
+      await db
+          .collection('Child')
+          .doc(currentUser?.email)
+          .collection('ReservationInfo')
+          .doc(newCode)
+          .set({
         'restaurantId': _ownerId,
         'isUsed': false,
         'reservationPrice': int.parse(enteredNumber),
         'reservationCode': newCode, // 새로 생성한 코드 사용
         'reservationDate': FieldValue.serverTimestamp(),
         'expirationDate': expirationDate,
-        'isReviewed' : false
+        'isReviewed': false
       });
 
       await db.collection('DiscountCode').doc(newCode).set({
@@ -560,14 +623,16 @@ class _CustomPricePageState extends State<CustomPricePage> {
       });
       num totalPoints = await readtotalPoint();
       num updatedTotalPoints = totalPoints - int.parse(enteredNumber);
-      await writeRestaurantRedeemData(int.parse(enteredNumber), DateTime.now(),updatedTotalPoints,newCode);
+      await writeRestaurantRedeemData(int.parse(enteredNumber), DateTime.now(),
+          updatedTotalPoints, newCode);
 
       // idInReservation 설정
-      await db.collection(colName).doc(currentUser?.email).update({'idInReservation': true});
+      await db
+          .collection(colName)
+          .doc(currentUser?.email)
+          .update({'idInReservation': true});
     } catch (e) {
       print('예약 정보 저장 중 오류 발생: $e');
     }
   }
-
-
 }

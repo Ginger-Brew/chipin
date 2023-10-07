@@ -28,6 +28,8 @@ class _ClientSupportState extends State<ClientSupport> {
         info.add([element["image"], element["title"], element["subtitle"], element["url"]]);
       }
     });
+
+    return info;
   }
 
   @override
@@ -38,14 +40,36 @@ class _ClientSupportState extends State<ClientSupport> {
         body: Container(
           padding: EdgeInsets.fromLTRB(30, 20, 30, 40),
           child: SingleChildScrollView(
-              child: listViewBuilder(),
+              child:FutureBuilder(
+                future: getData(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return CircularProgressIndicator();
+                  }
+                  else if (snapshot.hasError) {
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        'Error!: ${snapshot.error}', // 에러명을 텍스트에 뿌려줌
+                        style: TextStyle(fontSize: 15),
+                      ),
+                    );
+                  }
+                  else if (snapshot.hasData) {
+                    print("print!");
+                    return listViewBuilder(snapshot.data);
+                  } else {
+                    print("else");
+                    return CircularProgressIndicator();
+                  }
+                },
+              ),
           ),
         )
     );
   }
 
-  Widget listViewBuilder() {
-    getData();
+  listViewBuilder(info) {
     return ListView.builder(
         shrinkWrap: true,
       itemCount: info.length,

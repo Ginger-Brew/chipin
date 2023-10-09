@@ -149,20 +149,6 @@ class _RestaurantInfoRegisterState extends State<RestaurantInfoRegister> {
   void writeinfodata() async {
     User? currentUser = getUser();
 
-    // if (testimage == null) {
-    //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-    //     content: Text('이미지를 선택해주세요.'),
-    //   ));
-    //   return;
-    // }
-
-
-
-    // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-    //   content: Text('이미지 업로드 완료'),
-    // ));
-    // print('Download URL: $downloadURL');
-
     if (currentUser != null) {
       final db =
           FirebaseFirestore.instance.collection(colName).doc(currentUser.email);

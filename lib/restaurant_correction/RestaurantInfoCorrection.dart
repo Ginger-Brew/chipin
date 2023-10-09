@@ -66,14 +66,15 @@ class _RestaurantInfoCorrectionState extends State<RestaurantInfoCorrection> {
   String pickedImgPath = "";
 
   // XFile pickedImg = XFile('');
-  File? testimage;
+  late File testimage;
 
   // String postCode = '-';
-  String address1 = "-";
+  String address1 = "";
   String latitude = '';
   String longitude = '';
 
   bool isValidBsNum = false;
+  bool hasChanceImage = false;
 
   TextEditingController _newRestaurantName = TextEditingController();
   TextEditingController _newRestaurantLocation = TextEditingController();
@@ -217,6 +218,8 @@ class _RestaurantInfoCorrectionState extends State<RestaurantInfoCorrection> {
           name = data['name'];
           address1 = data['address1'];
           address2 = data['address2'];
+          latitude = data['latitude'];
+          longitude = data['longitude'];
           openH = data['openH'];
           openM = data['openM'];
           closeH = data['closeH'];
@@ -226,7 +229,8 @@ class _RestaurantInfoCorrectionState extends State<RestaurantInfoCorrection> {
           phone = data['phone'];
           pickedImgPath = data['banner'];
         });
-      });
+      }).then((value) => print("잘 읽어옴")) // firestore에 저장이 잘 된 경우
+          .catchError((error) => print("Fail to add doc ${error}"));
     } else {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text('로그인 정보가 유효하지 않습니다')));
@@ -241,19 +245,24 @@ class _RestaurantInfoCorrectionState extends State<RestaurantInfoCorrection> {
     }
   }
 
-  void updatedata() async {
+  Future<void> updatedata() async {
     User? currentUser = getUser();
+    String downloadURL = pickedImgPath;
 
     if (currentUser != null) {
+
+      try {
       final db =
           FirebaseFirestore.instance.collection(colName).doc(currentUser.email);
 
-      final Reference storageRef =
-          FirebaseStorage.instance.ref().child('images/${DateTime.now()}.png');
-      final UploadTask uploadTask = storageRef.putFile(testimage!);
+      if(hasChanceImage) {
+        final Reference storageRef =
+        FirebaseStorage.instance.ref().child('images/${DateTime.now()}.png');
+        final UploadTask uploadTask = storageRef.putFile(testimage!);
 
-      final TaskSnapshot snapshot = await uploadTask.whenComplete(() => null);
-      final String downloadURL = await snapshot.ref.getDownloadURL();
+        final TaskSnapshot snapshot = await uploadTask.whenComplete(() => null);
+        downloadURL = await snapshot.ref.getDownloadURL();
+      }
 
       if (_newRestaurantName.text != "") name = _newRestaurantName.text;
       if (_newRestaurantOpenHour.text != "")
@@ -270,6 +279,9 @@ class _RestaurantInfoCorrectionState extends State<RestaurantInfoCorrection> {
         closeddays = _newRestaurantClosedday.text;
       if (_newRestaurantPhone.text != "") phone = _newRestaurantPhone.text;
 
+      print('가게 이름 ${name}');
+      print('가게 주소 ${address1}');
+
       await db
           .update({
             'name': name,
@@ -284,15 +296,20 @@ class _RestaurantInfoCorrectionState extends State<RestaurantInfoCorrection> {
             'closeddays': closeddays,
             'businessnumber': _newRestaurantBusinessNumber.text,
             'phone': phone,
-            'banner': pickedImgPath
+            'banner': downloadURL
           })
-          .then((value) => print("document added")) // firestore에 저장이 잘 된 경우
+          .then((value) => print("수정함")) // firestore에 저장이 잘 된 경우
           .catchError((error) => print("Fail to add doc ${error}"));
       pickedImgPath = ""; // 변수 초기화
+    } catch(error){
+        print('debug :  ${error}');
+      }
 
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text('가게 정보가 수정되었습니다')));
     } else {
+
+      print('로그인정보 유효하지 않음');
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text('로그인 정보가 유효하지 않습니다')));
     }
@@ -325,6 +342,7 @@ class _RestaurantInfoCorrectionState extends State<RestaurantInfoCorrection> {
         setState(() {
           pickedImgPath = image!.path;
           testimage = File(pickedImgPath);
+          hasChanceImage = true;
           // pickedImg = image;
         });
       } else {
@@ -511,14 +529,24 @@ class _RestaurantInfoCorrectionState extends State<RestaurantInfoCorrection> {
                     height: 10,
                   ),
                   if (pickedImgPath != "")
+                    if (hasChanceImage)
                     Container(
                       width: 150, // Set the desired width
                       height: 100, // Set the desired height
-                      child: Image.network(
-                        pickedImgPath,
+                      child: Image.file(
+                        File(pickedImgPath),
                         fit: BoxFit.cover,
                       ),
                     )
+                  else
+                      Container(
+                        width: 150, // Set the desired width
+                        height: 100, // Set the desired height
+                        child: Image.network(
+                          pickedImgPath,
+                          fit: BoxFit.cover,
+                        ),
+                      )
                 ]),
                 SizedBox(height: 20),
                 RestaurantMenu(),
@@ -528,7 +556,8 @@ class _RestaurantInfoCorrectionState extends State<RestaurantInfoCorrection> {
                       child: Text("등록", style: TextStyle(fontSize: 16)),
                       onPressed: () async {
                         if (isPresentBSNum()) {
-                          updatedata();
+                          await updatedata();
+                          debugPrint('업데이트됨');
                           for (int i = 0; i < menuItems.length; i++) {
                             writemenudata(
                                 menuItems[i].menuname,

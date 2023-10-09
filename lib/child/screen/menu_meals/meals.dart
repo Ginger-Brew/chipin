@@ -41,21 +41,21 @@ class MenuPageState extends State<MenuPage> {
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        body: FutureBuilder<List<Map<String, dynamic>>>(
-          future: menuDataListFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(
-                child: CircularProgressIndicator(), // 데이터를 기다리는 동안 로딩 표시
-              );
-            } else if (snapshot.hasError) {
-              return Text("Error: ${snapshot.error}");
-            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return const Text("No menu data available.");
-            } else {
-              final menuDataList = snapshot.data!;
-              return SingleChildScrollView(
-                child: Column(
+        body: SingleChildScrollView(
+          child: FutureBuilder<List<Map<String, dynamic>>>(
+            future: menuDataListFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(
+                  child: CircularProgressIndicator(), // 데이터를 기다리는 동안 로딩 표시
+                );
+              } else if (snapshot.hasError) {
+                return Text("Error: ${snapshot.error}");
+              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return Text("No menu data available.");
+              } else {
+                final menuDataList = snapshot.data!;
+                return Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Padding(
@@ -67,7 +67,7 @@ class MenuPageState extends State<MenuPage> {
                         children: [
                           SizedBox(
                             height: getVerticalSize(
-                              369,
+                              500,
                             ),
                             width: double.maxFinite,
                             child: Stack(
@@ -83,13 +83,14 @@ class MenuPageState extends State<MenuPage> {
                       ),
                     ),
                   ],
-                ),
-              );
-            }
-          },
+                );
+              }
+            },
+          ),
         ),
       ),
     );
+
   }
 
   List<Widget> _buildMenuItems(List<Map<String, dynamic>> menuDataList) {

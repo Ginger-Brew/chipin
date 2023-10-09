@@ -34,14 +34,6 @@ class TabContainerScreen extends StatefulWidget {
 }
 User? getUser() {
   final user = FirebaseAuth.instance.currentUser;
-  if (user != null) {
-    final name = user.displayName;
-    final email = user.email;
-    final photoUrl = user.photoURL;
-
-    final emailVerified = user.emailVerified;
-    final uid = user.uid;
-  }
   return user;
 }
 class TabContainerScreenState extends State<TabContainerScreen>
@@ -85,38 +77,36 @@ class TabContainerScreenState extends State<TabContainerScreen>
     num redeemPoint = 0;
 
 
-    if (_ownerId != null) {
-      final db = FirebaseFirestore.instance
-          .collection("Restaurant")
-          .doc(_ownerId);
+    final db = FirebaseFirestore.instance
+        .collection("Restaurant")
+        .doc(_ownerId);
 
-      try {
-        final queryEarnSnapshot = await db.collection("EarnList").get();
+    try {
+      final queryEarnSnapshot = await db.collection("EarnList").get();
 
-        if (queryEarnSnapshot.docs.isNotEmpty) {
-          for (var docSnapshot in queryEarnSnapshot.docs) {
-            print('${docSnapshot.id} => ${docSnapshot.data()}');
-            earnPoint += docSnapshot.data()['earnPoint'];
-          }
+      if (queryEarnSnapshot.docs.isNotEmpty) {
+        for (var docSnapshot in queryEarnSnapshot.docs) {
+          print('${docSnapshot.id} => ${docSnapshot.data()}');
+          earnPoint += docSnapshot.data()['earnPoint'];
         }
-      } catch (e) {
-        print("Error completing: $e");
       }
-
-      try {
-        final queryEarnSnapshot = await db.collection("RedeemList").get();
-
-        if (queryEarnSnapshot.docs.isNotEmpty) {
-          for (var docSnapshot in queryEarnSnapshot.docs) {
-            print('${docSnapshot.id} => ${docSnapshot.data()}');
-            redeemPoint += docSnapshot.data()['redeemPoint'];
-          }
-        }
-      } catch (e) {
-        print("Error completing: $e");
-      }
+    } catch (e) {
+      print("Error completing: $e");
     }
-    return earnPoint - redeemPoint;
+
+    try {
+      final queryEarnSnapshot = await db.collection("RedeemList").get();
+
+      if (queryEarnSnapshot.docs.isNotEmpty) {
+        for (var docSnapshot in queryEarnSnapshot.docs) {
+          print('${docSnapshot.id} => ${docSnapshot.data()}');
+          redeemPoint += docSnapshot.data()['redeemPoint'];
+        }
+      }
+    } catch (e) {
+      print("Error completing: $e");
+    }
+      return earnPoint - redeemPoint;
   }
   // 예약 가능 여부를 확인하는 비동기 함수
   Future<bool> checkIsInReservation() async {
@@ -129,6 +119,7 @@ class TabContainerScreenState extends State<TabContainerScreen>
       final AuthenticatedData = isAuthenticatedQuery.data();
       isCardOK = AuthenticatedData?['isCardAuthenticated'] ?? false;
     }
+    print("isCardOK $isCardOK");
     try {
       final snapshot = await FirebaseFirestore.instance.collection("Child").doc(currentChild?.email).get();
       print("isCardOK $isCardOK");
@@ -186,8 +177,8 @@ class TabContainerScreenState extends State<TabContainerScreen>
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 SizedBox(
-                  width: mediaQueryData.size.width, // Set the desired width
-                  height: 200, // Set the desired height
+                  width: mediaQueryData.size.width,
+                  height: 200,
                     child: Image.network(_banner,
                       fit: BoxFit.cover,)
                 ),
@@ -260,7 +251,6 @@ class TabContainerScreenState extends State<TabContainerScreen>
                           }
                         });
 
-                        // TODO: 즐겨찾기 리스트에 추가 또는 제거하는 동작 추가
                       },
                       backgroundColor: Colors.white,
                       child: Icon(

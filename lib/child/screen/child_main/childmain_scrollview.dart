@@ -14,7 +14,6 @@ class CustomScrollViewContent extends StatelessWidget {
     var screenWidth = MediaQuery.of(context).size.width;
     var screenHeight = MediaQuery.of(context).size.height;
     return SizedBox(
-      height : screenHeight * 0.8,
       child: Card(
         color: Colors.white,
         elevation: 12.0,

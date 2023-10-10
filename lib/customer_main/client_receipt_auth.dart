@@ -59,7 +59,6 @@ class _ClientReceiptAuthState extends State<ClientReceiptAuth> {
           result = [element["name"], element["banner"], element["address1"], element["address2"]];
         }
       }
-      print(result);
     });
 
     final usercol=FirebaseFirestore.instance.collection("History").doc(userid);
@@ -108,10 +107,11 @@ class _ClientReceiptAuthState extends State<ClientReceiptAuth> {
                         );
                       }
                       else if (snapshot.hasData) {
+                        print(snapshot.data);
                         return ClipRRect(
                           borderRadius: BorderRadius.circular(20.0),
                           child: Image(
-                              width: 400.0,
+                              width: MediaQuery.sizeOf(context).width,
                               height: 250.0,
                               image: Image.network(snapshot.data![1].toString()).image
                           ),
@@ -396,7 +396,6 @@ class _ClientReceiptAuthState extends State<ClientReceiptAuth> {
         .collection("EarnList");
 
     num sum = await calculateTotalPoint();
-    print("개새끼야");
     print("sum : $sum");
     await db
         .add({

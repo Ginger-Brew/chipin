@@ -38,6 +38,21 @@ class _ClientMainState extends State<ClientMain> {
     });
     Navigator.pop(context);
     toConnectServer(_image!);
+
+    setState(() {
+      showDialog(context: context, builder: (context) {
+        return AlertDialog(
+          title: Text(
+              '영수증 인식 중',
+              style: TextStyle(
+                  fontFamily: "Mainfonts",
+                  fontSize: 20,
+                  color: Colors.black)
+          ),
+          content: CircularProgressIndicator(),
+        );
+      });
+    });
   }
 
   String? userid = FirebaseAuth.instance.currentUser!.email;
@@ -436,7 +451,7 @@ class _ClientMainState extends State<ClientMain> {
 
     final dio = Dio();
     final result = await dio.post(
-      "http://54.180.124.30:56963/",
+      "http://3.36.197.116:58317/",
       data: {
         'img': encodedImage,
       },
@@ -445,7 +460,7 @@ class _ClientMainState extends State<ClientMain> {
     //var jsonfile = jsonDecode(result.data);
 
     Navigator.pop(context);
-    var tmp = '${result.data['date'].substring(0, 8)}T${result.data['date'].substring(8)}';
+    var tmp = '${result.data['date'].substring(0, 8)} ${result.data['date'].substring(8)}';
     DateTime? dt = DateTime.parse(tmp);
     Navigator.push(context,
         MaterialPageRoute(builder: (context) => ClientReceiptAuth(

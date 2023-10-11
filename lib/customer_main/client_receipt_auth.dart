@@ -111,6 +111,7 @@ class _ClientReceiptAuthState extends State<ClientReceiptAuth> {
                         return ClipRRect(
                           borderRadius: BorderRadius.circular(20.0),
                           child: Image(
+                              fit: BoxFit.cover,
                               width: MediaQuery.sizeOf(context).width,
                               height: 250.0,
                               image: Image.network(snapshot.data![1].toString()).image

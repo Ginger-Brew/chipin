@@ -49,7 +49,11 @@ class _ClientMainState extends State<ClientMain> {
                   fontSize: 20,
                   color: Colors.black)
           ),
-          content: CircularProgressIndicator(),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [CircularProgressIndicator()],
+          )
         );
       });
     });

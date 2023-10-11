@@ -11,49 +11,40 @@ import '../child_previous_reservation/previous_reservation.dart';
 
 User? getUser() {
   final user = FirebaseAuth.instance.currentUser;
-  if (user != null) {
-    final name = user.displayName;
-    final email = user.email;
-    final photoUrl = user.photoURL;
-    final amailVerified = user.emailVerified;
-    final uid = user.uid;
-  }
   return user;
 }
+
 class ProfileScreen extends StatelessWidget {
   final bool isCardVerified; // 복지카드 인증 여부
 
   const ProfileScreen({super.key, required this.isCardVerified});
 
-
-
   @override
   Widget build(BuildContext context) {
     mediaQueryData = MediaQuery.of(context);
     var screenWidth = mediaQueryData.size.width;
-    var screenHeight = mediaQueryData.size.height;
     User? currentUser = getUser();
     String? photoUrl = currentUser?.photoURL;
 
     Widget profileImage = photoUrl != null
         ? InkWell(
-      onTap: () {
-        // 프로필 사진을 클릭할 때 실행할 동작 추가
-      },
-      child: CircleAvatar(
-        backgroundImage: NetworkImage(photoUrl),
-        radius: 40.0,
-      ),
-    )
+            onTap: () {
+              // 프로필 사진을 클릭할 때 실행할 동작 추가
+            },
+            child: CircleAvatar(
+              backgroundImage: NetworkImage(photoUrl),
+              radius: 40.0,
+            ),
+          )
         : InkWell(
-      onTap: () {
-        // 프로필 사진을 클릭할 때 실행할 동작 추가 (사진 등록)
-      },
-      child: const CircleAvatar(
-        child: Icon(Icons.person),
-        radius: 40.0,
-      ),
-    );
+            onTap: () {
+              // 프로필 사진을 클릭할 때 실행할 동작 추가 (사진 등록)
+            },
+            child: const CircleAvatar(
+              radius: 40.0,
+              child: Icon(Icons.person),
+            ),
+          );
     return SafeArea(
       child: Scaffold(
         backgroundColor: MyColor.BACKGROUND,
@@ -65,25 +56,18 @@ class ProfileScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Expanded(
-                child: Column(
-                  children: [
-                    Container(
-                      margin:EdgeInsets.fromLTRB(0, 20, 0, 20),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children:[
-                          Container(
-                            margin:EdgeInsets.fromLTRB(20, 0, 10, 0),
+                  child: Column(children: [
+                Container(
+                  margin: const EdgeInsets.fromLTRB(0, 20, 0, 20),
+                  child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Container(
+                            margin: const EdgeInsets.fromLTRB(20, 0, 10, 0),
                             width: screenWidth * 0.2,
-                            height : screenWidth * 0.2,
-                            child: profileImage
-                          ),
-                          Expanded(child:
-                          Container(
-                            // padding: getPadding(
-                            //   right: 190,
-                            //   bottom: 33,
-                            // ),
+                            height: screenWidth * 0.2,
+                            child: profileImage),
+                        Expanded(
                             child: FutureBuilder<DocumentSnapshot>(
                               future: FirebaseFirestore.instance
                                   .collection("Users")
@@ -106,108 +90,97 @@ class ProfileScreen extends StatelessWidget {
                                 } else {
                                   // userInfo가 로드되고 문서가 존재하는 경우
                                   Map<String, dynamic> userInfoData =
-                                  userInfoSnapshot.data!.data()
-                                  as Map<String, dynamic>;
-                                  String userNameFromUserInfo =
-                                  userInfoData["name"]; // userInfo에서 이름 필드를 가져옵니다.
-                                  String userEmailFromUserInfo =
-                                  userInfoData["email"]; // userInfo에서 이메일 필드를 가져옵니다.
+                                      userInfoSnapshot.data!.data()
+                                          as Map<String, dynamic>;
+                                  String userNameFromUserInfo = userInfoData[
+                                      "name"]; // userInfo에서 이름 필드를 가져옵니다.
+                                  String userEmailFromUserInfo = userInfoData[
+                                      "email"]; // userInfo에서 이메일 필드를 가져옵니다.
 
-                                  return Container(
-                                    //padding: const EdgeInsets.only(top: 45), // 원하는 우측 패딩 값을 지정합니다.
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(userNameFromUserInfo,
-                                          style: const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                          ),
+                                  return Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        userNameFromUserInfo,
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
                                         ),
-                                        Text(userEmailFromUserInfo,
-                                          style: const TextStyle(
-                                            fontSize: 12,
-                                            color: Colors.grey,
-                                          ),
+                                      ),
+                                      Text(
+                                        userEmailFromUserInfo,
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey,
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   );
                                 }
                               },
-                            ),
-                          ))
-                        ]
+                            ))
+                      ]),
+                ),
+                Expanded(
+                    child: Column(children: [
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      isCardVerified
+                          ? const VerifiedCardWidget()
+                          : UnverifiedCardWidget(),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => PreviousReservation(),
+                        ),
+                      );
+                    },
+                    style: ButtonStyle(
+                      foregroundColor: MaterialStateProperty.all(Colors.white),
+                      backgroundColor: MaterialStateProperty.all(Colors.white),
+                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                          RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(18.0),
+                        // side: BorderSide(color: Colors.red)
+                      )),
+                      fixedSize: MaterialStateProperty.all<Size>(
+                        Size(MediaQuery.of(context).size.width - 32,
+                            48), // 가로 길이를 화면 가로 길이 - 32로 설정
                       ),
                     ),
-                    Expanded(
-                      child: Column(
-                        children: [
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              isCardVerified
-                                  ? const VerifiedCardWidget()
-                                  : UnverifiedCardWidget(),
-                            ],
-                          ),
-                          const SizedBox(height: 20),
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) => PreviousReservation(),
-                                ),
-                              );
-                            },
-                            style: ButtonStyle(
-                              foregroundColor: MaterialStateProperty.all(Colors.white),
-                              backgroundColor: MaterialStateProperty.all(Colors.white),
-                              shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                                  RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(18.0),
-                                    // side: BorderSide(color: Colors.red)
-                                  )),
-                              fixedSize: MaterialStateProperty.all<Size>(
-                                Size(MediaQuery
-                                    .of(context)
-                                    .size
-                                    .width - 32,
-                                    48), // 가로 길이를 화면 가로 길이 - 32로 설정
-                              ),
-                            ),
-                            child: const Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  "지난 식사 내역 보러가기",
-                                  style: TextStyle(
-                                      fontFamily: "Pretendard",
-                                      color: Colors.black,
-                                      fontSize: 20),
-                                  overflow: TextOverflow.ellipsis,
-                                  textAlign: TextAlign.left,
-                                ),
-                                Icon(
-                                  Icons.arrow_forward_ios,
-                                  color: Colors.black12,
-                                )
-                              ],
-                            ),
-                          ),
-                          const Spacer(),
-                        ]
-                      )
-                    )
-
-                  ]
-                )
-              ),
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "지난 식사 내역 보러가기",
+                          style: TextStyle(
+                              fontFamily: "Pretendard",
+                              color: Colors.black,
+                              fontSize: 20),
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.left,
+                        ),
+                        Icon(
+                          Icons.arrow_forward_ios,
+                          color: Colors.black12,
+                        )
+                      ],
+                    ),
+                  ),
+                  const Spacer(),
+                ]))
+              ])),
               Container(
-                padding: EdgeInsets.only(bottom:10),
-                child: Column(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: const Column(
                   children: [
-                    const Text(
+                    Text(
                       "십시일반",
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.left,
@@ -215,22 +188,15 @@ class ProfileScreen extends StatelessWidget {
                       //   decoration: TextDecoration.underline,
                       // ),
                     ),
-                    Container(
-                      // padding: getPadding(
-                      //   top: 18,
-                      //   bottom: 43,
-                      // ),
-                      child: const Text(
-                        "version: 1.0.0",
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.left,
-                        // style: CustomTextStyles.bodySmallInterGray600,
-                      ),
+                    Text(
+                      "version: 1.0.0",
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.left,
+                      // style: CustomTextStyles.bodySmallInterGray600,
                     ),
                   ],
                 ),
               ),
-
             ],
           ),
         ),
@@ -282,30 +248,33 @@ class VerifiedCardWidget extends StatelessWidget {
 }
 
 class UnverifiedCardWidget extends StatelessWidget {
-  User? currentUser =getUser();
+  User? currentUser = getUser();
+
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        FutureBuilder<DocumentSnapshot> (
-          future: FirebaseFirestore.instance.collection("Child").doc(currentUser?.email).get(),
+        FutureBuilder<DocumentSnapshot>(
+          future: FirebaseFirestore.instance
+              .collection("Child")
+              .doc(currentUser?.email)
+              .get(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return CircularProgressIndicator();
-            }
-            else if (snapshot.hasError) {
+              return const Center(
+                child: CircularProgressIndicator(), // 데이터를 기다리는 동안 로딩 표시
+              );
+            } else if (snapshot.hasError) {
               return Text('Error : ${snapshot.error}');
-            }
-            else if (snapshot.data != null && snapshot.data!.exists) {
+            } else if (snapshot.data != null && snapshot.data!.exists) {
               return const Text('카드 인증 확인 요청 중입니다...');
-            }
-            else {
+            } else {
               return ElevatedButton(
                 onPressed: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => AuthenticationScreen(),
+                      builder: (context) => const AuthenticationScreen(),
                     ),
                   );
                 },
@@ -315,14 +284,12 @@ class UnverifiedCardWidget extends StatelessWidget {
                   shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                     RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(18.0),
-                      side: const BorderSide(color: Colors.red), // 스트로크 색상을 빨간색으로 변경
+                      side: const BorderSide(
+                          color: Colors.red), // 스트로크 색상을 빨간색으로 변경
                     ),
                   ),
                   fixedSize: MaterialStateProperty.all<Size>(
-                    Size(MediaQuery
-                        .of(context)
-                        .size
-                        .width - 32,
+                    Size(MediaQuery.of(context).size.width - 32,
                         48), // 가로 길이를 화면 가로 길이 - 32로 설정
                   ),
                 ),

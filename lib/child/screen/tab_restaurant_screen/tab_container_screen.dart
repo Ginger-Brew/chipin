@@ -169,6 +169,28 @@ class TabContainerScreenState extends State<TabContainerScreen>
       },
     );
   }
+  Future<num> readTotalChild() async {
+    num totalChild = 0;
+    User? currentUser = getUser();
+
+    if(currentUser != null) {
+      final db = FirebaseFirestore.instance
+          .collection("Restaurant")
+          .doc(_ownerId)
+          .collection("RedeemList");
+
+      try {
+        final query = await db.count().get();
+        totalChild = query.count;
+      } catch (e) {
+        print("Error completing: $e");
+      }
+    }
+    else {
+
+    }
+    return totalChild;
+  }
   @override
   Widget build(BuildContext context) {
     mediaQueryData = MediaQuery.of(context);
@@ -362,6 +384,47 @@ class TabContainerScreenState extends State<TabContainerScreen>
                                       overflow: TextOverflow.ellipsis,
                                       textAlign: TextAlign.left,
                                       // style: theme.textTheme.titleSmall,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Padding(
+                              padding: getPadding(
+                                left: 3,
+                                top: 11,
+                              ),
+                              child: Row(
+                                children: [
+                                  const Icon(
+                                    Icons.face_unlock_rounded,
+                                    color: Colors.black,
+                                    size: 15,
+                                  ),
+                                  Padding(
+                                    padding: getPadding(
+                                      left: 9,
+                                      top: 1,
+                                    ),
+                                    child: FutureBuilder<num>(
+                                      future: readTotalChild(),
+                                      builder: (context, snapshot) {
+                                        if (snapshot.connectionState == ConnectionState.waiting) {
+                                          return const Text(
+                                            '식사한 아동 수 계산 중...',
+                                            overflow: TextOverflow.ellipsis,
+                                            textAlign: TextAlign.left,
+                                          );
+                                        } else if (snapshot.hasError) {
+                                          return Text("Error: ${snapshot.error}");
+                                        } else {
+                                          return Text(
+                                            "식사한 아동 수: ${snapshot.data.toString()} 명",
+                                            overflow: TextOverflow.ellipsis,
+                                            textAlign: TextAlign.left,
+                                          );
+                                        }
+                                      },
                                     ),
                                   ),
                                 ],

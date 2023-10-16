@@ -48,5 +48,6 @@ test/
 web/
 windows/
 ios/
+android/
 analysis_options.yaml
 pubspec.lock

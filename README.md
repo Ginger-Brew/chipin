@@ -2,7 +2,7 @@
 
 # 💡 **K-Hackathon11 Finalist (4th Place out of 700 Entries)**
 ## 🚀 **About the Project**
-**'십시일반 ChipIn'** is an innovative application that made a significant impact at the 2023 K-Hackathon, securing the 4th place among 700 participating projects. Our mission is focused on addressing the critical issue of undernutrition in children.
+**'십시일반 ChipIn'** is an innovative application that made a significant impact at the 2023 K-Hackathon, securing the 4th place among 700 participents. Our mission is focused on addressing the critical issue of undernutrition in children.
 
 ## 💻 **Technology**
 This project is built using **Flutter and Firebase**, chosen for their versatility and robustness in developing dynamic, scalable applications.
